@@ -111,13 +111,13 @@ layout: null
           const line = lines[i].trim();
           
           // Detect speaker change
-          if (line.includes('<!-- USER -->')) {
+          if (line.includes('<!-- USER -->') || line.includes('<!-- user -->')) {
             if (currentSpeaker && currentMessage.trim()) {
               messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
             }
             currentSpeaker = 'user';
             currentMessage = '';
-          } else if (line.includes('<!-- ASSISTANT -->')) {
+          } else if (line.includes('<!-- ASSISTANT -->') || line.includes('<!-- assistant -->') || line.includes('<!-- agent -->')) {
             if (currentSpeaker && currentMessage.trim()) {
               messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
             }
