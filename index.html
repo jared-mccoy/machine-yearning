@@ -91,43 +91,39 @@ title: Machine Yearning
   }
 </style>
 
-<!-- Fallback JavaScript for local development -->
+<!-- Default JavaScript data for conversations -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Check if Jekyll generated any content
+    // Always populate example data for now
     const postContainer = document.getElementById('post-container');
-    if (!postContainer.innerHTML.trim()) {
-      // No Jekyll content, we're probably running locally
-      // Add example data
-      postContainer.innerHTML = '';
+    postContainer.innerHTML = '';
+    
+    const dateSection = document.createElement('div');
+    dateSection.className = 'date-section';
+    
+    const dateHeader = document.createElement('h2');
+    dateHeader.textContent = 'Monday, April 15, 2025';
+    dateSection.appendChild(dateHeader);
+    
+    const postList = document.createElement('ul');
+    postList.className = 'post-list';
+    
+    const files = ['2025.04.15.D.md', '2025.04.15.E.md'];
+    files.forEach(file => {
+      const listItem = document.createElement('li');
       
-      const dateSection = document.createElement('div');
-      dateSection.className = 'date-section';
+      const link = document.createElement('a');
+      link.href = `chat-viewer.html?path=2025.04.15/${file}`;
       
-      const dateHeader = document.createElement('h2');
-      dateHeader.textContent = 'Monday, April 15, 2025';
-      dateSection.appendChild(dateHeader);
+      // Extract a title from the filename
+      const title = file.replace('.md', '').split('.').pop();
+      link.textContent = title;
       
-      const postList = document.createElement('ul');
-      postList.className = 'post-list';
-      
-      const files = ['2025.04.15.D.md', '2025.04.15.E.md'];
-      files.forEach(file => {
-        const listItem = document.createElement('li');
-        
-        const link = document.createElement('a');
-        link.href = `chat-viewer.html?path=2025.04.15/${file}`;
-        
-        // Extract a title from the filename
-        const title = file.replace('.md', '').split('.').pop();
-        link.textContent = title;
-        
-        listItem.appendChild(link);
-        postList.appendChild(listItem);
-      });
-      
-      dateSection.appendChild(postList);
-      postContainer.appendChild(dateSection);
-    }
+      listItem.appendChild(link);
+      postList.appendChild(listItem);
+    });
+    
+    dateSection.appendChild(postList);
+    postContainer.appendChild(dateSection);
   });
 </script> 
