@@ -9,6 +9,13 @@ highlighter: rouge
 theme: null # Disable default theme
 remote_theme: null # Disable remote theme
 
+# Include all files
+include:
+  - "*.md"
+  - "**/*.md"
+  - "**/.*"
+  - "2025.04.15/*.md"
+
 # Exclude from processing
 exclude:
   - Gemfile
@@ -25,6 +32,10 @@ defaults:
       type: "pages"
     values:
       layout: "default"
+  - scope:
+      path: "**/*.md"
+    values:
+      layout: "none"
       
 # Plugins 
 plugins:
