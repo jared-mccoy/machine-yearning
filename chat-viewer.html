@@ -1,0 +1,179 @@
+---
+layout: null
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Machine Yearning Chat</title>
+  <link rel="stylesheet" href="{{ site.baseurl }}/chat-style.css">
+  <!-- Include Prism for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
+  <!-- Include showdown.js for Markdown conversion -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+</head>
+<body>
+  <div id="back-link">
+    <a href="{{ site.baseurl }}/">← Back to all conversations</a>
+  </div>
+  
+  <div id="chat-container">
+    <h1 id="chat-title">Loading conversation...</h1>
+    <div id="loading">Loading conversation...</div>
+    <div id="markdown-content" class="markdown-body" style="display: none;"></div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the conversation path from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const path = urlParams.get('path');
+      
+      if (!path) {
+        document.getElementById('loading').textContent = 'Error: No conversation specified';
+        return;
+      }
+      
+      // Set page title from path
+      const fileName = path.split('/').pop().replace('.md', '');
+      document.title = `Machine Yearning - ${fileName}`;
+      document.getElementById('chat-title').textContent = formatTitle(fileName);
+      
+      // Fetch the markdown file
+      fetch(path)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(markdown => {
+          // Display the markdown
+          const markdownContent = document.getElementById('markdown-content');
+          markdownContent.innerHTML = markdown;
+          markdownContent.style.display = 'block';
+          document.getElementById('loading').style.display = 'none';
+          
+          // Process the markdown into chat format
+          processMarkdownToChat();
+        })
+        .catch(error => {
+          document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;
+        });
+      
+      function formatTitle(fileName) {
+        // Extract the last part after the last dot
+        const parts = fileName.split('.');
+        let title = parts[parts.length - 1];
+        
+        // Get date from path
+        const dateMatch = path.match(/(\d{4}\.\d{2}\.\d{2})/);
+        if (dateMatch) {
+          const dateStr = dateMatch[1];
+          const [year, month, day] = dateStr.split('.');
+          const date = new Date(year, month - 1, day);
+          const formattedDate = date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          });
+          
+          return `Conversation ${title} - ${formattedDate}`;
+        }
+        
+        return `Conversation ${title}`;
+      }
+      
+      function processMarkdownToChat() {
+        // Create chat container
+        const chatContainer = document.createElement('div');
+        chatContainer.className = 'chat-container';
+        
+        // Get the markdown content
+        const content = document.getElementById('markdown-content');
+        const rawContent = content.innerHTML;
+        
+        // Parse the content to extract user and assistant messages
+        const lines = rawContent.split('\n');
+        let currentSpeaker = null;
+        let currentMessage = '';
+        let messages = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          
+          // Detect speaker change
+          if (line.includes('<!-- USER -->')) {
+            if (currentSpeaker && currentMessage.trim()) {
+              messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+            }
+            currentSpeaker = 'user';
+            currentMessage = '';
+          } else if (line.includes('<!-- ASSISTANT -->')) {
+            if (currentSpeaker && currentMessage.trim()) {
+              messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+            }
+            currentSpeaker = 'assistant';
+            currentMessage = '';
+          } else if (currentSpeaker) {
+            // Skip the comment line itself
+            if (!line.includes('<!--') && !line.includes('-->')) {
+              currentMessage += line + '\n';
+            }
+          }
+        }
+        
+        // Add the last message
+        if (currentSpeaker && currentMessage.trim()) {
+          messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+        }
+        
+        // Create message elements
+        messages.forEach(msg => {
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${msg.speaker}`;
+          
+          // Convert markdown to HTML using showdown
+          const converter = new showdown.Converter({
+            simplifiedAutoLink: true,
+            tables: true,
+            tasklists: true,
+            strikethrough: true,
+            emoji: true
+          });
+          
+          // Process code blocks with syntax highlighting
+          let processedContent = msg.content;
+          
+          // Convert markdown code blocks to HTML with Prism highlighting
+          processedContent = processedContent.replace(/```(\w*)\n([\s\S]*?)\n```/g, function(match, language, code) {
+            const languageClass = language ? ` class="language-${language}"` : '';
+            const languageTag = language ? `<div class="language-tag">${language}</div>` : '';
+            return `<div class="code-block">${languageTag}<pre><code${languageClass}>${code}</code></pre></div>`;
+          });
+          
+          // Convert the rest of the markdown
+          messageDiv.innerHTML = converter.makeHtml(processedContent);
+          chatContainer.appendChild(messageDiv);
+        });
+        
+        // Replace the content with our chat UI
+        content.innerHTML = '';
+        content.appendChild(chatContainer);
+        
+        // Apply syntax highlighting
+        if (window.Prism) {
+          Prism.highlightAll();
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

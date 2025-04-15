@@ -1,0 +1,30 @@
+title: Machine Yearning
+description: Conversations on AI, databases, and knowledge representations
+baseurl: ""
+url: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .gitignore
+  - README.md
+  
+# Configure default layouts
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+      
+# Plugins 
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap 
