@@ -1,0 +1,103 @@
+<h1 id="machine-yearning-chat">Machine Yearning Chat</h1>
+
+<p>A GitHub Pages template for rendering Markdown conversation files as a chat interface.</p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+  <li>Automatically lists all conversations organized by date</li>
+  <li>Renders Markdown files as a chat interface</li>
+  <li>Supports code syntax highlighting</li>
+  <li>Responsive design with dark mode support</li>
+  <li>Works with GitHub Pages’ Jekyll integration</li>
+</ul>
+
+<h2 id="setup">Setup</h2>
+
+<h3 id="option-1-using-jekyll-recommended">Option 1: Using Jekyll (recommended)</h3>
+
+<ol>
+  <li>Remove the <code class="language-plaintext highlighter-rouge">.nojekyll</code> file from your repository if it exists</li>
+  <li>Enable GitHub Pages for your repository with Jekyll processing
+    <ul>
+      <li>Go to Settings &gt; Pages</li>
+      <li>Select the branch you want to deploy from (usually <code class="language-plaintext highlighter-rouge">main</code> or <code class="language-plaintext highlighter-rouge">master</code>)</li>
+      <li>Select the “/ (root)” folder for the site source</li>
+      <li>Save the settings</li>
+    </ul>
+  </li>
+  <li>Your site will be available at <code class="language-plaintext highlighter-rouge">https://[your-username].github.io/[repository-name]/</code></li>
+</ol>
+
+<h3 id="option-2-without-jekyll-static-html">Option 2: Without Jekyll (static HTML)</h3>
+
+<p>If you’re having issues with Jekyll processing:</p>
+
+<ol>
+  <li>Include the <code class="language-plaintext highlighter-rouge">.nojekyll</code> file in your repository</li>
+  <li>Update links in the HTML files to use relative paths instead of Jekyll variables</li>
+  <li>The site will be served as static HTML without Jekyll processing</li>
+</ol>
+
+<h2 id="adding-new-conversations">Adding New Conversations</h2>
+
+<ol>
+  <li>Create a directory with a date format: <code class="language-plaintext highlighter-rouge">YYYY.MM.DD</code></li>
+  <li>Add your Markdown conversation files inside that directory</li>
+  <li>Format your conversations with these HTML comments:</li>
+</ol>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- USER --&gt;</span>
+User's message goes here
+
+<span class="c">&lt;!-- ASSISTANT --&gt;</span>
+Assistant's response goes here
+</code></pre></div></div>
+
+<ol>
+  <li>The files will be automatically listed on the homepage</li>
+</ol>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<p>If your site shows nested HTML or doesn’t render correctly:</p>
+
+<ol>
+  <li>Make sure your HTML files don’t contain duplicate HTML, head, or body tags when using Jekyll</li>
+  <li>Try toggling between using Jekyll (remove <code class="language-plaintext highlighter-rouge">.nojekyll</code>) or static HTML (include <code class="language-plaintext highlighter-rouge">.nojekyll</code>)</li>
+  <li>Check the GitHub Pages build logs for any errors</li>
+</ol>
+
+<h2 id="customization">Customization</h2>
+
+<ul>
+  <li>Modify <code class="language-plaintext highlighter-rouge">chat-style.css</code> to change the appearance</li>
+  <li>Edit <code class="language-plaintext highlighter-rouge">_config.yml</code> to change site settings (if using Jekyll)</li>
+  <li>Adjust the templates in <code class="language-plaintext highlighter-rouge">index.html</code> and <code class="language-plaintext highlighter-rouge">chat-viewer.html</code></li>
+</ul>
+
+<h2 id="local-development">Local Development</h2>
+
+<ol>
+  <li>Install Jekyll and Bundler:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install jekyll bundler
+</code></pre></div>    </div>
+  </li>
+  <li>Create a <code class="language-plaintext highlighter-rouge">Gemfile</code> with:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>source 'https://rubygems.org'
+gem 'github-pages', group: :jekyll_plugins
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run <code class="language-plaintext highlighter-rouge">bundle install</code></p>
+  </li>
+  <li>Start the local server:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec jekyll serve
+</code></pre></div>    </div>
+  </li>
+  <li>View your site at <code class="language-plaintext highlighter-rouge">http://localhost:4000</code></li>
+</ol>
+
+<h2 id="license">License</h2>
+
+<p>MIT</p>
