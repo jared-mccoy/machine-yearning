@@ -124,6 +124,11 @@ a:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: all 0.2s ease;
+}
+
+.chat-title:hover {
+  background-color: var(--accent-color-light);
 }
 
 .nav-link {
@@ -439,6 +444,10 @@ blockquote {
   margin-bottom: 20px;
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
+}
+
+.footer-nav .chat-title {
+  cursor: pointer;
 }
 
 /* Adjust the footer since we now have navigation there */

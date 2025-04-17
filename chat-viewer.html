@@ -7,7 +7,7 @@ layout: null
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Machine Yearning Chat</title>
+  <title>machine yearning chat</title>
   <!-- Prevent flash by applying theme immediately -->
   <script>
     (function() {
@@ -38,7 +38,7 @@ layout: null
 <body>
   <div class="site-header">
     <a href="index.html" class="site-title">
-      <h1>Machine Yearning</h1>
+      <h1>machine yearning</h1>
     </a>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
       <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ layout: null
           const pageTitle = titleMatch ? titleMatch[1].trim() : fileName;
           
           // Update page title and navigation title
-          document.title = `Machine Yearning - ${pageTitle}`;
+          document.title = `machine yearning - ${pageTitle}`;
           document.getElementById('chat-nav-title').textContent = pageTitle;
           
           // Display the markdown
@@ -435,6 +435,11 @@ layout: null
         const footerChatTitle = document.createElement('h2');
         footerChatTitle.className = 'chat-title';
         footerChatTitle.textContent = document.getElementById('chat-nav-title').textContent;
+
+        // Add click event to scroll to top
+        footerChatTitle.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         // Create next button
         const footerNextLink = document.createElement('a');

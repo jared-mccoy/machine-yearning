@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add title
   const title = document.createElement('h1');
-  title.textContent = document.title || 'Machine Yearning Chat';
+  title.textContent = document.title || 'machine yearning chat';
   content.appendChild(title);
   
   content.appendChild(chatContainer);
@@ -263,7 +263,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Create chat title
   const chatTitle = document.createElement('h2');
   chatTitle.className = 'chat-title';
-  chatTitle.textContent = document.title || 'Machine Yearning Chat';
+  chatTitle.textContent = document.title || 'machine yearning chat';
+  
+  // Add click event to scroll to top
+  chatTitle.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
   
   // Create next button
   const nextLink = document.createElement('a');
