@@ -48,7 +48,7 @@ h1 {
 
 h2 {
   color: var(--assistant-color);
-  border-bottom: 1px solid var(--border-color);
+  margin: 2rem 0 1rem;
   padding-bottom: 0.5rem;
 }
 
@@ -68,9 +68,9 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 10px 0 20px;
   margin-bottom: 30px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--assistant-color);
 }
 
 .site-title {
@@ -91,9 +91,8 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: 0 0 15px 0;
-  margin-top: -20px;
+  margin-top: -15px;
   margin-bottom: 30px;
-  border-bottom: 1px dashed var(--border-color);
 }
 
 .chat-title {
@@ -102,6 +101,9 @@ a:hover {
   color: var(--assistant-color);
   text-align: center;
   margin: 0;
+  padding: 5px 15px;
+  border: 2px solid var(--assistant-color-light);
+  border-radius: 4px;
   max-width: 60%;
   white-space: nowrap;
   overflow: hidden;
@@ -109,21 +111,33 @@ a:hover {
 }
 
 .nav-link {
-  color: var(--assistant-color);
-  font-size: 0.9rem;
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--assistant-color-light);
   border-radius: 4px;
+  color: var(--assistant-color);
   transition: all 0.2s ease;
 }
 
+.nav-link svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
 .nav-link:hover {
-  color: var(--user-color);
   background-color: var(--user-color-light);
+  border-color: var(--user-color);
+  color: var(--text-color);
   text-decoration: none;
 }
 
 .nav-link.disabled {
   color: var(--muted-color);
+  border-color: var(--border-color);
   cursor: default;
   pointer-events: none;
 }
@@ -276,7 +290,6 @@ footer {
   text-align: center;
   font-size: 0.9rem;
   color: var(--muted-color);
-  border-top: 1px solid var(--border-color);
   padding-top: 20px;
 }
 
