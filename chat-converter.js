@@ -136,7 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const sectionId = msg.id.replace('header', 'section');
         const section = document.getElementById(sectionId);
         if (section) {
-          section.style.display = isExpanded ? 'none' : 'block';
+          if (isExpanded) {
+            section.classList.add('collapsed');
+          } else {
+            section.classList.remove('collapsed');
+          }
           this.querySelector('.toggle-icon').textContent = isExpanded ? '►' : '▼';
         }
       });

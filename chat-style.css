@@ -197,51 +197,55 @@ a:hover {
   align-items: center;
   width: 100%;
   margin: 25px 0 15px;
-  padding: 10px 15px;
-  background-color: var(--section-header-bg);
-  border-radius: 8px;
-  border-left: 4px solid var(--assistant-color);
-  transition: background-color 0.2s ease;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 2px solid var(--assistant-color-light);
+  transition: all 0.2s ease;
 }
 
 .chat-section-header:hover {
-  background-color: var(--section-header-bg-hover);
+  border-color: var(--user-color);
+  background-color: var(--user-color-light);
 }
 
 .chat-section-header[data-level="2"] {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.2rem;
 }
 
 .chat-section-header[data-level="3"] {
-  font-size: 1.2rem;
-  font-weight: 500;
-  border-left-width: 3px;
+  font-size: 1.1rem;
 }
 
 .chat-section-header[data-level="4"] {
-  font-size: 1.1rem;
-  font-weight: 500;
-  border-left-width: 2px;
+  font-size: 1rem;
 }
 
 .section-toggle {
   background: none;
-  border: none;
+  border: 2px solid transparent;
   cursor: pointer;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 12px;
   padding: 0;
   color: var(--assistant-color);
-  transition: transform 0.2s ease;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
 .section-toggle:hover {
-  transform: scale(1.2);
+  border-color: var(--assistant-color-light);
+  background-color: var(--user-color-light);
+  transform: scale(1.1);
+}
+
+.section-toggle:focus {
+  outline: none;
+  border-color: var(--assistant-color);
 }
 
 .section-toggle .toggle-icon {
@@ -256,6 +260,7 @@ a:hover {
 
 .header-content {
   flex: 1;
+  text-align: center;
 }
 
 .header-content h2, 
@@ -263,12 +268,25 @@ a:hover {
 .header-content h4 {
   margin: 0;
   padding: 0;
-  color: var(--text-color);
+  color: var(--assistant-color);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chat-section {
-  transition: height 0.3s ease, opacity 0.3s ease;
+  transition: opacity 0.3s ease, max-height 0.5s ease;
   overflow: hidden;
+  opacity: 1;
+  max-height: 10000px; /* A large value to accommodate any content size */
+}
+
+.chat-section.collapsed {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* Message styling */
