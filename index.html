@@ -3,6 +3,19 @@ layout: default
 title: Machine Yearning
 ---
 
+<!-- Prevent flash by applying theme immediately -->
+<script>
+  (function() {
+    // Check for saved theme preference or use prefer-color-scheme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+
 <!-- Add Space Grotesk font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,14 +46,6 @@ title: Machine Yearning
   // Theme toggle functionality
   document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('theme-toggle');
-    
-    // Check for saved theme preference or use prefer-color-scheme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
     
     // Toggle theme on button click
     toggleButton.addEventListener('click', function() {
