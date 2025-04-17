@@ -18,6 +18,8 @@ html, body {
   --text-color: #333333;
   --muted-color: #888888;
   --border-color: #eeeeee;
+  --section-header-bg: #f5f5f5;
+  --section-header-bg-hover: #ebebeb;
 }
 
 /* Dark theme colors */
@@ -26,6 +28,8 @@ html, body {
   --text-color: #ffffff;
   --muted-color: #bbbbbb;
   --border-color: #333333;
+  --section-header-bg: #2d2d2d;
+  --section-header-bg-hover: #3d3d3d;
 }
 
 /* Chat Interface Styling for GitHub Pages */
@@ -187,6 +191,87 @@ a:hover {
   flex-direction: column;
 }
 
+/* Section header styling - new */
+.chat-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 25px 0 15px;
+  padding: 10px 15px;
+  background-color: var(--section-header-bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--assistant-color);
+  transition: background-color 0.2s ease;
+}
+
+.chat-section-header:hover {
+  background-color: var(--section-header-bg-hover);
+}
+
+.chat-section-header[data-level="2"] {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.chat-section-header[data-level="3"] {
+  font-size: 1.2rem;
+  font-weight: 500;
+  border-left-width: 3px;
+}
+
+.chat-section-header[data-level="4"] {
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-left-width: 2px;
+}
+
+.section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  padding: 0;
+  color: var(--assistant-color);
+  transition: transform 0.2s ease;
+}
+
+.section-toggle:hover {
+  transform: scale(1.2);
+}
+
+.section-toggle .toggle-icon {
+  font-size: 14px;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.section-toggle[aria-expanded="false"] .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.header-content h2, 
+.header-content h3, 
+.header-content h4 {
+  margin: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+
+.chat-section {
+  transition: height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+/* Message styling */
 .message {
   margin-bottom: 20px;
   border-radius: 8px;

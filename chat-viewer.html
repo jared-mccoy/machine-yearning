@@ -165,25 +165,101 @@ layout: null
         const content = document.getElementById('markdown-content');
         const rawContent = content.innerHTML;
         
+        // Set up Markdown converter
+        const converter = new showdown.Converter({
+          simplifiedAutoLink: true,
+          tables: true,
+          tasklists: true,
+          strikethrough: true,
+          emoji: true
+        });
+        
         // Parse the content to extract user and assistant messages
         const lines = rawContent.split('\n');
         let currentSpeaker = null;
         let currentMessage = '';
         let messages = [];
+        let currentSectionId = 0;
+        let currentSectionMessages = [];
+        
+        // Function to detect if a line is a header
+        function isHeader(line) {
+          // Check for HTML headers
+          if (line.startsWith('<h2>') || line.startsWith('<h3>') || line.startsWith('<h4>')) {
+            return true;
+          }
+          // Check for markdown headers (##, ###, ####)
+          return /^#{2,4}\s+.+/.test(line);
+        }
+        
+        // Function to get header level
+        function getHeaderLevel(line) {
+          // For HTML headers
+          if (line.startsWith('<h2>')) return 2;
+          if (line.startsWith('<h3>')) return 3;
+          if (line.startsWith('<h4>')) return 4;
+          
+          // For markdown headers
+          const match = line.match(/^(#{2,4})\s+.+/);
+          return match ? match[1].length : 0;
+        }
+        
+        // Function to convert markdown header to HTML
+        function headerToHtml(line) {
+          // If already HTML, return as is
+          if (line.startsWith('<h')) {
+            return line;
+          }
+          
+          // Convert markdown to HTML
+          const level = getHeaderLevel(line);
+          const content = line.replace(/^#{2,4}\s+/, '');
+          return `<h${level}>${content}</h${level}>`;
+        }
         
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           
-          // Detect speaker change
-          if (line.includes('<!-- USER -->') || line.includes('<!-- user -->')) {
+          // Detect headers (h2, h3, h4)
+          if (isHeader(line)) {
+            // Save current message if exists
             if (currentSpeaker && currentMessage.trim()) {
-              messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+            }
+            
+            // If we have messages in the current section, add them to the overall messages array
+            if (currentSectionMessages.length > 0) {
+              messages.push({
+                type: 'section',
+                id: 'section-' + currentSectionId,
+                messages: currentSectionMessages
+              });
+              currentSectionId++;
+              currentSectionMessages = [];
+            }
+            
+            // Add the header as a special message type
+            messages.push({
+              type: 'header',
+              content: headerToHtml(line),
+              level: getHeaderLevel(line),
+              id: 'header-' + currentSectionId
+            });
+            
+            // Reset the current speaker and message
+            currentSpeaker = null;
+            currentMessage = '';
+          }
+          // Detect speaker change
+          else if (line.includes('<!-- USER -->') || line.includes('<!-- user -->')) {
+            if (currentSpeaker && currentMessage.trim()) {
+              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
             }
             currentSpeaker = 'user';
             currentMessage = '';
           } else if (line.includes('<!-- ASSISTANT -->') || line.includes('<!-- assistant -->') || line.includes('<!-- agent -->')) {
             if (currentSpeaker && currentMessage.trim()) {
-              messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
             }
             currentSpeaker = 'assistant';
             currentMessage = '';
@@ -195,9 +271,17 @@ layout: null
           }
         }
         
-        // Add the last message
+        // Add the last message and section
         if (currentSpeaker && currentMessage.trim()) {
-          messages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+          currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+        }
+        
+        if (currentSectionMessages.length > 0) {
+          messages.push({
+            type: 'section',
+            id: 'section-' + currentSectionId,
+            messages: currentSectionMessages
+          });
         }
         
         // Log the parsed messages for debugging
@@ -205,31 +289,72 @@ layout: null
         
         // Create message elements
         messages.forEach(msg => {
-          const messageDiv = document.createElement('div');
-          messageDiv.className = `message ${msg.speaker}`;
-          
-          // Convert markdown to HTML using showdown
-          const converter = new showdown.Converter({
-            simplifiedAutoLink: true,
-            tables: true,
-            tasklists: true,
-            strikethrough: true,
-            emoji: true
-          });
-          
-          // Process code blocks with syntax highlighting
-          let processedContent = msg.content;
-          
-          // Convert markdown code blocks to HTML with Prism highlighting
-          processedContent = processedContent.replace(/```(\w*)\n([\s\S]*?)\n```/g, function(match, language, code) {
-            const languageClass = language ? ` class="language-${language}"` : '';
-            const languageTag = language ? `<div class="language-tag">${language}</div>` : '';
-            return `<div class="code-block">${languageTag}<pre><code${languageClass}>${code}</code></pre></div>`;
-          });
-          
-          // Convert the rest of the markdown
-          messageDiv.innerHTML = converter.makeHtml(processedContent);
-          chatContainer.appendChild(messageDiv);
+          if (msg.type === 'header') {
+            // Create a collapsible header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'chat-section-header';
+            headerDiv.setAttribute('data-level', msg.level);
+            headerDiv.setAttribute('data-section-id', msg.id);
+            
+            // Create the toggle button
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'section-toggle';
+            toggleButton.innerHTML = '<span class="toggle-icon">▼</span>';
+            toggleButton.setAttribute('aria-expanded', 'true');
+            toggleButton.setAttribute('aria-controls', msg.id);
+            
+            // Add the header content
+            const headerContent = document.createElement('div');
+            headerContent.className = 'header-content';
+            headerContent.innerHTML = msg.content;
+            
+            // Append elements
+            headerDiv.appendChild(toggleButton);
+            headerDiv.appendChild(headerContent);
+            chatContainer.appendChild(headerDiv);
+            
+            // Set up click handler for toggling
+            toggleButton.addEventListener('click', function() {
+              const isExpanded = this.getAttribute('aria-expanded') === 'true';
+              this.setAttribute('aria-expanded', !isExpanded);
+              
+              // Find the next section and toggle its visibility
+              const sectionId = msg.id.replace('header', 'section');
+              const section = document.getElementById(sectionId);
+              if (section) {
+                section.style.display = isExpanded ? 'none' : 'block';
+                this.querySelector('.toggle-icon').textContent = isExpanded ? '►' : '▼';
+              }
+            });
+          } else if (msg.type === 'section') {
+            // Create a section container for messages
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'chat-section';
+            sectionDiv.id = msg.id;
+            
+            // Add all messages to this section
+            msg.messages.forEach(message => {
+              const messageDiv = document.createElement('div');
+              messageDiv.className = `message ${message.speaker}`;
+              
+              // Process message content with Markdown
+              // Process code blocks with syntax highlighting
+              let processedContent = message.content;
+              
+              // Convert markdown code blocks to HTML with Prism highlighting
+              processedContent = processedContent.replace(/```(\w*)\n([\s\S]*?)\n```/g, function(match, language, code) {
+                const languageClass = language ? ` class="language-${language}"` : '';
+                const languageTag = language ? `<div class="language-tag">${language}</div>` : '';
+                return `<div class="code-block">${languageTag}<pre><code${languageClass}>${code}</code></pre></div>`;
+              });
+              
+              // Convert the rest of the markdown
+              messageDiv.innerHTML = converter.makeHtml(processedContent);
+              sectionDiv.appendChild(messageDiv);
+            });
+            
+            chatContainer.appendChild(sectionDiv);
+          }
         });
         
         // Replace the content with our chat UI
