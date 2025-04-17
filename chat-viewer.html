@@ -25,9 +25,9 @@ layout: null
 </head>
 <body>
   <div class="site-header">
-    <div id="back-link">
-      <a href="index.html">← Back to all conversations</a>
-    </div>
+    <a href="index.html" class="site-title">
+      <h1>Machine Yearning</h1>
+    </a>
     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
       <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-9 4.5H1v-3h2v3zm20 0h-2v-3h2v3zM12 1v2c0 .55-.45 1-1 1s-1-.45-1-1V1h2zm0 20v2h-2v-2c0-.55.45-1 1-1s1 .45 1 1zm7.4-15.4l-1.4 1.4c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.4-1.4 1.41 1.41zM5.99 19.41l-1.4 1.4-1.41-1.41 1.4-1.4c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z"/>
@@ -38,8 +38,13 @@ layout: null
     </button>
   </div>
   
+  <div class="chat-nav">
+    <a href="#" class="nav-link prev-link" id="prevLink">← Previous</a>
+    <h2 class="chat-title" id="chat-nav-title">Loading conversation...</h2>
+    <a href="#" class="nav-link next-link" id="nextLink">Next →</a>
+  </div>
+  
   <div id="chat-container">
-    <h1 id="chat-title">Loading conversation...</h1>
     <div id="loading">Loading conversation...</div>
     <div id="markdown-content" class="markdown-body" style="display: none;"></div>
   </div>
@@ -78,7 +83,10 @@ layout: null
       // Set page title from path
       const fileName = path.split('/').pop().replace('.md', '');
       document.title = `Machine Yearning - ${fileName}`;
-      document.getElementById('chat-title').textContent = fileName;
+      document.getElementById('chat-nav-title').textContent = fileName;
+      
+      // Set up prev/next navigation
+      setupNavigation(path);
       
       // Fetch the markdown file
       fetch(path)
@@ -102,6 +110,37 @@ layout: null
           document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;
           console.error('Error fetching markdown:', error);
         });
+      
+      function setupNavigation(currentPath) {
+        const prevLink = document.getElementById('prevLink');
+        const nextLink = document.getElementById('nextLink');
+        
+        // This would normally be populated from a complete list of conversations
+        // For demonstration, we'll use a hardcoded list
+        const allConversations = [
+          '_chats/2025.04.15/2025.04.15.A.md',
+          '_chats/2025.04.15/2025.04.15.B.md',
+          '_chats/2025.04.15/2025.04.15.C.md',
+          '_chats/2025.04.15/2025.04.15.D.md',
+          '_chats/2025.04.15/2025.04.15.E.md'
+        ];
+        
+        const currentIndex = allConversations.indexOf(currentPath);
+        
+        if (currentIndex > 0) {
+          prevLink.href = `chat-viewer.html?path=${allConversations[currentIndex - 1]}`;
+        } else {
+          prevLink.classList.add('disabled');
+          prevLink.href = '#';
+        }
+        
+        if (currentIndex < allConversations.length - 1 && currentIndex !== -1) {
+          nextLink.href = `chat-viewer.html?path=${allConversations[currentIndex + 1]}`;
+        } else {
+          nextLink.classList.add('disabled');
+          nextLink.href = '#';
+        }
+      }
       
       function processMarkdownToChat() {
         // Create chat container
