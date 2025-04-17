@@ -204,6 +204,28 @@ a:hover {
   transition: all 0.2s ease;
 }
 
+/* Collapsed header style */
+.chat-section-header.collapsed {
+  opacity: 0.7;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Header indentation based on level */
+.chat-section-header[data-level="3"] {
+  margin-left: 20px;
+  width: calc(100% - 20px);
+}
+
+.chat-section-header[data-level="4"] {
+  margin-left: 40px;
+  width: calc(100% - 40px);
+}
+
 .chat-section-header:hover {
   border-color: var(--user-color);
   background-color: var(--user-color-light);
@@ -249,13 +271,16 @@ a:hover {
 }
 
 .section-toggle .toggle-icon {
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
   display: block;
-  transition: transform 0.2s ease;
+  transition: transform 0.3s ease;
+  transform: rotate(90deg);
+  fill: currentColor;
 }
 
 .section-toggle[aria-expanded="false"] .toggle-icon {
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 }
 
 .header-content {
@@ -280,6 +305,8 @@ a:hover {
   overflow: hidden;
   opacity: 1;
   max-height: 10000px; /* A large value to accommodate any content size */
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-section.collapsed {

@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let messages = [];
   let currentSectionId = 0;
   let currentSectionMessages = [];
+  let headerHierarchy = []; // Track header hierarchy for nesting
   
   // Function to detect if a line is a markdown header
   function isMarkdownHeader(line) {
@@ -56,11 +57,27 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Add the header as a special message type
       const level = getMarkdownHeaderLevel(line);
+      
+      // Update the header hierarchy tracking
+      while (headerHierarchy.length > 0 && headerHierarchy[headerHierarchy.length - 1].level >= level) {
+        headerHierarchy.pop();
+      }
+      
+      const headerId = 'header-' + currentSectionId;
+      const headerEntry = {
+        id: headerId,
+        level: level,
+        parentId: headerHierarchy.length > 0 ? headerHierarchy[headerHierarchy.length - 1].id : null
+      };
+      
+      headerHierarchy.push(headerEntry);
+      
       messages.push({
         type: 'header',
         content: markdownHeaderToHtml(line),
         level: level,
-        id: 'header-' + currentSectionId
+        id: headerId,
+        parentId: headerEntry.parentId
       });
       
       // Reset the current speaker and message
@@ -109,11 +126,16 @@ document.addEventListener('DOMContentLoaded', function() {
       headerDiv.className = 'chat-section-header';
       headerDiv.setAttribute('data-level', msg.level);
       headerDiv.setAttribute('data-section-id', msg.id);
+      if (msg.parentId) {
+        headerDiv.setAttribute('data-parent-id', msg.parentId);
+      }
       
       // Create the toggle button
       const toggleButton = document.createElement('button');
       toggleButton.className = 'section-toggle';
-      toggleButton.innerHTML = '<span class="toggle-icon">▼</span>';
+      toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="toggle-icon">
+        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+      </svg>`;
       toggleButton.setAttribute('aria-expanded', 'true');
       toggleButton.setAttribute('aria-controls', msg.id);
       
@@ -132,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isExpanded = this.getAttribute('aria-expanded') === 'true';
         this.setAttribute('aria-expanded', !isExpanded);
         
-        // Find the next section and toggle its visibility
+        // Toggle this section
         const sectionId = msg.id.replace('header', 'section');
         const section = document.getElementById(sectionId);
         if (section) {
@@ -141,8 +163,31 @@ document.addEventListener('DOMContentLoaded', function() {
           } else {
             section.classList.remove('collapsed');
           }
-          this.querySelector('.toggle-icon').textContent = isExpanded ? '►' : '▼';
         }
+        
+        // Also toggle all child headers and their sections
+        const childHeaderElements = document.querySelectorAll(`[data-parent-id="${msg.id}"]`);
+        childHeaderElements.forEach(childHeader => {
+          // If we're collapsing, collapse children. If expanding, keep children's current state
+          if (isExpanded) {
+            const childToggleButton = childHeader.querySelector('.section-toggle');
+            if (childToggleButton && childToggleButton.getAttribute('aria-expanded') === 'true') {
+              childToggleButton.setAttribute('aria-expanded', 'false');
+              
+              const childSectionId = childHeader.getAttribute('data-section-id').replace('header', 'section');
+              const childSection = document.getElementById(childSectionId);
+              if (childSection) {
+                childSection.classList.add('collapsed');
+              }
+            }
+            
+            // Also hide the child header itself
+            childHeader.classList.add('collapsed');
+          } else {
+            // When expanding, show child headers but keep their sections in current collapse state
+            childHeader.classList.remove('collapsed');
+          }
+        });
       });
     } else if (msg.type === 'section') {
       // Create a section container for messages
