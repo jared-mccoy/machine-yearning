@@ -88,10 +88,24 @@ title: Machine Yearning
         const link = document.createElement('a');
         link.href = `chat-viewer.html?path=${file.path}`;
         
-        // Use the full filename without extension
+        // Initially use the filename without extension
         const filename = file.path.split('/').pop();
         const filenameWithoutExt = filename.replace('.md', '');
         link.textContent = filenameWithoutExt;
+        
+        // Try to fetch the file to extract the title
+        fetch(file.path)
+          .then(response => response.text())
+          .then(content => {
+            const titleMatch = content.match(/^#\s+(.+)$/m);
+            if (titleMatch) {
+              link.textContent = titleMatch[1].trim();
+            }
+          })
+          .catch(err => {
+            console.warn(`Could not fetch title from ${file.path}`, err);
+            // Keep using the filename if fetch fails
+          });
         
         listItem.appendChild(link);
         postList.appendChild(listItem);
