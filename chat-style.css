@@ -8,6 +8,18 @@ html, body {
   padding: 0;
 }
 
+/* Theme colors */
+:root {
+  --user-color: #ffc400;      /* User message color - solid version */
+  --user-color-light: #ffc40078; /* User message color - semi-transparent */
+  --assistant-color: #192b91;  /* Assistant message color - solid version */
+  --assistant-color-light: #192b9171; /* Assistant message color - semi-transparent */
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --muted-color: #888888;
+  --border-color: #eeeeee;
+}
+
 /* Chat Interface Styling for GitHub Pages */
 body {
   font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -15,12 +27,31 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 h1 {
   text-align: center;
   margin-bottom: 40px;
+  color: var(--assistant-color);
+}
+
+h2 {
+  color: var(--assistant-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+a {
+  color: var(--assistant-color);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--user-color);
+  text-decoration: underline;
 }
 
 .chat-container {
@@ -39,14 +70,14 @@ h1 {
 .user {
   align-self: flex-end;
   background-color: transparent;
-  border: 2px solid #ffc40078;
+  border: 2px solid var(--user-color-light);
   border-bottom-right-radius: 2px;
 }
 
 .assistant {
   align-self: flex-start;
   background-color: transparent;
-  border: 2px solid #192b9171;
+  border: 2px solid var(--assistant-color-light);
   border-bottom-left-radius: 2px;
 }
 
@@ -92,7 +123,7 @@ blockquote {
   border-left: 4px solid #ddd;
   padding-left: 10px;
   margin-left: 20px;
-  color: #666;
+  color: var(--muted-color);
 }
 
 .code-block {
@@ -123,29 +154,75 @@ footer {
   margin-top: 50px;
   text-align: center;
   font-size: 0.9rem;
-  color: #888;
-  border-top: 1px solid #eee;
+  color: var(--muted-color);
+  border-top: 1px solid var(--border-color);
   padding-top: 20px;
+}
+
+/* Navigation styling */
+#back-link a {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: var(--assistant-color-light);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+#back-link a:hover {
+  background-color: var(--assistant-color);
+  text-decoration: none;
+}
+
+/* Post listings */
+.post-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post-list li {
+  margin-bottom: 1rem;
+}
+
+.post-list a {
+  display: inline-block;
+  padding: 5px 15px;
+  border: 2px solid var(--assistant-color-light);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.post-list a:hover {
+  background-color: var(--user-color-light);
+  border-color: var(--user-color);
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.date-section {
+  margin-bottom: 2rem;
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #1e1e1e;
-    color: #ffffff;
+  :root {
+    --background-color: #1e1e1e;
+    --text-color: #ffffff;
+    --muted-color: #bbbbbb;
+    --border-color: #333333;
+    /* Colors remain the same for consistency */
   }
   
-  h1 {
-    color: #e2e2e2;
+  .message code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .message pre {
+    background-color: rgba(255, 255, 255, 0.05);
   }
   
   blockquote {
     border-left-color: #555;
-    color: #bbb;
-  }
-  
-  footer {
-    border-top-color: #333;
-    color: #999;
   }
 } 
