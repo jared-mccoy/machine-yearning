@@ -206,7 +206,6 @@ a:hover {
 
 /* Collapsed header style */
 .chat-section-header.collapsed {
-  opacity: 0.7;
   max-height: 0;
   margin: 0;
   padding: 0;
@@ -292,16 +291,14 @@ a:hover {
 }
 
 .chat-section {
-  transition: opacity 0.3s ease, max-height 0.5s ease;
+  transition: max-height 0.3s ease;
   overflow: hidden;
-  opacity: 1;
   max-height: 10000px; /* A large value to accommodate any content size */
   display: flex;
   flex-direction: column;
 }
 
 .chat-section.collapsed {
-  opacity: 0;
   max-height: 0;
   margin: 0;
   padding: 0;
