@@ -34,6 +34,10 @@ layout: null
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
   <!-- Include showdown.js for Markdown conversion -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+  <!-- Include marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Include the unified chat converter -->
+  <script src="chat-converter.js"></script>
 </head>
 <body>
   <div class="site-header">
@@ -96,7 +100,7 @@ layout: null
       const fileName = path.split('/').pop().replace('.md', '');
       
       // Set up prev/next navigation
-      setupNavigation(path);
+      const navConfig = setupNavigation(path);
       
       // Fetch the markdown file
       fetch(path)
@@ -117,12 +121,18 @@ layout: null
           
           // Display the markdown
           const markdownContent = document.getElementById('markdown-content');
-          markdownContent.innerHTML = markdown;
           markdownContent.style.display = 'block';
           document.getElementById('loading').style.display = 'none';
           
-          // Process the markdown into chat format
-          processMarkdownToChat();
+          // Initialize the chat converter with our fetched content
+          initChatConverter({
+            rawMarkdown: markdown,
+            navConfig: {
+              ...navConfig,
+              title: pageTitle
+            },
+            showTitle: false
+          });
         })
         .catch(error => {
           document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;
@@ -144,325 +154,29 @@ layout: null
         ];
         
         const currentIndex = allConversations.indexOf(currentPath);
+        let prevLinkHref = '#';
+        let nextLinkHref = '#';
         
         if (currentIndex > 0) {
-          prevLink.href = `chat-viewer.html?path=${allConversations[currentIndex - 1]}`;
+          prevLinkHref = `chat-viewer.html?path=${allConversations[currentIndex - 1]}`;
+          prevLink.href = prevLinkHref;
         } else {
           prevLink.classList.add('disabled');
           prevLink.href = '#';
         }
         
         if (currentIndex < allConversations.length - 1 && currentIndex !== -1) {
-          nextLink.href = `chat-viewer.html?path=${allConversations[currentIndex + 1]}`;
+          nextLinkHref = `chat-viewer.html?path=${allConversations[currentIndex + 1]}`;
+          nextLink.href = nextLinkHref;
         } else {
           nextLink.classList.add('disabled');
           nextLink.href = '#';
         }
-      }
-      
-      function processMarkdownToChat() {
-        // Create chat container
-        const chatContainer = document.createElement('div');
-        chatContainer.className = 'chat-container';
         
-        // Get the markdown content
-        const content = document.getElementById('markdown-content');
-        const rawContent = content.innerHTML;
-        
-        // Set up Markdown converter
-        const converter = new showdown.Converter({
-          simplifiedAutoLink: true,
-          tables: true,
-          tasklists: true,
-          strikethrough: true,
-          emoji: true
-        });
-        
-        // Parse the content to extract user and assistant messages
-        const lines = rawContent.split('\n');
-        let currentSpeaker = null;
-        let currentMessage = '';
-        let messages = [];
-        let currentSectionId = 0;
-        let currentSectionMessages = [];
-        let headerHierarchy = []; // Track header hierarchy for nesting
-        
-        // Function to detect if a line is a header
-        function isHeader(line) {
-          // Check for HTML headers
-          if (line.startsWith('<h2>') || line.startsWith('<h3>') || line.startsWith('<h4>')) {
-            return true;
-          }
-          // Check for markdown headers (##, ###, ####)
-          return /^#{2,4}\s+.+/.test(line);
-        }
-        
-        // Function to get header level
-        function getHeaderLevel(line) {
-          // For HTML headers
-          if (line.startsWith('<h2>')) return 2;
-          if (line.startsWith('<h3>')) return 3;
-          if (line.startsWith('<h4>')) return 4;
-          
-          // For markdown headers
-          const match = line.match(/^(#{2,4})\s+.+/);
-          return match ? match[1].length : 0;
-        }
-        
-        // Function to convert markdown header to HTML
-        function headerToHtml(line) {
-          // If already HTML, return as is
-          if (line.startsWith('<h')) {
-            return line;
-          }
-          
-          // Convert markdown to HTML
-          const level = getHeaderLevel(line);
-          const content = line.replace(/^#{2,4}\s+/, '');
-          return `<h${level}>${content}</h${level}>`;
-        }
-        
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          
-          // Detect headers (h2, h3, h4)
-          if (isHeader(line)) {
-            // Save current message if exists
-            if (currentSpeaker && currentMessage.trim()) {
-              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
-            }
-            
-            // If we have messages in the current section, add them to the overall messages array
-            if (currentSectionMessages.length > 0) {
-              messages.push({
-                type: 'section',
-                id: 'section-' + currentSectionId,
-                messages: currentSectionMessages
-              });
-              currentSectionId++;
-              currentSectionMessages = [];
-            }
-            
-            // Get the header level
-            const level = getHeaderLevel(line);
-            
-            // Update the header hierarchy tracking
-            while (headerHierarchy.length > 0 && headerHierarchy[headerHierarchy.length - 1].level >= level) {
-              headerHierarchy.pop();
-            }
-            
-            const headerId = 'header-' + currentSectionId;
-            const headerEntry = {
-              id: headerId,
-              level: level,
-              parentId: headerHierarchy.length > 0 ? headerHierarchy[headerHierarchy.length - 1].id : null
-            };
-            
-            headerHierarchy.push(headerEntry);
-            
-            // Add the header as a special message type
-            messages.push({
-              type: 'header',
-              content: headerToHtml(line),
-              level: level,
-              id: headerId,
-              parentId: headerEntry.parentId
-            });
-            
-            // Reset the current speaker and message
-            currentSpeaker = null;
-            currentMessage = '';
-          }
-          // Detect speaker change
-          else if (line.includes('<!-- USER -->') || line.includes('<!-- user -->')) {
-            if (currentSpeaker && currentMessage.trim()) {
-              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
-            }
-            currentSpeaker = 'user';
-            currentMessage = '';
-          } else if (line.includes('<!-- ASSISTANT -->') || line.includes('<!-- assistant -->') || line.includes('<!-- agent -->')) {
-            if (currentSpeaker && currentMessage.trim()) {
-              currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
-            }
-            currentSpeaker = 'assistant';
-            currentMessage = '';
-          } else if (currentSpeaker) {
-            // Skip the comment line itself
-            if (!line.includes('<!--') && !line.includes('-->')) {
-              currentMessage += line + '\n';
-            }
-          }
-        }
-        
-        // Add the last message and section
-        if (currentSpeaker && currentMessage.trim()) {
-          currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
-        }
-        
-        if (currentSectionMessages.length > 0) {
-          messages.push({
-            type: 'section',
-            id: 'section-' + currentSectionId,
-            messages: currentSectionMessages
-          });
-        }
-        
-        // Log the parsed messages for debugging
-        console.log('Parsed messages:', messages);
-        
-        // Create message elements
-        messages.forEach(msg => {
-          if (msg.type === 'header') {
-            // Create a collapsible header
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'chat-section-header';
-            headerDiv.setAttribute('data-level', msg.level);
-            headerDiv.setAttribute('data-section-id', msg.id);
-            if (msg.parentId) {
-              headerDiv.setAttribute('data-parent-id', msg.parentId);
-            }
-            
-            // Create the toggle button
-            const toggleButton = document.createElement('button');
-            toggleButton.className = 'section-toggle';
-            toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="toggle-icon">
-              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-            </svg>`;
-            toggleButton.setAttribute('aria-expanded', 'true');
-            toggleButton.setAttribute('aria-controls', msg.id);
-            
-            // Add the header content
-            const headerContent = document.createElement('div');
-            headerContent.className = 'header-content';
-            headerContent.innerHTML = msg.content;
-            
-            // Append elements
-            headerDiv.appendChild(toggleButton);
-            headerDiv.appendChild(headerContent);
-            chatContainer.appendChild(headerDiv);
-            
-            // Set up click handler for toggling
-            toggleButton.addEventListener('click', function() {
-              const isExpanded = this.getAttribute('aria-expanded') === 'true';
-              this.setAttribute('aria-expanded', !isExpanded);
-              
-              // Toggle this section
-              const sectionId = msg.id.replace('header', 'section');
-              const section = document.getElementById(sectionId);
-              if (section) {
-                if (isExpanded) {
-                  section.classList.add('collapsed');
-                } else {
-                  section.classList.remove('collapsed');
-                }
-              }
-              
-              // Also toggle all child headers and their sections
-              const childHeaderElements = document.querySelectorAll(`[data-parent-id="${msg.id}"]`);
-              childHeaderElements.forEach(childHeader => {
-                // If we're collapsing, collapse children. If expanding, keep children's current state
-                if (isExpanded) {
-                  const childToggleButton = childHeader.querySelector('.section-toggle');
-                  if (childToggleButton && childToggleButton.getAttribute('aria-expanded') === 'true') {
-                    childToggleButton.setAttribute('aria-expanded', 'false');
-                    
-                    const childSectionId = childHeader.getAttribute('data-section-id').replace('header', 'section');
-                    const childSection = document.getElementById(childSectionId);
-                    if (childSection) {
-                      childSection.classList.add('collapsed');
-                    }
-                  }
-                  
-                  // Also hide the child header itself
-                  childHeader.classList.add('collapsed');
-                } else {
-                  // When expanding, show child headers but keep their sections in current collapse state
-                  childHeader.classList.remove('collapsed');
-                }
-              });
-            });
-          } else if (msg.type === 'section') {
-            // Create a section container for messages
-            const sectionDiv = document.createElement('div');
-            sectionDiv.className = 'chat-section';
-            sectionDiv.id = msg.id;
-            
-            // Add all messages to this section
-            msg.messages.forEach(message => {
-              const messageDiv = document.createElement('div');
-              messageDiv.className = `message ${message.speaker}`;
-              
-              // Process message content with Markdown
-              // Process code blocks with syntax highlighting
-              let processedContent = message.content;
-              
-              // Convert markdown code blocks to HTML with Prism highlighting
-              processedContent = processedContent.replace(/```(\w*)\n([\s\S]*?)\n```/g, function(match, language, code) {
-                const languageClass = language ? ` class="language-${language}"` : '';
-                const languageTag = language ? `<div class="language-tag">${language}</div>` : '';
-                return `<div class="code-block">${languageTag}<pre><code${languageClass}>${code}</code></pre></div>`;
-              });
-              
-              // Convert the rest of the markdown
-              messageDiv.innerHTML = converter.makeHtml(processedContent);
-              sectionDiv.appendChild(messageDiv);
-            });
-            
-            chatContainer.appendChild(sectionDiv);
-          }
-        });
-        
-        // Replace the content with our chat UI
-        content.innerHTML = '';
-        content.appendChild(chatContainer);
-
-        // Add footer navigation (duplicate of top navigation)
-        const footerNav = document.createElement('div');
-        footerNav.className = 'chat-nav footer-nav';
-
-        // Create previous button
-        const footerPrevLink = document.createElement('a');
-        footerPrevLink.href = document.getElementById('prevLink').href;
-        footerPrevLink.className = 'nav-link prev-link';
-        if (document.getElementById('prevLink').classList.contains('disabled')) {
-          footerPrevLink.classList.add('disabled');
-        }
-        footerPrevLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-        </svg>`;
-
-        // Create chat title
-        const footerChatTitle = document.createElement('h2');
-        footerChatTitle.className = 'chat-title';
-        footerChatTitle.textContent = document.getElementById('chat-nav-title').textContent;
-
-        // Add click event to scroll to top
-        footerChatTitle.addEventListener('click', function() {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Create next button
-        const footerNextLink = document.createElement('a');
-        footerNextLink.href = document.getElementById('nextLink').href;
-        footerNextLink.className = 'nav-link next-link';
-        if (document.getElementById('nextLink').classList.contains('disabled')) {
-          footerNextLink.classList.add('disabled');
-        }
-        footerNextLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-        </svg>`;
-
-        // Append elements to footer nav
-        footerNav.appendChild(footerPrevLink);
-        footerNav.appendChild(footerChatTitle);
-        footerNav.appendChild(footerNextLink);
-
-        content.appendChild(footerNav);
-
-        // Apply syntax highlighting
-        if (window.Prism) {
-          Prism.highlightAll();
-        }
+        return {
+          prevLink: prevLinkHref,
+          nextLink: nextLinkHref
+        };
       }
     });
   </script>
