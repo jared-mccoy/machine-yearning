@@ -10,44 +10,7 @@ title: Machine Yearning
 
 <div class="content"> 
   <div id="post-container">
-    <!-- Direct approach to finding all MD files in date folders -->
-    
-    <!-- First find all dated folders -->
-    {% assign all_md_files = site.pages | where_exp: "item", "item.path contains '.md'" %}
-    {% assign all_folders = all_md_files | map: "path" | map: "dirname" | uniq | sort | reverse %}
-    
-    {% for folder in all_folders %}
-      {% if folder contains "." %}
-        {% assign parts = folder | split: "/" %}
-        {% assign folder_name = parts.last %}
-        
-        <!-- Check if it's a date folder (YYYY.MM.DD format) -->
-        {% if folder_name matches "[0-9]{4}\.[0-9]{2}\.[0-9]{2}" %}
-          <div class="date-section">
-            <h2>{{ folder_name }}</h2>
-            
-            <ul class="post-list">
-              <!-- Find all MD files in this folder -->
-              {% assign folder_files = all_md_files | where_exp: "item", "item.path contains folder" | sort: "path" %}
-              
-              {% for file in folder_files %}
-                <li>
-                  <!-- Extract last part of filename as title -->
-                  {% assign filename = file.path | split: "/" | last %}
-                  {% assign parts = filename | split: "." %}
-                  {% assign letter = parts.last | remove: "md" %}
-                  {% if letter == "" %}
-                    {% assign letter = parts[-2] %}
-                  {% endif %}
-                  
-                  <a href="chat-viewer.html?path={{ file.path }}">{{ letter }}</a>
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
-      {% endif %}
-    {% endfor %}
+    <!-- Content will be populated by JavaScript -->
   </div>
 </div>
 
@@ -94,59 +57,51 @@ title: Machine Yearning
   }
 </style>
 
-<!-- JavaScript fallback if Jekyll fails -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Check if Jekyll generated any content
     const postContainer = document.getElementById('post-container');
-    if (!postContainer.querySelector('.date-section')) {
-      console.log("Jekyll listing failed, using JavaScript fallback");
+    
+    // List of known dates in the repo
+    const dates = [
+      {
+        name: '2025.04.15',
+        displayName: '2025.04.15',
+        files: [
+          { path: '_chats/2025.04.15/2025.04.15.A.md', title: 'A' },
+          { path: '_chats/2025.04.15/2025.04.15.B.md', title: 'B' },
+          { path: '_chats/2025.04.15/2025.04.15.C.md', title: 'C' },
+          { path: '_chats/2025.04.15/2025.04.15.D.md', title: 'D' },
+          { path: '_chats/2025.04.15/2025.04.15.E.md', title: 'E' }
+        ]
+      }
+      // Add more dates here as needed
+    ];
+    
+    // Create HTML for each date
+    dates.forEach(date => {
+      const dateSection = document.createElement('div');
+      dateSection.className = 'date-section';
       
-      // Reset container
-      postContainer.innerHTML = '';
+      const dateHeader = document.createElement('h2');
+      dateHeader.textContent = date.displayName;
+      dateSection.appendChild(dateHeader);
       
-      // List of known dates in the repo
-      const dates = [
-        {
-          name: '2025.04.15',
-          displayName: 'Monday, April 15, 2025',
-          files: [
-            { path: '2025.04.15/2025.04.15.A.md', title: 'A' },
-            { path: '2025.04.15/2025.04.15.B.md', title: 'B' },
-            { path: '2025.04.15/2025.04.15.C.md', title: 'C' },
-            { path: '2025.04.15/2025.04.15.D.md', title: 'D' },
-            { path: '2025.04.15/2025.04.15.E.md', title: 'E' }
-          ]
-        }
-        // Add more dates here as needed
-      ];
+      const postList = document.createElement('ul');
+      postList.className = 'post-list';
       
-      // Create HTML for each date
-      dates.forEach(date => {
-        const dateSection = document.createElement('div');
-        dateSection.className = 'date-section';
+      date.files.forEach(file => {
+        const listItem = document.createElement('li');
         
-        const dateHeader = document.createElement('h2');
-        dateHeader.textContent = date.displayName;
-        dateSection.appendChild(dateHeader);
+        const link = document.createElement('a');
+        link.href = `chat-viewer.html?path=${file.path}`;
+        link.textContent = file.title;
         
-        const postList = document.createElement('ul');
-        postList.className = 'post-list';
-        
-        date.files.forEach(file => {
-          const listItem = document.createElement('li');
-          
-          const link = document.createElement('a');
-          link.href = `chat-viewer.html?path=${file.path}`;
-          link.textContent = file.title;
-          
-          listItem.appendChild(link);
-          postList.appendChild(listItem);
-        });
-        
-        dateSection.appendChild(postList);
-        postContainer.appendChild(dateSection);
+        listItem.appendChild(link);
+        postList.appendChild(listItem);
       });
-    }
+      
+      dateSection.appendChild(postList);
+      postContainer.appendChild(dateSection);
+    });
   });
 </script> 
