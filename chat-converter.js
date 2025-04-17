@@ -248,6 +248,38 @@ document.addEventListener('DOMContentLoaded', function() {
   
   content.appendChild(chatContainer);
   
+  // Add footer navigation (similar to the one at the top)
+  const footerNav = document.createElement('div');
+  footerNav.className = 'chat-nav footer-nav';
+  
+  // Create previous button
+  const prevLink = document.createElement('a');
+  prevLink.href = '#';
+  prevLink.className = 'nav-link prev-link';
+  prevLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+  </svg>`;
+  
+  // Create chat title
+  const chatTitle = document.createElement('h2');
+  chatTitle.className = 'chat-title';
+  chatTitle.textContent = document.title || 'Machine Yearning Chat';
+  
+  // Create next button
+  const nextLink = document.createElement('a');
+  nextLink.href = '#';
+  nextLink.className = 'nav-link next-link';
+  nextLink.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+  </svg>`;
+  
+  // Append elements to footer nav
+  footerNav.appendChild(prevLink);
+  footerNav.appendChild(chatTitle);
+  footerNav.appendChild(nextLink);
+  
+  content.appendChild(footerNav);
+  
   // Add syntax highlighting if Prism is available
   if (window.Prism) {
     Prism.highlightAll();

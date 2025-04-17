@@ -42,10 +42,11 @@ body {
   line-height: 1.6;
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 20px 60px 20px; /* Add more padding at the bottom */
   background-color: var(--background-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh; /* Ensure the body is at least the viewport height */
 }
 
 h1 {
@@ -196,6 +197,8 @@ a:hover {
 .chat-container {
   display: flex;
   flex-direction: column;
+  min-height: 50vh; /* Ensure minimum height */
+  padding-bottom: 50px; /* Add padding at the bottom */
 }
 
 /* Section header styling - new */
@@ -298,17 +301,23 @@ a:hover {
 }
 
 .chat-section {
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
   overflow: hidden;
-  max-height: 10000px; /* A large value to accommodate any content size */
+  max-height: none; /* Remove max-height limit */
   display: flex;
   flex-direction: column;
+  height: auto;
+  opacity: 1;
+  visibility: visible;
 }
 
 .chat-section.collapsed {
   max-height: 0;
   margin: 0;
   padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
 }
 
 /* Message styling */
@@ -424,12 +433,22 @@ blockquote {
   padding: 0 20px;
 }
 
-footer {
+/* Footer navigation */
+.footer-nav {
   margin-top: 50px;
+  margin-bottom: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Adjust the footer since we now have navigation there */
+footer {
+  margin-top: 20px;
   text-align: center;
   font-size: 0.9rem;
   color: var(--muted-color);
   padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 /* Post listings */
