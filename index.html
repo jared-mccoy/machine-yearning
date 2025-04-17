@@ -25,11 +25,11 @@ title: Machine Yearning
         name: '2025.04.15',
         displayName: '2025.04.15',
         files: [
-          { path: '_chats/2025.04.15/2025.04.15.A.md', title: 'A' },
-          { path: '_chats/2025.04.15/2025.04.15.B.md', title: 'B' },
-          { path: '_chats/2025.04.15/2025.04.15.C.md', title: 'C' },
-          { path: '_chats/2025.04.15/2025.04.15.D.md', title: 'D' },
-          { path: '_chats/2025.04.15/2025.04.15.E.md', title: 'E' }
+          { path: '_chats/2025.04.15/2025.04.15.A.md', title: '2025.04.15.A' },
+          { path: '_chats/2025.04.15/2025.04.15.B.md', title: '2025.04.15.B' },
+          { path: '_chats/2025.04.15/2025.04.15.C.md', title: '2025.04.15.C' },
+          { path: '_chats/2025.04.15/2025.04.15.D.md', title: '2025.04.15.D' },
+          { path: '_chats/2025.04.15/2025.04.15.E.md', title: '2025.04.15.E' }
         ]
       }
       // Add more dates here as needed
@@ -52,7 +52,11 @@ title: Machine Yearning
         
         const link = document.createElement('a');
         link.href = `chat-viewer.html?path=${file.path}`;
-        link.textContent = file.title;
+        
+        // Use the full filename without extension
+        const filename = file.path.split('/').pop();
+        const filenameWithoutExt = filename.replace('.md', '');
+        link.textContent = filenameWithoutExt;
         
         listItem.appendChild(link);
         postList.appendChild(listItem);
