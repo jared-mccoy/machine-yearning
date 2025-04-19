@@ -405,7 +405,7 @@ function processChatContent(options) {
   // Replace the content with our chat UI
   content.innerHTML = '';
   
-  // Add simple inline CSS just for alignment
+  // Add simple inline CSS for alignment and code block styling
   const styleEl = document.createElement('style');
   styleEl.textContent = `
     .message-container {
@@ -415,6 +415,19 @@ function processChatContent(options) {
     }
     .message.user {
       align-self: flex-end;
+    }
+    pre {
+      background-color: #f5f5f5 !important;
+      border-radius: 4px;
+      padding: 12px;
+      overflow: auto;
+    }
+    [data-theme="dark"] pre {
+      background-color: #2d2d2d !important;
+    }
+    /* Remove any token-level background colors */
+    .token {
+      background: transparent !important;
     }
   `;
   document.head.appendChild(styleEl);
