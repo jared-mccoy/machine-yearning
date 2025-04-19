@@ -25,8 +25,9 @@ layout: null
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="chat-style.css">
-  <!-- Basic Prism syntax highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-solarizedlight.min.css">
+  <!-- Dynamic Prism theme selection -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-solarizedlight.min.css" id="prism-light-theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" id="prism-dark-theme" disabled>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
@@ -38,6 +39,30 @@ layout: null
   <script src="chat-converter.js"></script>
   <!-- Include the chat directory scanner -->
   <script src="chats-directory.js"></script>
+  <!-- Theme switching script -->
+  <script>
+    // Function to toggle theme stylesheets
+    function togglePrismTheme(isDark) {
+      document.getElementById('prism-light-theme').disabled = isDark;
+      document.getElementById('prism-dark-theme').disabled = !isDark;
+    }
+    
+    // Apply current theme on load
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    togglePrismTheme(currentTheme === 'dark');
+    
+    // Watch for theme changes
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'data-theme') {
+          const theme = document.documentElement.getAttribute('data-theme');
+          togglePrismTheme(theme === 'dark');
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+  </script>
 </head>
 <body>
   <div class="site-header">
@@ -85,6 +110,11 @@ layout: null
         
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+        
+        // Optionally re-highlight code to pick up theme changes
+        if (window.Prism) {
+          setTimeout(() => Prism.highlightAll(), 50);
+        }
       });
       
       // Get the conversation path from URL
