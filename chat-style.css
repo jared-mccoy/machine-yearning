@@ -248,7 +248,8 @@ a:hover {
   display: none;
 }
 
-.chat-container {
+#chat-container,
+.markdown-body {
   display: flex;
   flex-direction: column;
   min-height: 50vh; /* Ensure minimum height */
@@ -382,6 +383,7 @@ a:hover {
   max-width: 80%;
   position: relative;
   transition: border-color 0.3s ease;
+  display: block; /* Ensure proper display */
 }
 
 .user {
@@ -429,6 +431,13 @@ a:hover {
   transform: scale(0.8);
 }
 
+/* User typing indicator appears on the right side */
+.typing-indicator.user-typing {
+  align-self: flex-end;
+  border: 2px solid var(--user-color-light);
+  transform-origin: right center;
+}
+
 .typing-indicator.visible {
   opacity: 1;
   height: 34px;
@@ -447,6 +456,11 @@ a:hover {
   border-radius: 50%;
   display: inline-block;
   opacity: 0.8;
+}
+
+/* User typing indicator dots use user color */
+.typing-indicator.user-typing span {
+  background-color: var(--user-color);
 }
 
 .typing-indicator span:nth-child(1) {

@@ -380,50 +380,52 @@ layout: null
           
           animationInProgress = true;
           const nextMsg = messageQueue.shift();
-          
-          // Create and insert typing indicator before the message
           const isAssistant = nextMsg.classList.contains('assistant');
+          const isUser = nextMsg.classList.contains('user');
           
-          if (isAssistant) {
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'typing-indicator';
-            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            
-            // Insert before the message
-            nextMsg.parentNode.insertBefore(typingIndicator, nextMsg);
-            
-            // Show the typing indicator
-            setTimeout(() => {
-              typingIndicator.classList.add('visible');
-            }, 50);
-            
-            // After a delay, hide the typing indicator and show the message
-            setTimeout(() => {
-              typingIndicator.classList.remove('visible');
-              // Remove the typing indicator after it fades out
-              setTimeout(() => typingIndicator.remove(), 300);
-              
-              // Show the message with animation
-              nextMsg.classList.remove('hidden');
-              nextMsg.classList.add('visible');
-              
-              // Set a timer to allow the animation to complete then process next
-              setTimeout(() => {
-                animationInProgress = false;
-                processNextInQueue();
-              }, 600);
-            }, 1200); // Show typing dots for 1.2 seconds
+          // Create typing indicator with appropriate class
+          const typingIndicator = document.createElement('div');
+          typingIndicator.className = isUser ? 'typing-indicator user-typing' : 'typing-indicator';
+          typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+          
+          // Find the chat container
+          const container = document.querySelector('#markdown-content') || nextMsg.parentNode;
+          
+          // Find all visible messages to position indicator correctly
+          const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
+          
+          // Position the typing indicator after the last visible message
+          if (visibleMessages.length > 0) {
+            const lastVisible = visibleMessages[visibleMessages.length - 1];
+            lastVisible.after(typingIndicator);
           } else {
-            // For user messages, just show them immediately
+            // If no visible messages yet, add to beginning of container
+            container.prepend(typingIndicator);
+          }
+          
+          // Show the typing indicator with a small delay
+          setTimeout(() => {
+            typingIndicator.classList.add('visible');
+          }, 50);
+          
+          // After typing animation completes, show the message
+          setTimeout(() => {
+            // Hide the typing indicator
+            typingIndicator.classList.remove('visible');
+            
+            // Remove the indicator after transition completes
+            setTimeout(() => typingIndicator.remove(), 300);
+            
+            // Show the message with animation
             nextMsg.classList.remove('hidden');
             nextMsg.classList.add('visible');
             
-            // Set a timer to allow the animation to complete
+            // Wait for message animation to complete before processing next
             setTimeout(() => {
               animationInProgress = false;
               processNextInQueue();
             }, 600);
-          }
+          }, isUser ? 800 : 1200); // Shorter typing time for user messages
         }
         
         // Create observer for messages
@@ -433,7 +435,7 @@ layout: null
               const currentMsg = entry.target;
               const index = Array.from(messages).indexOf(currentMsg);
               
-              // Show this message if it's not already visible
+              // Queue this message if it's not already visible
               if (currentMsg.classList.contains('hidden')) {
                 messageQueue.push(currentMsg);
                 processNextInQueue();
@@ -445,7 +447,7 @@ layout: null
                 
                 // Add a small delay before checking the next message
                 setTimeout(() => {
-                  // If next message is scrolled into view more than 20%, queue it
+                  // If next message is scrolled into view, queue it
                   const rect = nextMsg.getBoundingClientRect();
                   if (rect.top < window.innerHeight) {
                     if (nextMsg.classList.contains('hidden')) {
@@ -472,8 +474,8 @@ layout: null
           messageObserver.observe(messages[0]);
         }
         
-        // Also start observing any messages that are at the top of the viewport
-        messages.forEach((msg, index) => {
+        // Also start observing any messages that are already in the viewport
+        messages.forEach((msg) => {
           const rect = msg.getBoundingClientRect();
           if (rect.top < window.innerHeight) {
             messageObserver.observe(msg);
