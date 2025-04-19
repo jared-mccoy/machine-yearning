@@ -415,11 +415,25 @@ function processChatContent(options) {
   // Replace the content with our chat UI
   content.innerHTML = '';
   
+  // Add simple inline CSS just for alignment
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .message.user {
+      align-self: flex-end;
+    }
+  `;
+  document.head.appendChild(styleEl);
+  
   // Add title (only if showTitle is true)
   if (options.showTitle) {
-  const title = document.createElement('h1');
+    const title = document.createElement('h1');
     title.textContent = options.navConfig?.title || document.title || 'machine yearning chat';
-  content.appendChild(title);
+    content.appendChild(title);
   }
   
   content.appendChild(chatContainer);
