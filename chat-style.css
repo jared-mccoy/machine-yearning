@@ -390,6 +390,55 @@ pre {
   position: relative;
   margin: 1em 0;
   overflow-x: auto;
+  margin-top: 30px !important;
+}
+
+/* Language tag using data-lang attribute */
+code[data-lang]::before,
+pre[data-language]::before {
+  content: attr(data-language);
+  display: block;
+  text-align: right;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  background-color: var(--accent-color-light);
+  padding: 2px 8px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  position: absolute;
+  top: -25px;
+  right: 0;
+}
+
+/* Copy button styling - keep separate */
+.copy-button {
+  position: absolute;
+  top: -25px;
+  right: 75px;
+  background: var(--accent-color-light);
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Remove old code-actions styles */
+.code-actions {
+  display: none !important;
 }
 
 /* Custom horizontal scrollbar for code blocks */
@@ -442,6 +491,12 @@ blockquote {
   padding-left: 10px;
   margin-left: 20px;
   color: var(--muted-color);
+}
+
+[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  text-align: right;
 }
 
 /* Wrapper styling */

@@ -80,14 +80,10 @@ layout: null
       
       // Find all pre elements
       document.querySelectorAll('pre').forEach(pre => {
-        // Skip if already enhanced
-        if (pre.querySelector('.code-actions')) return;
+        // Skip if already enhanced with copy button
+        if (pre.querySelector('.copy-button')) return;
         
-        // Make sure pre has position relative for absolute positioning
-        pre.style.position = 'relative';
-        pre.style.marginTop = '30px';
-        
-        // Get language from data attribute or class
+        // Get language from class or data attribute
         let language = pre.getAttribute('data-language') || 'code';
         
         // If no data-language attribute, try to get from class
@@ -109,37 +105,43 @@ layout: null
         
         console.log("Found code block with language:", language);
         
-        // Create language tag and copy button container
-        const actions = document.createElement('div');
-        actions.className = 'code-actions';
-        actions.style.cssText = 'position:absolute;top:-25px;right:0;display:flex;align-items:center;z-index:5;';
+        // Set data-language attribute on pre element
+        pre.setAttribute('data-language', language);
         
-        // Add language tag
-        const langTag = document.createElement('span');
-        langTag.textContent = language;
-        langTag.style.cssText = 'padding:2px 6px;font-size:0.8rem;text-transform:uppercase;background:var(--accent-color-light);color:var(--accent-color);border-top-left-radius:4px;border-top-right-radius:4px;';
+        // Also set data-lang on code element for compatibility
+        const codeElement = pre.querySelector('code');
+        if (codeElement) {
+          codeElement.setAttribute('data-lang', language);
+        }
         
-        // Add copy button
+        // Add copy button (separate from language tag for clarity)
         const copyBtn = document.createElement('button');
-        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
-        copyBtn.style.cssText = 'background:none;border:none;color:var(--accent-color);cursor:pointer;margin-left:5px;';
+        copyBtn.className = 'copy-button';
+        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
         copyBtn.title = 'Copy to clipboard';
         
         copyBtn.addEventListener('click', () => {
-          const codeElement = pre.querySelector('code');
           const code = codeElement ? codeElement.textContent : pre.textContent;
           navigator.clipboard.writeText(code).then(() => {
-            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
             setTimeout(() => {
-              copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+              copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
             }, 2000);
           });
         });
         
-        // Add elements to DOM
-        actions.appendChild(langTag);
-        actions.appendChild(copyBtn);
-        pre.appendChild(actions);
+        // Remove any existing copy buttons (just in case)
+        const existingCopyBtn = pre.querySelector('.copy-button');
+        if (existingCopyBtn) {
+          existingCopyBtn.remove();
+        }
+        
+        // Add the copy button directly to the pre element
+        pre.appendChild(copyBtn);
+        
+        // Make sure pre has position relative for absolute positioning
+        pre.style.position = 'relative';
+        pre.style.marginTop = '30px';
       });
     }
     
@@ -147,6 +149,10 @@ layout: null
     document.addEventListener('DOMContentLoaded', function() {
       console.log("DOM loaded, scheduling code enhancement");
       setTimeout(enhanceCodeBlocks, 500); // Allow time for Prism to highlight
+      
+      // Re-apply a few more times to catch any dynamically loaded content
+      setTimeout(enhanceCodeBlocks, 1000);
+      setTimeout(enhanceCodeBlocks, 2000);
     });
   </script>
 </head>

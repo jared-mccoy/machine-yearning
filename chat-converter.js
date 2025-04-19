@@ -95,12 +95,7 @@ function processChatContent(options) {
       console.log("After space restoration:", codeText.substring(0, 100) + "...");
       console.log("Final language:", language);
       
-      // Detect MongoDB and set language appropriately if undefined
-      if (!language && codeText.includes('db.') && 
-         (codeText.includes('.find(') || codeText.includes('.aggregate(') || 
-          codeText.includes('.insertOne(') || codeText.includes('.updateOne('))) {
-        language = 'mongodb';
-      }
+
       
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';
