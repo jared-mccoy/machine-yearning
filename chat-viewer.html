@@ -371,6 +371,7 @@ layout: null
         // Animation queue and state management
         let animationInProgress = false;
         let messageQueue = [];
+        let lastSenderWasUser = false; // Track which type of message was last shown
         
         // Function to process the next message in queue
         function processNextInQueue() {
@@ -378,18 +379,43 @@ layout: null
             return;
           }
           
-          animationInProgress = true;
-          const nextMsg = messageQueue.shift();
-          const isAssistant = nextMsg.classList.contains('assistant');
+          // Ensure we're maintaining alternating pattern during initial load
+          const nextMsg = messageQueue[0];
           const isUser = nextMsg.classList.contains('user');
+          
+          // During initial fill, enforce alternating turn-taking
+          if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 3) {
+            // If last message shown was from user, next should be assistant and vice versa
+            if ((lastSenderWasUser && isUser) || (!lastSenderWasUser && !isUser)) {
+              // Look for next message of correct type
+              for (let i = 1; i < messageQueue.length; i++) {
+                const alternateMsg = messageQueue[i];
+                if (isUser !== alternateMsg.classList.contains('user')) {
+                  // Swap this message to front of queue to maintain alternation
+                  messageQueue.splice(i, 1);
+                  messageQueue.unshift(alternateMsg);
+                  break;
+                }
+              }
+            }
+          }
+          
+          // Now process the message at the front of the queue
+          animationInProgress = true;
+          const currentMsg = messageQueue.shift();
+          const currentIsUser = currentMsg.classList.contains('user');
+          const isAssistant = currentMsg.classList.contains('assistant');
+          
+          // Update the last sender type
+          lastSenderWasUser = currentIsUser;
           
           // Create typing indicator with appropriate class
           const typingIndicator = document.createElement('div');
-          typingIndicator.className = isUser ? 'typing-indicator user-typing' : 'typing-indicator';
+          typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
           typingIndicator.innerHTML = '<span></span><span></span><span></span>';
           
           // Find the chat container
-          const container = document.querySelector('#markdown-content') || nextMsg.parentNode;
+          const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
           
           // Find all visible messages to position indicator correctly
           const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
@@ -417,15 +443,15 @@ layout: null
             setTimeout(() => typingIndicator.remove(), 300);
             
             // Show the message with animation
-            nextMsg.classList.remove('hidden');
-            nextMsg.classList.add('visible');
+            currentMsg.classList.remove('hidden');
+            currentMsg.classList.add('visible');
             
             // Wait for message animation to complete before processing next
             setTimeout(() => {
               animationInProgress = false;
               processNextInQueue();
             }, 600);
-          }, isUser ? 800 : 1200); // Shorter typing time for user messages
+          }, currentIsUser ? 800 : 1200); // Shorter typing time for user messages
         }
         
         // Create observer for messages
@@ -471,16 +497,23 @@ layout: null
         
         // Start by observing the first message
         if (messages.length > 0) {
+          // Check if the first message is user or assistant to set initial state
+          if (messages[0].classList.contains('user')) {
+            lastSenderWasUser = true;
+          }
           messageObserver.observe(messages[0]);
         }
         
         // Also start observing any messages that are already in the viewport
-        messages.forEach((msg) => {
+        // But only observe the first few to prevent queue flooding on initial load
+        const initialVisibleCount = Math.min(3, messages.length);
+        for (let i = 0; i < initialVisibleCount; i++) {
+          const msg = messages[i];
           const rect = msg.getBoundingClientRect();
           if (rect.top < window.innerHeight) {
             messageObserver.observe(msg);
           }
-        });
+        }
       }
       
       // Apply animation state change (enable/disable)
