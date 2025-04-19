@@ -21,6 +21,8 @@ title: machine yearning
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="chat-style.css">
+<!-- Include the chat directory scanner -->
+<script src="chats-directory.js"></script>
 
 <div class="site-header">
   <a href="index.html" class="site-title">
@@ -38,6 +40,7 @@ title: machine yearning
 
 <div class="content"> 
   <div id="post-container">
+    <div id="loading" class="loading-indicator">Scanning for conversations...</div>
     <!-- Content will be populated by JavaScript -->
   </div>
 </div>
@@ -56,68 +59,67 @@ title: machine yearning
       localStorage.setItem('theme', newTheme);
     });
     
-    // List content generation
-    const postContainer = document.getElementById('post-container');
-    
-    // List of known dates in the repo
-    const dates = [
-      {
-        name: '2025.04.15',
-        displayName: '2025.04.15',
-        files: [
-          { path: '_chats/2025.04.15/2025.04.15.A.md', title: '2025.04.15.A' },
-          { path: '_chats/2025.04.15/2025.04.15.B.md', title: '2025.04.15.B' },
-          { path: '_chats/2025.04.15/2025.04.15.C.md', title: '2025.04.15.C' },
-          { path: '_chats/2025.04.15/2025.04.15.D.md', title: '2025.04.15.D' },
-          { path: '_chats/2025.04.15/2025.04.15.E.md', title: '2025.04.15.E' }
-        ]
-      }
-      // Add more dates here as needed
-    ];
-    
-    // Create HTML for each date
-    dates.forEach(date => {
-      const dateSection = document.createElement('div');
-      dateSection.className = 'date-section';
+    // Load chats using the scanner
+    const loadChats = async () => {
+      const postContainer = document.getElementById('post-container');
+      const loadingIndicator = document.getElementById('loading');
       
-      const dateHeader = document.createElement('h2');
-      dateHeader.textContent = date.displayName;
-      dateSection.appendChild(dateHeader);
-      
-      const postList = document.createElement('ul');
-      postList.className = 'post-list';
-      
-      date.files.forEach(file => {
-        const listItem = document.createElement('li');
+      try {
+        // Initialize the chat scanner and get the dates
+        const dates = await window.chatScanner.init();
         
-        const link = document.createElement('a');
-        link.href = `chat-viewer.html?path=${file.path}`;
+        if (dates.length === 0) {
+          loadingIndicator.textContent = 'No conversations found. Add markdown files to the _chats directory to get started.';
+          return;
+        }
         
-        // Initially use the filename without extension
-        const filename = file.path.split('/').pop();
-        const filenameWithoutExt = filename.replace('.md', '');
-        link.textContent = filenameWithoutExt;
+        // Hide the loading indicator
+        loadingIndicator.style.display = 'none';
         
-        // Try to fetch the file to extract the title
-        fetch(file.path)
-          .then(response => response.text())
-          .then(content => {
-            const titleMatch = content.match(/^#\s+(.+)$/m);
-            if (titleMatch) {
-              link.textContent = titleMatch[1].trim();
-            }
-          })
-          .catch(err => {
-            console.warn(`Could not fetch title from ${file.path}`, err);
-            // Keep using the filename if fetch fails
+        // Create HTML for each date
+        dates.forEach(date => {
+          if (date.files.length === 0) return; // Skip dates with no files
+          
+          const dateSection = document.createElement('div');
+          dateSection.className = 'date-section';
+          
+          const dateHeader = document.createElement('h2');
+          dateHeader.textContent = date.displayName;
+          dateSection.appendChild(dateHeader);
+          
+          const postList = document.createElement('ul');
+          postList.className = 'post-list';
+          
+          date.files.forEach(file => {
+            const listItem = document.createElement('li');
+            
+            const link = document.createElement('a');
+            link.href = `chat-viewer.html?path=${file.path}`;
+            link.textContent = file.title;
+            
+            listItem.appendChild(link);
+            postList.appendChild(listItem);
           });
-        
-        listItem.appendChild(link);
-        postList.appendChild(listItem);
-      });
-      
-      dateSection.appendChild(postList);
-      postContainer.appendChild(dateSection);
-    });
+          
+          dateSection.appendChild(postList);
+          postContainer.appendChild(dateSection);
+        });
+      } catch (error) {
+        console.error('Error loading chats:', error);
+        loadingIndicator.textContent = `Error loading conversations: ${error.message}`;
+      }
+    };
+    
+    // Start loading chats
+    loadChats();
   });
-</script> 
+</script>
+
+<style>
+  .loading-indicator {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted-color);
+    font-style: italic;
+  }
+</style> 
