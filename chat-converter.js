@@ -33,18 +33,94 @@ function processChatContent(options) {
     return;
   }
 
+  // Function to create a placeholder for spaces
+  function createSpacePlaceholder(spaces) {
+    return `__SPACES_${spaces}__`;
+  }
+
+  // Function to restore space placeholders to actual spaces
+  function restoreSpacePlaceholders(text) {
+    // Handle case where text is an object (happens with newer marked versions)
+    if (typeof text === 'object') {
+      // Directly try the text property
+      if (text && typeof text.text === 'string') {
+        const processedText = text.text.replace(/__SPACES_(\d+)__/g, (match, count) => {
+          return ' '.repeat(parseInt(count, 10));
+        });
+        return processedText;
+      }
+      console.warn('Unable to restore space placeholders on object:', text);
+      return text && text.raw ? text.raw : String(text);
+    }
+    
+    // Handle case where we got a string
+    if (typeof text === 'string') {
+      return text.replace(/__SPACES_(\d+)__/g, (match, count) => {
+        return ' '.repeat(parseInt(count, 10));
+      });
+    }
+    
+    // Last resort - return as is
+    console.warn('Unable to restore spaces on unexpected type:', typeof text);
+    return text;
+  }
+
+  // Override marked.js renderer to handle our space placeholders
+  const renderer = new marked.Renderer();
+  
+  // Store the original code renderer
+  const originalCodeRenderer = renderer.code;
+  
+  // Override the code renderer to restore space placeholders
+  renderer.code = function(code, language) {
+    // Log what we're receiving to debug
+    console.log("Code renderer received:", typeof code, code);
+    
+    // Restore the actual spaces from our placeholders
+    const codeWithSpaces = restoreSpacePlaceholders(code);
+    
+    // Create our own code rendering if needed
+    try {
+      // First try to call the original renderer
+      if (typeof originalCodeRenderer === 'function') {
+        return originalCodeRenderer.call(this, codeWithSpaces, language);
+      }
+    } catch (e) {
+      console.warn("Error calling original code renderer:", e);
+    }
+    
+    // Fallback to a simple implementation if the original renderer fails
+    const codeText = typeof codeWithSpaces === 'string' 
+      ? codeWithSpaces 
+      : (codeWithSpaces && codeWithSpaces.text ? codeWithSpaces.text : String(codeWithSpaces));
+      
+    const langClass = language ? ` class="language-${language}"` : '';
+    return `<pre><code${langClass}>${codeText}</code></pre>`;
+  };
+
   // Configure marked.js
   marked.setOptions({
-    renderer: new marked.Renderer(),
+    renderer: renderer,
     highlight: function(code, lang) {
+      // Restore spaces before syntax highlighting
+      const codeWithSpaces = restoreSpacePlaceholders(code);
+      
+      // Debug highlight input
+      console.log("Highlight received:", typeof code, lang);
+      
       if (window.Prism && lang) {
         try {
-          return Prism.highlight(code, Prism.languages[lang], lang);
+          // If we have a string, use it directly, otherwise use the text property
+          const codeText = typeof codeWithSpaces === 'string' 
+            ? codeWithSpaces 
+            : (codeWithSpaces && codeWithSpaces.text ? codeWithSpaces.text : String(codeWithSpaces));
+          
+          return Prism.highlight(codeText, Prism.languages[lang], lang);
         } catch (e) {
           console.warn('Error highlighting code:', e);
         }
       }
-      return code;
+      return codeWithSpaces;
     },
     pedantic: false,
     gfm: true,
@@ -100,13 +176,14 @@ function processChatContent(options) {
   }
   
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+    const rawLine = lines[i]; // Keep the raw line with whitespace
+    const line = rawLine.trim(); // Use trimmed version only for conditionals
     
     // Detect headers (## style markdown headers)
     if (isMarkdownHeader(line)) {
       // Save current message if exists
-      if (currentSpeaker && currentMessage.trim()) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+      if (currentSpeaker && currentMessage) {
+        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }
       
       // If we have messages in the current section, add them to the overall messages array
@@ -151,28 +228,70 @@ function processChatContent(options) {
     }
     // Detect speaker change
     else if (line.includes('<!-- USER -->') || line.includes('<!-- user -->')) {
-      if (currentSpeaker && currentMessage.trim()) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+      if (currentSpeaker && currentMessage) {
+        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }
       currentSpeaker = 'user';
       currentMessage = '';
     } else if (line.includes('<!-- ASSISTANT -->') || line.includes('<!-- assistant -->') || line.includes('<!-- agent -->')) {
-      if (currentSpeaker && currentMessage.trim()) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+      if (currentSpeaker && currentMessage) {
+        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }
       currentSpeaker = 'assistant';
       currentMessage = '';
     } else if (currentSpeaker) {
       // Skip the comment line itself
       if (!line.includes('<!--') && !line.includes('-->')) {
-        currentMessage += line + '\n';
+        // We need to track whether we're in a code block
+        let processedLine = rawLine;
+        
+        // Check if this line contains a code block marker
+        if (line.startsWith('```')) {
+          // This is a code block marker
+          // We just use it as-is
+          currentMessage += processedLine + '\n';
+          
+          // Print debugging info
+          console.log("Code block marker:", line);
+        } else {
+          // Check if we're inside a code block by looking at the previous lines
+          let inCodeBlock = false;
+          let prevLines = currentMessage.split('\n');
+          
+          // Start from the end and work backwards
+          for (let j = prevLines.length - 1; j >= 0; j--) {
+            if (prevLines[j].trim().startsWith('```')) {
+              // Found a code block marker
+              // Count how many we've seen to determine if we're in a block
+              const numMarkers = prevLines.slice(0, j + 1)
+                .filter(pl => pl.trim().startsWith('```')).length;
+              
+              inCodeBlock = numMarkers % 2 !== 0; // Odd number means we're in a block
+              break;
+            }
+          }
+          
+          // If we're in a code block, process indentation
+          if (inCodeBlock) {
+            // Check for leading whitespace
+            const leadingSpaceMatch = processedLine.match(/^(\s+)/);
+            if (leadingSpaceMatch) {
+              const spaces = leadingSpaceMatch[0].length;
+              // Replace leading spaces with our placeholder
+              processedLine = processedLine.replace(/^(\s+)/, createSpacePlaceholder(spaces));
+              console.log(`Code line with ${spaces} spaces:`, processedLine);
+            }
+          }
+          
+          currentMessage += processedLine + '\n';
+        }
       }
     }
   }
   
   // Add the last message and section
-  if (currentSpeaker && currentMessage.trim()) {
-    currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage.trim() });
+  if (currentSpeaker && currentMessage) {
+    currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
   }
   
   if (currentSectionMessages.length > 0) {
@@ -356,6 +475,19 @@ function processChatContent(options) {
   
   // Add syntax highlighting if Prism is available
   if (window.Prism) {
+    // Override the default Prism highlightElement to handle our space placeholders
+    const originalHighlightElement = window.Prism.highlightElement;
+    window.Prism.highlightElement = function(element) {
+      if (element.textContent.includes('__SPACES_')) {
+        const originalContent = element.textContent;
+        element.textContent = restoreSpacePlaceholders(originalContent);
+      }
+      
+      // Call the original highlighter
+      return originalHighlightElement.apply(this, arguments);
+    };
+    
+    // Run Prism highlighting
     Prism.highlightAll();
   }
 }
