@@ -359,95 +359,60 @@ layout: null
           }
         });
         
-        // Add typing indicators after each user message
-        for (let i = 0; i < messages.length; i++) {
-          const currentMsg = messages[i];
-          
-          if (currentMsg.classList.contains('user')) {
-            // If this is a user message and there's a next message that's an assistant message
-            if (i + 1 < messages.length && messages[i + 1].classList.contains('assistant')) {
-              // Add typing indicator after this user message
-              const typingIndicator = document.createElement('div');
-              typingIndicator.className = 'typing-indicator';
-              typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-              currentMsg.parentNode.insertBefore(typingIndicator, currentMsg.nextSibling);
-            }
-          }
-        }
-        
-        // Setup intersection observers to control message visibility
+        // Set up intersection observer to reveal messages as they scroll into view
         setupScrollObservers();
       }
       
       // Set up scroll-based observers for animation
       function setupScrollObservers() {
-        // Track which message we're currently showing
-        let currentIndex = 0;
+        // Get all messages
         const messages = document.querySelectorAll('.message');
-        const typingIndicators = document.querySelectorAll('.typing-indicator');
         
         // Create observer for messages
         const messageObserver = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
-            // Only process if the current element is fully visible
-            if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
               const currentMsg = entry.target;
               const index = Array.from(messages).indexOf(currentMsg);
               
-              // If this is a user message and not the last one
-              if (currentMsg.classList.contains('user') && index < messages.length - 1) {
-                // Get the next message which should be an assistant message
+              // Show this message if it's not already visible
+              if (currentMsg.classList.contains('hidden')) {
+                currentMsg.classList.remove('hidden');
+                currentMsg.classList.add('visible');
+              }
+              
+              // Check if there's a next message to reveal
+              if (index < messages.length - 1) {
                 const nextMsg = messages[index + 1];
                 
-                // Find the typing indicator between these messages
-                let typingIndicator = null;
-                let node = currentMsg.nextSibling;
-                while (node && node !== nextMsg) {
-                  if (node.classList && node.classList.contains('typing-indicator')) {
-                    typingIndicator = node;
-                    break;
-                  }
-                  node = node.nextSibling;
-                }
-                
-                if (typingIndicator && nextMsg.classList.contains('assistant')) {
-                  // Only proceed if the next message is still hidden
-                  if (nextMsg.classList.contains('hidden')) {
-                    // Show typing indicator
-                    setTimeout(() => {
-                      typingIndicator.classList.add('visible');
-                      
-                      // After a delay, show the assistant message and hide the indicator
-                      setTimeout(() => {
-                        nextMsg.classList.remove('hidden');
-                        nextMsg.classList.add('visible');
-                        
-                        // Start observing the next message
-                        messageObserver.observe(nextMsg);
-                        
-                        // Hide the typing indicator after the message is visible
-                        setTimeout(() => {
-                          typingIndicator.classList.remove('visible');
-                        }, 300);
-                      }, 1500);
-                    }, 800);
-                    
-                    // Stop observing this message to avoid duplicate animations
-                    messageObserver.unobserve(currentMsg);
-                  }
-                }
+                // Add a small delay before showing the next message
+                setTimeout(() => {
+                  // Start observing the next message
+                  messageObserver.observe(nextMsg);
+                }, 300);
               }
+              
+              // Stop observing this message
+              messageObserver.unobserve(currentMsg);
             }
           });
-        }, { 
-          threshold: 0.8,
-          rootMargin: "0px 0px -100px 0px" // Trigger when message is fully in view with 100px space below
+        }, {
+          threshold: 0.5,
+          rootMargin: "0px 0px -100px 0px" // Trigger when message is in view with space below
         });
         
-        // Start observing the first visible message (user message)
-        if (messages.length > 0 && messages[0].classList.contains('visible')) {
+        // Start by observing the first message
+        if (messages.length > 0) {
           messageObserver.observe(messages[0]);
         }
+        
+        // Also start observing any messages that are at the top of the viewport
+        messages.forEach((msg, index) => {
+          const rect = msg.getBoundingClientRect();
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
+            messageObserver.observe(msg);
+          }
+        });
       }
       
       // Apply animation state change (enable/disable)

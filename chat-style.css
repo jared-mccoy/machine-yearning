@@ -415,24 +415,28 @@ a:hover {
   background-color: var(--background-color);
   border: 2px solid var(--assistant-color-light);
   border-radius: 12px;
-  padding: 8px 12px;
-  margin-bottom: 20px;
+  padding: 0;
+  margin-bottom: 0;
   position: relative;
   min-width: 60px;
-  min-height: 30px;
-  opacity: 0;
+  min-height: 0;
   height: 0;
+  opacity: 0;
   overflow: hidden;
   pointer-events: none;
   transition: all 0.3s ease;
+  transform-origin: left center;
+  transform: scale(0.8);
 }
 
 .typing-indicator.visible {
   opacity: 1;
-  height: auto;
+  height: 34px;
+  padding: 8px 12px;
   margin-bottom: 20px;
   overflow: visible;
   pointer-events: auto;
+  transform: scale(1);
 }
 
 .typing-indicator span {
@@ -446,22 +450,22 @@ a:hover {
 }
 
 .typing-indicator span:nth-child(1) {
-  animation: bounce 1s infinite;
+  animation: bounce 0.8s infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-  animation: bounce 1s infinite 0.2s;
+  animation: bounce 0.8s infinite 0.15s;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation: bounce 1s infinite 0.4s;
+  animation: bounce 0.8s infinite 0.3s;
 }
 
 @keyframes bounce {
-  0%, 60%, 100% {
+  0%, 80%, 100% {
     transform: translateY(0);
   }
-  30% {
+  40% {
     transform: translateY(-6px);
   }
 }
@@ -469,21 +473,14 @@ a:hover {
 /* Hidden message for sequential display */
 .message.hidden {
   opacity: 0;
-  height: 0;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition: all 0.3s ease;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .message.visible {
   opacity: 1;
-  height: auto;
-  margin-bottom: 20px;
-  padding: 12px 16px;
-  overflow: visible;
-  pointer-events: auto;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .message p {
