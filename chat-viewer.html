@@ -18,6 +18,15 @@ layout: null
       } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.setAttribute('data-theme', 'dark');
       }
+      
+      // Check for saved animation preference
+      const animationEnabled = localStorage.getItem('animationEnabled');
+      if (animationEnabled !== null) {
+        document.documentElement.setAttribute('data-animation', animationEnabled === 'true' ? 'enabled' : 'disabled');
+      } else {
+        // Default to enabled
+        document.documentElement.setAttribute('data-animation', 'enabled');
+      }
     })();
   </script>
   <!-- Add Space Grotesk font -->
@@ -150,14 +159,26 @@ layout: null
     <a href="index.html" class="site-title">
       <h1>machine yearning</h1>
     </a>
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-      <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-9 4.5H1v-3h2v3zm20 0h-2v-3h2v3zM12 1v2c0 .55-.45 1-1 1s-1-.45-1-1V1h2zm0 20v2h-2v-2c0-.55.45-1 1-1s1 .45 1 1zm7.4-15.4l-1.4 1.4c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.4-1.4 1.41 1.41zM5.99 19.41l-1.4 1.4-1.41-1.41 1.4-1.4c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z"/>
-      </svg>
-      <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
-      </svg>
-    </button>
+    <div class="header-controls">
+      <button id="animation-toggle" class="animation-toggle" aria-label="Toggle typing animation">
+        <svg class="enabled-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <circle cx="5" cy="12" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="19" cy="12" r="2" />
+        </svg>
+        <svg class="disabled-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M5 10h14v4H5z" />
+        </svg>
+      </button>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-9 4.5H1v-3h2v3zm20 0h-2v-3h2v3zM12 1v2c0 .55-.45 1-1 1s-1-.45-1-1V1h2zm0 20v2h-2v-2c0-.55.45-1 1-1s1 .45 1 1zm7.4-15.4l-1.4 1.4c-.39.39-1.02.39-1.41 0-.39-.39-.39-1.02 0-1.41l1.4-1.4 1.41 1.41zM5.99 19.41l-1.4 1.4-1.41-1.41 1.4-1.4c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z"/>
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/>
+        </svg>
+      </button>
+    </div>
   </div>
   
   <div class="chat-nav">
@@ -196,6 +217,29 @@ layout: null
         if (window.Prism) {
           setTimeout(() => Prism.highlightAll(), 50);
         }
+      });
+      
+      // Animation toggle functionality
+      const animationToggle = document.getElementById('animation-toggle');
+      
+      // Set initial toggle state
+      const animationState = document.documentElement.getAttribute('data-animation') || 'enabled';
+      animationToggle.classList.add(animationState === 'enabled' ? 'enabled' : 'disabled');
+      
+      // Toggle animation on button click
+      animationToggle.addEventListener('click', function() {
+        const currentState = document.documentElement.getAttribute('data-animation') || 'enabled';
+        const newState = currentState === 'enabled' ? 'disabled' : 'enabled';
+        
+        document.documentElement.setAttribute('data-animation', newState);
+        localStorage.setItem('animationEnabled', newState === 'enabled');
+        
+        // Update toggle button class
+        this.classList.remove('enabled', 'disabled');
+        this.classList.add(newState);
+        
+        // Apply animation state to messages
+        applyAnimationState(newState === 'enabled');
       });
       
       // Get the conversation path from URL
@@ -251,7 +295,10 @@ layout: null
           });
           
           // Enhance code blocks once chat is converted
-          setTimeout(enhanceCodeBlocks, 500);
+          setTimeout(() => {
+            enhanceCodeBlocks();
+            setupAnimations();
+          }, 500);
         } catch (error) {
           console.error('Error loading chat:', error);
           document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;
@@ -280,6 +327,133 @@ layout: null
         }
       }
       
+      // Setup animations for sequential message display
+      function setupAnimations() {
+        const animationEnabled = document.documentElement.getAttribute('data-animation') === 'enabled';
+        
+        if (!animationEnabled) {
+          // If animations are disabled, make sure all messages are visible
+          document.querySelectorAll('.message').forEach(msg => {
+            msg.classList.remove('hidden');
+            msg.classList.add('visible');
+          });
+          return;
+        }
+        
+        // Initialize animation state
+        const messages = document.querySelectorAll('.message');
+        
+        // Initially hide all messages except the first in each conversation
+        let visibleCount = 0;
+        messages.forEach((msg, index) => {
+          // Show the first message from each speaker by default
+          const isFirstUserMsg = msg.classList.contains('user') && 
+                              !Array.from(messages).slice(0, index).some(m => m.classList.contains('user'));
+          const isFirstAssistantMsg = msg.classList.contains('assistant') && 
+                                  !Array.from(messages).slice(0, index).some(m => m.classList.contains('assistant'));
+          
+          if (isFirstUserMsg || isFirstAssistantMsg || visibleCount < 2) {
+            msg.classList.add('visible');
+            visibleCount++;
+          } else {
+            msg.classList.add('hidden');
+          }
+        });
+        
+        // Create typing indicators after each visible user message that's followed by a hidden assistant message
+        messages.forEach((msg, index) => {
+          if (msg.classList.contains('user') && msg.classList.contains('visible') && 
+              index < messages.length - 1 && 
+              messages[index + 1].classList.contains('assistant') && 
+              messages[index + 1].classList.contains('hidden')) {
+            
+            // Create typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            
+            // Insert after the current message
+            msg.parentNode.insertBefore(typingIndicator, msg.nextSibling);
+          }
+        });
+        
+        // Setup intersection observers to trigger animations
+        setupIntersectionObservers();
+      }
+      
+      // Setup intersection observers to trigger typing and message reveals
+      function setupIntersectionObservers() {
+        const messages = document.querySelectorAll('.message.visible');
+        const hiddenMessages = document.querySelectorAll('.message.hidden');
+        
+        // Create observer for visible messages to trigger typing indicators
+        const messageObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && entry.target.classList.contains('user')) {
+              // Find the next typing indicator
+              let nextElement = entry.target.nextElementSibling;
+              if (nextElement && nextElement.classList.contains('typing-indicator')) {
+                // Show typing indicator with delay
+                setTimeout(() => {
+                  nextElement.classList.add('visible');
+                  
+                  // After a delay, show the next message and remove the indicator
+                  setTimeout(() => {
+                    const nextMessage = nextElement.nextElementSibling;
+                    if (nextMessage && nextMessage.classList.contains('hidden')) {
+                      nextMessage.classList.remove('hidden');
+                      nextMessage.classList.add('visible');
+                      nextElement.classList.remove('visible');
+                      
+                      // Update observers
+                      messageObserver.observe(nextMessage);
+                      setupIntersectionObservers();
+                    }
+                  }, 1200); // Time typing indicator is shown
+                }, 500); // Delay before typing indicator appears
+              }
+            }
+          });
+        }, { threshold: 0.5 });
+        
+        // Observe all visible messages
+        messages.forEach(msg => {
+          messageObserver.observe(msg);
+        });
+      }
+      
+      // Apply animation state change (enable/disable)
+      function applyAnimationState(enabled) {
+        const messages = document.querySelectorAll('.message');
+        const typingIndicators = document.querySelectorAll('.typing-indicator');
+        
+        if (enabled) {
+          // Reset to initial state and re-setup animations
+          messages.forEach(msg => {
+            msg.classList.remove('visible');
+            msg.classList.add('hidden');
+          });
+          
+          // Remove existing typing indicators
+          typingIndicators.forEach(indicator => {
+            indicator.remove();
+          });
+          
+          // Re-setup animations from scratch
+          setupAnimations();
+        } else {
+          // Make all messages visible and remove typing indicators
+          messages.forEach(msg => {
+            msg.classList.remove('hidden');
+            msg.classList.add('visible');
+          });
+          
+          typingIndicators.forEach(indicator => {
+            indicator.remove();
+          });
+        }
+      }
+      
       // Start loading the chat
       loadChat();
     });
@@ -291,6 +465,11 @@ layout: null
       padding: 2rem;
       color: var(--muted-color);
       font-style: italic;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
     }
   </style>
 </body>
