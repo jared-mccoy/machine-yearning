@@ -76,83 +76,43 @@ layout: null
   <!-- Script to add language tag and copy button to code blocks -->
   <script>
     function enhanceCodeBlocks() {
-      console.log("Enhancing code blocks");
-      
       // Find all pre elements
       document.querySelectorAll('pre').forEach(pre => {
-        // Skip if already enhanced with copy button
-        if (pre.querySelector('.copy-button')) return;
+        // Skip if already enhanced
+        if (pre.querySelector('.lang-tag')) return;
         
-        // Get language from class or data attribute
-        let language = pre.getAttribute('data-language') || 'code';
-        
-        // If no data-language attribute, try to get from class
-        if (language === 'code') {
-          const preClasses = [...pre.classList];
-          const codeElement = pre.querySelector('code');
-          const codeClasses = codeElement ? [...codeElement.classList] : [];
-          
-          // Try to find language class in pre first, then code
-          const preLanguageClass = preClasses.find(cl => cl.startsWith('language-'));
-          const codeLanguageClass = codeClasses.find(cl => cl.startsWith('language-'));
-          
-          if (preLanguageClass) {
-            language = preLanguageClass.replace('language-', '');
-          } else if (codeLanguageClass) {
-            language = codeLanguageClass.replace('language-', '');
-          }
-        }
-        
-        console.log("Found code block with language:", language);
-        
-        // Set data-language attribute on pre element
-        pre.setAttribute('data-language', language);
-        
-        // Also set data-lang on code element for compatibility
+        // Try to get language
+        let language = 'code';
         const codeElement = pre.querySelector('code');
-        if (codeElement) {
-          codeElement.setAttribute('data-lang', language);
+        
+        if (codeElement && codeElement.className) {
+          const match = codeElement.className.match(/language-(\w+)/);
+          if (match) language = match[1];
         }
         
-        // Add copy button (separate from language tag for clarity)
+        // Add lang tag
+        const langTag = document.createElement('div');
+        langTag.className = 'lang-tag';
+        langTag.textContent = language;
+        pre.appendChild(langTag);
+        
+        // Add copy button
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-button';
-        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
-        copyBtn.title = 'Copy to clipboard';
-        
-        copyBtn.addEventListener('click', () => {
+        copyBtn.textContent = 'Copy';
+        copyBtn.onclick = function() {
           const code = codeElement ? codeElement.textContent : pre.textContent;
-          navigator.clipboard.writeText(code).then(() => {
-            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
-            setTimeout(() => {
-              copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
-            }, 2000);
-          });
-        });
-        
-        // Remove any existing copy buttons (just in case)
-        const existingCopyBtn = pre.querySelector('.copy-button');
-        if (existingCopyBtn) {
-          existingCopyBtn.remove();
-        }
-        
-        // Add the copy button directly to the pre element
+          navigator.clipboard.writeText(code);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        };
         pre.appendChild(copyBtn);
-        
-        // Make sure pre has position relative for absolute positioning
-        pre.style.position = 'relative';
-        pre.style.marginTop = '30px';
       });
     }
     
-    // Apply after Prism highlighting
+    // Run once when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-      console.log("DOM loaded, scheduling code enhancement");
-      setTimeout(enhanceCodeBlocks, 500); // Allow time for Prism to highlight
-      
-      // Re-apply a few more times to catch any dynamically loaded content
       setTimeout(enhanceCodeBlocks, 1000);
-      setTimeout(enhanceCodeBlocks, 2000);
     });
   </script>
 </head>
