@@ -67,7 +67,7 @@ function processChatContent(options) {
     content = document.querySelector(options.contentSelector) || document.body;
     rawContent = content.innerHTML;
   }
-
+  
   // Create chat container
   const chatContainer = document.createElement('div');
   chatContainer.className = 'chat-container';
@@ -302,9 +302,9 @@ function processChatContent(options) {
   
   // Add title (only if showTitle is true)
   if (options.showTitle) {
-    const title = document.createElement('h1');
+  const title = document.createElement('h1');
     title.textContent = options.navConfig?.title || document.title || 'machine yearning chat';
-    content.appendChild(title);
+  content.appendChild(title);
   }
   
   content.appendChild(chatContainer);
