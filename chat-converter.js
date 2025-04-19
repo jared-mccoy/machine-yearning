@@ -98,22 +98,8 @@ function processChatContent(options) {
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';
       
-      // Handle syntax highlighting
-      let highlighted;
-      if (window.Prism && language && Prism.languages[language]) {
-        try {
-          // Apply Prism highlighting directly
-          highlighted = Prism.highlight(codeText, Prism.languages[language], language);
-          console.log("Highlighting successful");
-        } catch (e) {
-          console.warn('Error highlighting code with Prism:', e);
-          // Fall back to escaped HTML without highlighting
-          highlighted = escapeHtml(codeText);
-        }
-      } else {
-        // No language or Prism not available - just escape HTML
-        highlighted = escapeHtml(codeText);
-      }
+      // We no longer use Prism for highlighting, just escape HTML
+      const highlighted = escapeHtml(codeText);
       
       // Return the HTML
       return `<pre><code${languageClass}>${highlighted}</code></pre>`;
@@ -136,7 +122,7 @@ function processChatContent(options) {
   // Configure marked.js
   marked.setOptions({
     renderer: renderer,
-    highlight: null, // We'll use our own highlighting in the renderer
+    highlight: null, // No highlighting, we'll rely on Rouge
     pedantic: false,
     gfm: true,
     breaks: true,
@@ -485,12 +471,6 @@ function processChatContent(options) {
     
     content.appendChild(footerNav);
   }
-  
-  // Add syntax highlighting if Prism is available
-  if (window.Prism) {
-    // Call highlightAll to catch any code blocks that weren't directly highlighted
-    Prism.highlightAll();
-  }
 }
 
 // Auto-initialize on page load for backward compatibility
@@ -525,59 +505,15 @@ function processConversation(messages, renderer) {
       if (codeBlock.textContent.includes('__SPACES_')) {
         console.log('Found code block with space placeholders, fixing:', codeBlock.textContent.substring(0, 100));
         
-        // Extract language class if present
-        let language = '';
-        const classList = Array.from(codeBlock.classList);
-        for (const className of classList) {
-          if (className.startsWith('language-')) {
-            language = className.substring(9); // Remove 'language-' prefix
-            break;
-          }
-        }
-        
-        // Replace space placeholders
+        // Just replace space placeholders, no re-highlighting
         let fixedCode = codeBlock.textContent.replace(/__SPACES_(\d+)__/g, (match, count) => {
           return ' '.repeat(parseInt(count, 10));
         });
         
         console.log('Fixed code:', fixedCode.substring(0, 100));
         
-        // Re-highlight if we have a language
-        if (window.Prism && language && Prism.languages[language]) {
-          try {
-            const highlighted = Prism.highlight(fixedCode, Prism.languages[language], language);
-            codeBlock.innerHTML = highlighted;
-            console.log(`Re-highlighted with ${language}`);
-            
-            // Make sure the language class is applied
-            if (!codeBlock.classList.contains(`language-${language}`)) {
-              codeBlock.classList.add(`language-${language}`);
-            }
-          } catch (e) {
-            console.warn('Error highlighting code with Prism in post-processing:', e);
-            codeBlock.textContent = fixedCode; // Fallback to plain text
-          }
-        } else {
-          // Just update the content if no highlighting is possible
-          codeBlock.textContent = fixedCode;
-        }
-        
-        // Ensure we have a language tag/label for this code block
-        const pre = codeBlock.parentElement;
-        if (language && !pre.querySelector('.language-tag')) {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'code-block';
-          
-          const languageTag = document.createElement('div');
-          languageTag.className = 'language-tag';
-          languageTag.textContent = language;
-          
-          // Get the parent of pre and replace pre with wrapper
-          const parent = pre.parentElement;
-          parent.insertBefore(wrapper, pre);
-          wrapper.appendChild(languageTag);
-          wrapper.appendChild(pre);
-        }
+        // Just update the content
+        codeBlock.textContent = fixedCode;
       }
     });
     

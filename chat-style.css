@@ -375,32 +375,15 @@ a:hover {
   margin-bottom: 4px;
 }
 
-.message code {
-  background-color: rgba(0, 0, 0, 0.1);
-  padding: 2px 4px;
-  border-radius: 3px;
+/* Just minimal code styling for basic appearance */
+code {
   font-family: monospace;
 }
 
-[data-theme="dark"] .message code {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.message pre {
-  /* background-color: rgba(0, 0, 0, 0.07);  */
-  padding: 12px;
-  border-radius: 5px;
+pre {
   overflow-x: auto;
   margin: 10px 0;
-}
-
-[data-theme="dark"] .message pre {
-  /* background-color: rgba(255, 255, 255, 0.05); */
-}
-
-.message pre code {
-  background-color: transparent;
-  padding: 0;
+  padding: 12px;
 }
 
 blockquote {
@@ -408,27 +391,6 @@ blockquote {
   padding-left: 10px;
   margin-left: 20px;
   color: var(--muted-color);
-}
-
-.code-block {
-  position: relative;
-}
-
-.language-tag {
-  position: absolute;
-  top: 0;
-  right: 10px;
-  background-color: rgba(0, 0, 0, 0.3);
-  color: white;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-family: monospace;
-}
-
-[data-theme="dark"] .language-tag {
-  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Wrapper styling */
@@ -488,212 +450,4 @@ footer {
 .date-section {
   margin-bottom: 2rem;
   margin-top: 2rem;
-}
-
-/* Add visual indicators for different header levels without indentation */
-.chat-section-header[data-level="2"] {
-  /* No longer need border-width */
-}
-
-.chat-section-header[data-level="3"] {
-  /* No longer need border-width */
-}
-
-.chat-section-header[data-level="4"] {
-  /* No longer need border-width */
-}
-
-.message pre {
-  /* background-color: #f5f5f5 !important; */
-  border-radius: 4px;
-  padding: 12px;
-  overflow: auto;
-}
-
-[data-theme="dark"] pre {
-  /* background-color: #2d2d2d !important; */
-}
-
-/* Remove any token-level background colors */
-.token {
-  /* background: transparent !important; */
-}
-
-/* Prism Solarized Light overrides for dark mode */
-[data-theme="dark"] pre {
-  background-color: #1e1e2e !important;
-  border: 1px solid #333;
-}
-
-[data-theme="dark"] pre code {
-  color: #f8f8f2;
-}
-
-/* Improve token contrast in dark mode */
-[data-theme="dark"] .token.comment,
-[data-theme="dark"] .token.prolog,
-[data-theme="dark"] .token.doctype,
-[data-theme="dark"] .token.cdata {
-  color: #8292a2;
-}
-
-[data-theme="dark"] .token.punctuation {
-  color: #f8f8f2;
-}
-
-[data-theme="dark"] .token.namespace {
-  opacity: .7;
-}
-
-[data-theme="dark"] .token.property,
-[data-theme="dark"] .token.tag,
-[data-theme="dark"] .token.constant,
-[data-theme="dark"] .token.symbol,
-[data-theme="dark"] .token.deleted {
-  color: #ff79c6;
-}
-
-[data-theme="dark"] .token.boolean,
-[data-theme="dark"] .token.number {
-  color: #bd93f9;
-}
-
-[data-theme="dark"] .token.selector,
-[data-theme="dark"] .token.attr-name,
-[data-theme="dark"] .token.string,
-[data-theme="dark"] .token.char,
-[data-theme="dark"] .token.builtin,
-[data-theme="dark"] .token.inserted {
-  color: #50fa7b;
-}
-
-[data-theme="dark"] .token.operator,
-[data-theme="dark"] .token.entity,
-[data-theme="dark"] .token.url,
-[data-theme="dark"] .language-css .token.string,
-[data-theme="dark"] .style .token.string {
-  color: #f8f8f2;
-}
-
-[data-theme="dark"] .token.atrule,
-[data-theme="dark"] .token.attr-value,
-[data-theme="dark"] .token.keyword {
-  color: #8be9fd;
-}
-
-[data-theme="dark"] .token.function,
-[data-theme="dark"] .token.class-name {
-  color: #ffb86c;
-}
-
-[data-theme="dark"] .token.regex,
-[data-theme="dark"] .token.important,
-[data-theme="dark"] .token.variable {
-  color: #f1fa8c;
-}
-
-/* Make plaintext code blocks more consistent with highlighted ones */
-.language-plaintext {
-  color: #333;
-  font-family: monospace;
-}
-
-[data-theme="dark"] .language-plaintext {
-  color: #f8f8f2;
-}
-
-/* Make line numbers in code blocks less prominent */
-.line-numbers .line-numbers-rows {
-  opacity: 0.5;
-}
-
-/* Remove the gray bars in dark mode */
-[data-theme="dark"] .line-numbers-rows > span:before {
-  color: #555 !important;
-}
-
-[data-theme="dark"] .line-numbers-rows {
-  border-right: 1px solid #444 !important;
-}
-
-/* More specific targeting for plaintext code blocks */
-.language-plaintext.highlighter-rouge .highlight,
-.language-plaintext.highlighter-rouge .highlight pre,
-.language-plaintext.highlighter-rouge .highlight code {
-  color: #657b83 !important; /* Use Solarized Light text color */
-  background-color: #fdf6e3 !important; /* Use Solarized Light background */
-}
-
-/* Dark mode adjustments for plaintext */
-[data-theme="dark"] .language-plaintext.highlighter-rouge .highlight,
-[data-theme="dark"] .language-plaintext.highlighter-rouge .highlight pre,
-[data-theme="dark"] .language-plaintext.highlighter-rouge .highlight code {
-  color: #f8f8f2 !important; /* Match our dark mode text color */
-  background-color: #1e1e2e !important; /* Match our dark mode background */
-}
-
-/* Force consistent styling on both types of code blocks */
-.highlight pre {
-  padding: 1em;
-  margin: 0.5em 0;
-  border-radius: 4px;
-  border: 1px solid #eee;
-}
-
-[data-theme="dark"] .highlight pre {
-  border-color: #333;
-}
-
-/* ===== COMPLETELY OVERRIDE CODE BLOCK STYLING ===== */
-/* Target all code blocks regardless of language */
-pre, code, .highlight, .highlight pre, .highlight code,
-div[class*="language-"] pre, div[class*="language-"] code,
-.highlighter-rouge, .highlighter-rouge pre, .highlighter-rouge code {
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace !important;
-  background: #fdf6e3 !important; /* Solarized Light background */
-  color: #657b83 !important; /* Solarized Light foreground */
-  border-radius: 4px !important;
-  border: 1px solid #eee !important;
-  text-shadow: none !important;
-}
-
-/* Ensure consistent padding and margins */
-pre, .highlight pre {
-  padding: 1em !important;
-  margin: 0.5em 0 !important;
-  overflow: auto !important;
-}
-
-/* Dark mode overrides */
-[data-theme="dark"] pre, 
-[data-theme="dark"] code, 
-[data-theme="dark"] .highlight, 
-[data-theme="dark"] .highlight pre, 
-[data-theme="dark"] .highlight code,
-[data-theme="dark"] div[class*="language-"] pre, 
-[data-theme="dark"] div[class*="language-"] code,
-[data-theme="dark"] .highlighter-rouge, 
-[data-theme="dark"] .highlighter-rouge pre, 
-[data-theme="dark"] .highlighter-rouge code {
-  background: #1e1e2e !important; /* Dark background */
-  color: #f8f8f2 !important; /* Light text */
-  border-color: #333 !important;
-}
-
-/* Also handle line numbers if they exist */
-.line-number, .line-numbers-rows {
-  opacity: 0.5 !important;
-  color: #93a1a1 !important; /* Solarized Light comments */
-  border-right-color: #eee !important;
-}
-
-[data-theme="dark"] .line-number, 
-[data-theme="dark"] .line-numbers-rows {
-  color: #6c7c7c !important;
-  border-right-color: #333 !important;
-}
-
-/* Remove any backgrounds from tokens but preserve colors */
-.token {
-  background: transparent !important;
 } 
