@@ -79,34 +79,63 @@ layout: null
       // Find all pre elements
       document.querySelectorAll('pre').forEach(pre => {
         // Skip if already enhanced
-        if (pre.querySelector('.lang-tag')) return;
+        if (pre.querySelector('.code-controls')) return;
         
         // Try to get language
-        let language = 'code';
+        let language = 'plaintext';
         const codeElement = pre.querySelector('code');
         
         if (codeElement && codeElement.className) {
           const match = codeElement.className.match(/language-(\w+)/);
           if (match) language = match[1];
         }
+
+        // Apply background and padding to pre
+        pre.style.padding = "10px";
+        pre.style.paddingTop = "10px";
+        pre.style.borderRadius = "6px";
+        pre.style.backgroundColor = "var(--section-header-bg)";
         
-        // Add lang tag
+        // Create controls container
+        const controls = document.createElement('div');
+        controls.className = 'code-controls';
+        controls.style.cssText = 'display: flex; justify-content: flex-end; margin: -10px -10px 10px -10px; border-bottom: 1px solid var(--border-color); padding: 5px 10px; background-color: var(--section-header-bg); border-top-left-radius: 6px; border-top-right-radius: 6px;';
+        
+        // Add lang tag (now first, on the left)
         const langTag = document.createElement('div');
         langTag.className = 'lang-tag';
+        langTag.style.cssText = 'padding: 2px 6px; font-size: 12px; text-transform: lowercase; color: var(--text-color); font-weight: bold; display: flex; align-items: center; margin-right: auto;';
         langTag.textContent = language;
-        pre.appendChild(langTag);
         
-        // Add copy button
+        // Add copy button with SVG (now on the right)
         const copyBtn = document.createElement('button');
         copyBtn.className = 'copy-button';
-        copyBtn.textContent = 'Copy';
+        copyBtn.style.cssText = 'background: transparent; color: var(--text-color); border: none; cursor: pointer; display: flex; align-items: center; padding: 3px; border-radius: 4px;';
+        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        
+        copyBtn.onmouseover = function() {
+          this.style.backgroundColor = 'var(--border-color)';
+        };
+        
+        copyBtn.onmouseout = function() {
+          this.style.backgroundColor = 'transparent';
+        };
+        
         copyBtn.onclick = function() {
           const code = codeElement ? codeElement.textContent : pre.textContent;
           navigator.clipboard.writeText(code);
-          copyBtn.textContent = 'Copied!';
-          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+          this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          setTimeout(() => { 
+            this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+          }, 2000);
         };
-        pre.appendChild(copyBtn);
+        
+        // Append elements (lang tag first, copy button last)
+        controls.appendChild(langTag);
+        controls.appendChild(copyBtn);
+        
+        // Insert at the beginning of the pre element
+        pre.insertBefore(controls, pre.firstChild);
       });
     }
     

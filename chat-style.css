@@ -386,42 +386,33 @@ code {
 }
 
 pre {
-  background-color: transparent;
   position: relative;
-  margin: 1em 0;
+  margin: 1.2em 0;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+pre > code {
+  display: block;
   overflow-x: auto;
+  padding: 0;
 }
 
-/* Super basic lang-tag and copy-button styles */
-.lang-tag {
-  position: absolute;
-  top: -20px;
-  right: 5px;
-  background: var(--text-color);
-  color: var(--background-color);
-  padding: 2px 6px;
-  font-size: 12px;
-  z-index: 5;
-}
-
-.copy-button {
-  position: absolute;
-  top: -20px;
-  right: 60px;
-  background: var(--text-color);
-  color: var(--background-color);
-  border: none;
-  padding: 2px 6px;
-  cursor: pointer;
-  z-index: 5;
+/* These styles are added via JavaScript directly */
+.code-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 /* Simple scrollbar styling */
-pre::-webkit-scrollbar {
+pre::-webkit-scrollbar,
+pre code::-webkit-scrollbar {
   height: 4px;
 }
 
-pre::-webkit-scrollbar-thumb {
+pre::-webkit-scrollbar-thumb,
+pre code::-webkit-scrollbar-thumb {
   background: var(--color-light);
   border-radius: 4px;
 }
