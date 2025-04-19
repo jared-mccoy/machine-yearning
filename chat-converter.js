@@ -86,16 +86,6 @@ function processChatContent(options) {
         codeText = code || '';
       }
       
-      // Default language for MongoDB code blocks
-      if (!language && 
-          (codeText.includes('db.collection') || 
-           codeText.includes('db.documents') || 
-           codeText.includes('$match') || 
-           codeText.includes('$graphLookup'))) {
-        language = 'mongodb';
-        console.log("Auto-detected MongoDB code");
-      }
-      
       // Restore spaces from placeholders
       codeText = codeText.replace(/__SPACES_(\d+)__/g, (match, count) => {
         return ' '.repeat(parseInt(count, 10));
@@ -485,16 +475,6 @@ function processChatContent(options) {
   
   // Add syntax highlighting if Prism is available
   if (window.Prism) {
-    // Add special handling for languages that might not be loaded
-    try {
-      // Add mongodb highlighting if not already loaded
-      if (!Prism.languages.mongodb && Prism.languages.javascript) {
-        Prism.languages.mongodb = Prism.languages.extend('javascript', {});
-      }
-    } catch (e) {
-      console.warn("Error setting up additional language support:", e);
-    }
-    
     // Call highlightAll to catch any code blocks that weren't directly highlighted
     Prism.highlightAll();
   }
@@ -539,18 +519,6 @@ function processConversation(messages, renderer) {
           if (className.startsWith('language-')) {
             language = className.substring(9); // Remove 'language-' prefix
             break;
-          }
-        }
-        
-        // Auto-detect MongoDB if no language is found
-        if (!language) {
-          const codeText = codeBlock.textContent;
-          if (codeText.includes('db.collection') || 
-              codeText.includes('db.documents') || 
-              codeText.includes('$match') || 
-              codeText.includes('$graphLookup')) {
-            language = 'mongodb';
-            console.log("Auto-detected MongoDB in post-processing");
           }
         }
         
