@@ -68,60 +68,85 @@ function processChatContent(options) {
   // Override marked.js renderer to handle our space placeholders
   const renderer = new marked.Renderer();
   
-  // Store the original code renderer
-  const originalCodeRenderer = renderer.code;
-  
-  // Override the code renderer to restore space placeholders
+  // Override the code renderer with our own implementation
   renderer.code = function(code, language) {
-    // Log what we're receiving to debug
-    console.log("Code renderer received:", typeof code, code);
+    console.log("Code renderer received:", typeof code, code, "Language:", language);
     
-    // Restore the actual spaces from our placeholders
-    const codeWithSpaces = restoreSpacePlaceholders(code);
-    
-    // Create our own code rendering if needed
     try {
-      // First try to call the original renderer
-      if (typeof originalCodeRenderer === 'function') {
-        return originalCodeRenderer.call(this, codeWithSpaces, language);
+      // Extract code content
+      let codeText;
+      if (typeof code === 'object') {
+        codeText = code.text || '';
+        // If no explicit language was provided but the object has a lang property, use it
+        if (!language && code.lang) {
+          language = code.lang;
+          console.log("Using language from object:", language);
+        }
+      } else {
+        codeText = code || '';
       }
-    } catch (e) {
-      console.warn("Error calling original code renderer:", e);
-    }
-    
-    // Fallback to a simple implementation if the original renderer fails
-    const codeText = typeof codeWithSpaces === 'string' 
-      ? codeWithSpaces 
-      : (codeWithSpaces && codeWithSpaces.text ? codeWithSpaces.text : String(codeWithSpaces));
       
-    const langClass = language ? ` class="language-${language}"` : '';
-    return `<pre><code${langClass}>${codeText}</code></pre>`;
+      // Default language for MongoDB code blocks
+      if (!language && 
+          (codeText.includes('db.collection') || 
+           codeText.includes('db.documents') || 
+           codeText.includes('$match') || 
+           codeText.includes('$graphLookup'))) {
+        language = 'mongodb';
+        console.log("Auto-detected MongoDB code");
+      }
+      
+      // Restore spaces from placeholders
+      codeText = codeText.replace(/__SPACES_(\d+)__/g, (match, count) => {
+        return ' '.repeat(parseInt(count, 10));
+      });
+      
+      // For debugging
+      console.log("After space restoration:", codeText.substring(0, 100) + "...");
+      console.log("Final language:", language);
+      
+      // Create language class and attribute
+      const languageClass = language ? ` class="language-${language}"` : '';
+      
+      // Handle syntax highlighting
+      let highlighted;
+      if (window.Prism && language && Prism.languages[language]) {
+        try {
+          // Apply Prism highlighting directly
+          highlighted = Prism.highlight(codeText, Prism.languages[language], language);
+          console.log("Highlighting successful");
+        } catch (e) {
+          console.warn('Error highlighting code with Prism:', e);
+          // Fall back to escaped HTML without highlighting
+          highlighted = escapeHtml(codeText);
+        }
+      } else {
+        // No language or Prism not available - just escape HTML
+        highlighted = escapeHtml(codeText);
+      }
+      
+      // Return the HTML
+      return `<pre><code${languageClass}>${highlighted}</code></pre>`;
+    } catch (e) {
+      console.error("Error in custom code renderer:", e);
+      return `<pre><code>Error rendering code block</code></pre>`;
+    }
   };
+  
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
   // Configure marked.js
   marked.setOptions({
     renderer: renderer,
-    highlight: function(code, lang) {
-      // Restore spaces before syntax highlighting
-      const codeWithSpaces = restoreSpacePlaceholders(code);
-      
-      // Debug highlight input
-      console.log("Highlight received:", typeof code, lang);
-      
-      if (window.Prism && lang) {
-        try {
-          // If we have a string, use it directly, otherwise use the text property
-          const codeText = typeof codeWithSpaces === 'string' 
-            ? codeWithSpaces 
-            : (codeWithSpaces && codeWithSpaces.text ? codeWithSpaces.text : String(codeWithSpaces));
-          
-          return Prism.highlight(codeText, Prism.languages[lang], lang);
-        } catch (e) {
-          console.warn('Error highlighting code:', e);
-        }
-      }
-      return codeWithSpaces;
-    },
+    highlight: null, // We'll use our own highlighting in the renderer
     pedantic: false,
     gfm: true,
     breaks: true,
@@ -379,38 +404,9 @@ function processChatContent(options) {
       sectionDiv.className = 'chat-section';
       sectionDiv.id = msg.id;
       
-      // Add all messages to this section
-      msg.messages.forEach(message => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.speaker}`;
-        
-        // Use marked.js to parse and render the content
-        const renderedContent = marked.parse(message.content);
-        messageDiv.innerHTML = renderedContent;
-        
-        // Add code block language tags
-        const codeBlocks = messageDiv.querySelectorAll('pre code');
-        codeBlocks.forEach(codeBlock => {
-          const language = codeBlock.className.replace('language-', '');
-          if (language && language !== 'language-') {
-            const pre = codeBlock.parentNode;
-            const wrapper = document.createElement('div');
-            wrapper.className = 'code-block';
-            
-            // Create language tag
-            const languageTag = document.createElement('div');
-            languageTag.className = 'language-tag';
-            languageTag.textContent = language;
-            
-            // Rearrange DOM
-            pre.parentNode.insertBefore(wrapper, pre);
-            wrapper.appendChild(languageTag);
-            wrapper.appendChild(pre);
-          }
-        });
-        
-        sectionDiv.appendChild(messageDiv);
-      });
+      // Use the processConversation function to handle the message rendering
+      const messageContainer = processConversation(msg.messages, renderer);
+      sectionDiv.appendChild(messageContainer);
       
       chatContainer.appendChild(sectionDiv);
     }
@@ -475,19 +471,17 @@ function processChatContent(options) {
   
   // Add syntax highlighting if Prism is available
   if (window.Prism) {
-    // Override the default Prism highlightElement to handle our space placeholders
-    const originalHighlightElement = window.Prism.highlightElement;
-    window.Prism.highlightElement = function(element) {
-      if (element.textContent.includes('__SPACES_')) {
-        const originalContent = element.textContent;
-        element.textContent = restoreSpacePlaceholders(originalContent);
+    // Add special handling for languages that might not be loaded
+    try {
+      // Add mongodb highlighting if not already loaded
+      if (!Prism.languages.mongodb && Prism.languages.javascript) {
+        Prism.languages.mongodb = Prism.languages.extend('javascript', {});
       }
-      
-      // Call the original highlighter
-      return originalHighlightElement.apply(this, arguments);
-    };
+    } catch (e) {
+      console.warn("Error setting up additional language support:", e);
+    }
     
-    // Run Prism highlighting
+    // Call highlightAll to catch any code blocks that weren't directly highlighted
     Prism.highlightAll();
   }
 }
@@ -502,4 +496,98 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Export the function for use in other scripts
-window.initChatConverter = initChatConverter; 
+window.initChatConverter = initChatConverter;
+
+function processConversation(messages, renderer) {
+  const container = document.createElement('div');
+  container.className = 'message-container';
+  
+  // Process each message
+  messages.forEach((message, index) => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${message.speaker.toLowerCase()}`;
+    messageDiv.dataset.index = index;
+    
+    // Render the message content using the provided renderer
+    messageDiv.innerHTML = marked.parse(message.content, { renderer: renderer });
+    
+    // Post-process code blocks for any remaining space placeholders
+    const codeBlocks = messageDiv.querySelectorAll('pre code');
+    codeBlocks.forEach(codeBlock => {
+      // Check if this code block has space placeholders
+      if (codeBlock.textContent.includes('__SPACES_')) {
+        console.log('Found code block with space placeholders, fixing:', codeBlock.textContent.substring(0, 100));
+        
+        // Extract language class if present
+        let language = '';
+        const classList = Array.from(codeBlock.classList);
+        for (const className of classList) {
+          if (className.startsWith('language-')) {
+            language = className.substring(9); // Remove 'language-' prefix
+            break;
+          }
+        }
+        
+        // Auto-detect MongoDB if no language is found
+        if (!language) {
+          const codeText = codeBlock.textContent;
+          if (codeText.includes('db.collection') || 
+              codeText.includes('db.documents') || 
+              codeText.includes('$match') || 
+              codeText.includes('$graphLookup')) {
+            language = 'mongodb';
+            console.log("Auto-detected MongoDB in post-processing");
+          }
+        }
+        
+        // Replace space placeholders
+        let fixedCode = codeBlock.textContent.replace(/__SPACES_(\d+)__/g, (match, count) => {
+          return ' '.repeat(parseInt(count, 10));
+        });
+        
+        console.log('Fixed code:', fixedCode.substring(0, 100));
+        
+        // Re-highlight if we have a language
+        if (window.Prism && language && Prism.languages[language]) {
+          try {
+            const highlighted = Prism.highlight(fixedCode, Prism.languages[language], language);
+            codeBlock.innerHTML = highlighted;
+            console.log(`Re-highlighted with ${language}`);
+            
+            // Make sure the language class is applied
+            if (!codeBlock.classList.contains(`language-${language}`)) {
+              codeBlock.classList.add(`language-${language}`);
+            }
+          } catch (e) {
+            console.warn('Error highlighting code with Prism in post-processing:', e);
+            codeBlock.textContent = fixedCode; // Fallback to plain text
+          }
+        } else {
+          // Just update the content if no highlighting is possible
+          codeBlock.textContent = fixedCode;
+        }
+        
+        // Ensure we have a language tag/label for this code block
+        const pre = codeBlock.parentElement;
+        if (language && !pre.querySelector('.language-tag')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'code-block';
+          
+          const languageTag = document.createElement('div');
+          languageTag.className = 'language-tag';
+          languageTag.textContent = language;
+          
+          // Get the parent of pre and replace pre with wrapper
+          const parent = pre.parentElement;
+          parent.insertBefore(wrapper, pre);
+          wrapper.appendChild(languageTag);
+          wrapper.appendChild(pre);
+        }
+      }
+    });
+    
+    container.appendChild(messageDiv);
+  });
+  
+  return container;
+} 
