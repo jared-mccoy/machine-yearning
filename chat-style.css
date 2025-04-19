@@ -375,15 +375,18 @@ a:hover {
   margin-bottom: 4px;
 }
 
-/* Just minimal code styling for basic appearance */
+/* Basic code styling that works with Prism's Solarized Light theme */
 code {
-  font-family: monospace;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  border-radius: 3px;
+  padding: 2px 4px;
 }
 
 pre {
   overflow-x: auto;
   margin: 10px 0;
   padding: 12px;
+  border-radius: 4px;
 }
 
 blockquote {

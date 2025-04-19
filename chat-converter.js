@@ -98,8 +98,18 @@ function processChatContent(options) {
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';
       
-      // We no longer use Prism for highlighting, just escape HTML
-      const highlighted = escapeHtml(codeText);
+      // Basic Prism highlighting if available and language is supported
+      let highlighted;
+      if (window.Prism && language && Prism.languages[language]) {
+        try {
+          highlighted = Prism.highlight(codeText, Prism.languages[language], language);
+        } catch (e) {
+          console.warn('Error highlighting code with Prism:', e);
+          highlighted = escapeHtml(codeText);
+        }
+      } else {
+        highlighted = escapeHtml(codeText);
+      }
       
       // Return the HTML
       return `<pre><code${languageClass}>${highlighted}</code></pre>`;
@@ -470,6 +480,12 @@ function processChatContent(options) {
     footerNav.appendChild(nextLink);
     
     content.appendChild(footerNav);
+  }
+
+  // At the end of the processContent function, add back the Prism call
+  if (window.Prism) {
+    // Call highlightAll to catch any code blocks that weren't directly highlighted
+    Prism.highlightAll();
   }
 }
 
