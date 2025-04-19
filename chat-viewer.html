@@ -31,6 +31,7 @@ layout: null
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-mongodb.min.js"></script>
   <!-- Include showdown.js for Markdown conversion -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
   <!-- Include marked.js for Markdown parsing -->
@@ -48,7 +49,10 @@ layout: null
       
       // Re-highlight any code blocks to properly apply the new theme
       if (window.Prism) {
-        setTimeout(() => Prism.highlightAll(), 100);
+        setTimeout(() => {
+          Prism.highlightAll();
+          enhanceCodeBlocks(); // Re-add language tag and copy button
+        }, 100);
       }
     }
     
@@ -67,6 +71,83 @@ layout: null
     });
     
     observer.observe(document.documentElement, { attributes: true });
+  </script>
+  
+  <!-- Script to add language tag and copy button to code blocks -->
+  <script>
+    function enhanceCodeBlocks() {
+      console.log("Enhancing code blocks");
+      
+      // Find all pre elements
+      document.querySelectorAll('pre').forEach(pre => {
+        // Skip if already enhanced
+        if (pre.querySelector('.code-actions')) return;
+        
+        // Make sure pre has position relative for absolute positioning
+        pre.style.position = 'relative';
+        pre.style.marginTop = '30px';
+        
+        // Get language from data attribute or class
+        let language = pre.getAttribute('data-language') || 'code';
+        
+        // If no data-language attribute, try to get from class
+        if (language === 'code') {
+          const preClasses = [...pre.classList];
+          const codeElement = pre.querySelector('code');
+          const codeClasses = codeElement ? [...codeElement.classList] : [];
+          
+          // Try to find language class in pre first, then code
+          const preLanguageClass = preClasses.find(cl => cl.startsWith('language-'));
+          const codeLanguageClass = codeClasses.find(cl => cl.startsWith('language-'));
+          
+          if (preLanguageClass) {
+            language = preLanguageClass.replace('language-', '');
+          } else if (codeLanguageClass) {
+            language = codeLanguageClass.replace('language-', '');
+          }
+        }
+        
+        console.log("Found code block with language:", language);
+        
+        // Create language tag and copy button container
+        const actions = document.createElement('div');
+        actions.className = 'code-actions';
+        actions.style.cssText = 'position:absolute;top:-25px;right:0;display:flex;align-items:center;z-index:5;';
+        
+        // Add language tag
+        const langTag = document.createElement('span');
+        langTag.textContent = language;
+        langTag.style.cssText = 'padding:2px 6px;font-size:0.8rem;text-transform:uppercase;background:var(--accent-color-light);color:var(--accent-color);border-top-left-radius:4px;border-top-right-radius:4px;';
+        
+        // Add copy button
+        const copyBtn = document.createElement('button');
+        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+        copyBtn.style.cssText = 'background:none;border:none;color:var(--accent-color);cursor:pointer;margin-left:5px;';
+        copyBtn.title = 'Copy to clipboard';
+        
+        copyBtn.addEventListener('click', () => {
+          const codeElement = pre.querySelector('code');
+          const code = codeElement ? codeElement.textContent : pre.textContent;
+          navigator.clipboard.writeText(code).then(() => {
+            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+            setTimeout(() => {
+              copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>';
+            }, 2000);
+          });
+        });
+        
+        // Add elements to DOM
+        actions.appendChild(langTag);
+        actions.appendChild(copyBtn);
+        pre.appendChild(actions);
+      });
+    }
+    
+    // Apply after Prism highlighting
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("DOM loaded, scheduling code enhancement");
+      setTimeout(enhanceCodeBlocks, 500); // Allow time for Prism to highlight
+    });
   </script>
 </head>
 <body>
@@ -173,6 +254,9 @@ layout: null
             },
             showTitle: false
           });
+          
+          // Enhance code blocks once chat is converted
+          setTimeout(enhanceCodeBlocks, 500);
         } catch (error) {
           console.error('Error loading chat:', error);
           document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;

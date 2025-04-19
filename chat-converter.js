@@ -95,6 +95,13 @@ function processChatContent(options) {
       console.log("After space restoration:", codeText.substring(0, 100) + "...");
       console.log("Final language:", language);
       
+      // Detect MongoDB and set language appropriately if undefined
+      if (!language && codeText.includes('db.') && 
+         (codeText.includes('.find(') || codeText.includes('.aggregate(') || 
+          codeText.includes('.insertOne(') || codeText.includes('.updateOne('))) {
+        language = 'mongodb';
+      }
+      
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';
       
@@ -111,8 +118,8 @@ function processChatContent(options) {
         highlighted = escapeHtml(codeText);
       }
       
-      // Return the HTML
-      return `<pre><code${languageClass}>${highlighted}</code></pre>`;
+      // Return the HTML with data attribute for language
+      return `<pre${languageClass} data-language="${language || 'code'}"><code${languageClass}>${highlighted}</code></pre>`;
     } catch (e) {
       console.error("Error in custom code renderer:", e);
       return `<pre><code>Error rendering code block</code></pre>`;
