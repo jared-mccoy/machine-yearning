@@ -466,21 +466,23 @@ a:hover {
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-6px);
+    transform: translateY(-8px);
   }
 }
 
 /* Hidden message for sequential display */
 .message.hidden {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(30px);
+  transition: none;
+  pointer-events: none;
 }
 
 .message.visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.8s ease-out, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: auto;
 }
 
 .message p {

@@ -368,28 +368,94 @@ layout: null
         // Get all messages
         const messages = document.querySelectorAll('.message');
         
+        // Animation queue and state management
+        let animationInProgress = false;
+        let messageQueue = [];
+        
+        // Function to process the next message in queue
+        function processNextInQueue() {
+          if (messageQueue.length === 0 || animationInProgress) {
+            return;
+          }
+          
+          animationInProgress = true;
+          const nextMsg = messageQueue.shift();
+          
+          // Create and insert typing indicator before the message
+          const isAssistant = nextMsg.classList.contains('assistant');
+          
+          if (isAssistant) {
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            
+            // Insert before the message
+            nextMsg.parentNode.insertBefore(typingIndicator, nextMsg);
+            
+            // Show the typing indicator
+            setTimeout(() => {
+              typingIndicator.classList.add('visible');
+            }, 50);
+            
+            // After a delay, hide the typing indicator and show the message
+            setTimeout(() => {
+              typingIndicator.classList.remove('visible');
+              // Remove the typing indicator after it fades out
+              setTimeout(() => typingIndicator.remove(), 300);
+              
+              // Show the message with animation
+              nextMsg.classList.remove('hidden');
+              nextMsg.classList.add('visible');
+              
+              // Set a timer to allow the animation to complete then process next
+              setTimeout(() => {
+                animationInProgress = false;
+                processNextInQueue();
+              }, 600);
+            }, 1200); // Show typing dots for 1.2 seconds
+          } else {
+            // For user messages, just show them immediately
+            nextMsg.classList.remove('hidden');
+            nextMsg.classList.add('visible');
+            
+            // Set a timer to allow the animation to complete
+            setTimeout(() => {
+              animationInProgress = false;
+              processNextInQueue();
+            }, 600);
+          }
+        }
+        
         // Create observer for messages
         const messageObserver = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            if (entry.isIntersecting) {
               const currentMsg = entry.target;
               const index = Array.from(messages).indexOf(currentMsg);
               
               // Show this message if it's not already visible
               if (currentMsg.classList.contains('hidden')) {
-                currentMsg.classList.remove('hidden');
-                currentMsg.classList.add('visible');
+                messageQueue.push(currentMsg);
+                processNextInQueue();
               }
               
               // Check if there's a next message to reveal
               if (index < messages.length - 1) {
                 const nextMsg = messages[index + 1];
                 
-                // Add a small delay before showing the next message
+                // Add a small delay before checking the next message
                 setTimeout(() => {
+                  // If next message is scrolled into view more than 20%, queue it
+                  const rect = nextMsg.getBoundingClientRect();
+                  if (rect.top < window.innerHeight) {
+                    if (nextMsg.classList.contains('hidden')) {
+                      messageQueue.push(nextMsg);
+                      processNextInQueue();
+                    }
+                  }
                   // Start observing the next message
                   messageObserver.observe(nextMsg);
-                }, 300);
+                }, 200);
               }
               
               // Stop observing this message
@@ -397,8 +463,8 @@ layout: null
             }
           });
         }, {
-          threshold: 0.5,
-          rootMargin: "0px 0px -100px 0px" // Trigger when message is in view with space below
+          threshold: 0.2,
+          rootMargin: "0px 0px -20% 0px" // Trigger when message is at least 20% in view
         });
         
         // Start by observing the first message
@@ -409,7 +475,7 @@ layout: null
         // Also start observing any messages that are at the top of the viewport
         messages.forEach((msg, index) => {
           const rect = msg.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
+          if (rect.top < window.innerHeight) {
             messageObserver.observe(msg);
           }
         });
