@@ -372,11 +372,22 @@ layout: null
         let animationInProgress = false;
         let messageQueue = [];
         let lastSenderWasUser = false; // Track which type of message was last shown
+        let animationFailedMessages = []; // Keep track of messages that failed to show
+        let typingIndicatorVisible = false; // Track if a typing indicator is currently visible
         
         // Function to process the next message in queue
         function processNextInQueue() {
-          if (messageQueue.length === 0 || animationInProgress) {
+          if (messageQueue.length === 0 || animationInProgress || typingIndicatorVisible) {
             return;
+          }
+          
+          // Check for failed messages first and add them back to the front of the queue
+          if (animationFailedMessages.length > 0) {
+            // Add them in reverse order to maintain original sequence
+            for (let i = animationFailedMessages.length - 1; i >= 0; i--) {
+              messageQueue.unshift(animationFailedMessages[i]);
+            }
+            animationFailedMessages = [];
           }
           
           // Ensure we're maintaining alternating pattern during initial load
@@ -384,18 +395,25 @@ layout: null
           const isUser = nextMsg.classList.contains('user');
           
           // During initial fill, enforce alternating turn-taking
-          if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 3) {
+          if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 4) {
             // If last message shown was from user, next should be assistant and vice versa
             if ((lastSenderWasUser && isUser) || (!lastSenderWasUser && !isUser)) {
               // Look for next message of correct type
+              let foundAlternate = false;
               for (let i = 1; i < messageQueue.length; i++) {
                 const alternateMsg = messageQueue[i];
                 if (isUser !== alternateMsg.classList.contains('user')) {
                   // Swap this message to front of queue to maintain alternation
                   messageQueue.splice(i, 1);
                   messageQueue.unshift(alternateMsg);
+                  foundAlternate = true;
                   break;
                 }
+              }
+              
+              // If we can't find an alternate, proceed with what we have
+              if (!foundAlternate) {
+                console.log("Couldn't find an alternating message, proceeding with current queue");
               }
             }
           }
@@ -404,15 +422,14 @@ layout: null
           animationInProgress = true;
           const currentMsg = messageQueue.shift();
           const currentIsUser = currentMsg.classList.contains('user');
-          const isAssistant = currentMsg.classList.contains('assistant');
-          
-          // Update the last sender type
-          lastSenderWasUser = currentIsUser;
           
           // Create typing indicator with appropriate class
           const typingIndicator = document.createElement('div');
           typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
           typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+          
+          // Store reference to current message in the indicator for later validation
+          typingIndicator.messageReference = currentMsg;
           
           // Find the chat container
           const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
@@ -429,6 +446,9 @@ layout: null
             container.prepend(typingIndicator);
           }
           
+          // Flag that there's a typing indicator showing
+          typingIndicatorVisible = true;
+          
           // Show the typing indicator with a small delay
           setTimeout(() => {
             typingIndicator.classList.add('visible');
@@ -438,31 +458,62 @@ layout: null
           setTimeout(() => {
             // Hide the typing indicator
             typingIndicator.classList.remove('visible');
+            typingIndicatorVisible = false;
             
-            // Remove the indicator after transition completes
-            setTimeout(() => typingIndicator.remove(), 300);
+            // Check if message is scrolled into view far enough to show
+            const rect = currentMsg.getBoundingClientRect();
+            const isInView = rect.top < window.innerHeight - 100; // Must be at least 100px into view
             
-            // Show the message with animation
-            currentMsg.classList.remove('hidden');
-            currentMsg.classList.add('visible');
-            
-            // Wait for message animation to complete before processing next
-            setTimeout(() => {
-              animationInProgress = false;
-              processNextInQueue();
-            }, 600);
+            // If it's in view, show the message
+            if (isInView) {
+              // Update the last sender type
+              lastSenderWasUser = currentIsUser;
+              
+              // Show the message with animation
+              currentMsg.classList.remove('hidden');
+              currentMsg.classList.add('visible');
+              
+              // Remove the indicator after its transition completes
+              setTimeout(() => typingIndicator.remove(), 300);
+              
+              // Wait for message animation to complete before processing next
+              setTimeout(() => {
+                animationInProgress = false;
+                processNextInQueue();
+              }, 600);
+            } else {
+              // Message not in view yet, don't show it
+              console.log("Message not in view enough, will retry later");
+              
+              // Remove the indicator immediately since we're not showing the message
+              typingIndicator.remove();
+              
+              // Add message to failed list to retry later
+              animationFailedMessages.push(currentMsg);
+              
+              // Set a retry timeout that's shorter than normal animation
+              setTimeout(() => {
+                animationInProgress = false;
+                processNextInQueue();
+              }, 300);
+            }
           }, currentIsUser ? 800 : 1200); // Shorter typing time for user messages
         }
         
-        // Create observer for messages
+        // Create observer for messages with a more sensitive threshold
         const messageObserver = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              const currentMsg = entry.target;
+            const currentMsg = entry.target;
+            
+            // We want to be quite generous with what we consider "intersecting"
+            // A small portion visible should be enough to start observing
+            if (entry.isIntersecting || entry.intersectionRatio > 0.05) {
               const index = Array.from(messages).indexOf(currentMsg);
               
-              // Queue this message if it's not already visible
-              if (currentMsg.classList.contains('hidden')) {
+              // Queue this message if it's not already visible and not already queued
+              if (currentMsg.classList.contains('hidden') && 
+                  !messageQueue.includes(currentMsg) && 
+                  !animationFailedMessages.includes(currentMsg)) {
                 messageQueue.push(currentMsg);
                 processNextInQueue();
               }
@@ -473,26 +524,34 @@ layout: null
                 
                 // Add a small delay before checking the next message
                 setTimeout(() => {
-                  // If next message is scrolled into view, queue it
+                  // If next message is near view, queue it
                   const rect = nextMsg.getBoundingClientRect();
-                  if (rect.top < window.innerHeight) {
-                    if (nextMsg.classList.contains('hidden')) {
+                  const distanceFromViewport = rect.top - window.innerHeight;
+                  
+                  // Queue even if it's slightly below viewport
+                  if (distanceFromViewport < 200) { // Queue if within 200px of viewport
+                    if (nextMsg.classList.contains('hidden') && 
+                        !messageQueue.includes(nextMsg) && 
+                        !animationFailedMessages.includes(nextMsg)) {
                       messageQueue.push(nextMsg);
                       processNextInQueue();
                     }
                   }
-                  // Start observing the next message
+                  
+                  // Start observing the next message regardless
                   messageObserver.observe(nextMsg);
-                }, 200);
+                }, 100);
               }
               
-              // Stop observing this message
-              messageObserver.unobserve(currentMsg);
+              // If message is fully visible, stop observing 
+              if (entry.intersectionRatio > 0.8) {
+                messageObserver.unobserve(currentMsg);
+              }
             }
           });
         }, {
-          threshold: 0.2,
-          rootMargin: "0px 0px -20% 0px" // Trigger when message is at least 20% in view
+          threshold: [0.05, 0.5, 0.8], // Observe at multiple thresholds
+          rootMargin: "0px 0px 100px 0px" // Extend bottom margin to detect earlier
         });
         
         // Start by observing the first message
@@ -504,13 +563,23 @@ layout: null
           messageObserver.observe(messages[0]);
         }
         
-        // Also start observing any messages that are already in the viewport
-        // But only observe the first few to prevent queue flooding on initial load
-        const initialVisibleCount = Math.min(3, messages.length);
+        // Add scroll event listener to trigger checking for failed messages
+        window.addEventListener('scroll', function() {
+          if (animationFailedMessages.length > 0 && !animationInProgress && !typingIndicatorVisible) {
+            // Use a debounced version to prevent too many checks
+            clearTimeout(window.scrollDebounceTimer);
+            window.scrollDebounceTimer = setTimeout(() => {
+              processNextInQueue();
+            }, 100);
+          }
+        });
+        
+        // Also start observing just a few initial messages that are close to the viewport
+        const initialVisibleCount = Math.min(4, messages.length);
         for (let i = 0; i < initialVisibleCount; i++) {
           const msg = messages[i];
           const rect = msg.getBoundingClientRect();
-          if (rect.top < window.innerHeight) {
+          if (rect.top < window.innerHeight + 200) { // Be more generous with initial observation
             messageObserver.observe(msg);
           }
         }
