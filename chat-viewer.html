@@ -348,9 +348,9 @@ layout: null
           return;
         }
         
-        // First, hide all messages except the first user message
+        // Hide all messages initially except the first
         messages.forEach((msg, index) => {
-          if (index === 0 && msg.classList.contains('user')) {
+          if (index === 0) {
             msg.classList.add('visible');
             msg.classList.remove('hidden');
           } else {
@@ -359,7 +359,7 @@ layout: null
           }
         });
         
-        // Add typing indicators after user messages
+        // Add typing indicators after each user message
         for (let i = 0; i < messages.length; i++) {
           const currentMsg = messages[i];
           
@@ -370,77 +370,83 @@ layout: null
               const typingIndicator = document.createElement('div');
               typingIndicator.className = 'typing-indicator';
               typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-              typingIndicator.classList.add('hidden'); // Initially hidden
               currentMsg.parentNode.insertBefore(typingIndicator, currentMsg.nextSibling);
             }
           }
         }
         
-        // Show the first message immediately
-        if (messages.length > 0) {
-          messages[0].classList.remove('hidden');
-          messages[0].classList.add('visible');
-          
-          // Show typing indicator after a short delay if the first message is from user
-          if (messages[0].classList.contains('user') && messages.length > 1 && messages[1].classList.contains('assistant')) {
-            const typingIndicator = messages[0].nextElementSibling;
-            if (typingIndicator && typingIndicator.classList.contains('typing-indicator')) {
-              setTimeout(() => {
-                typingIndicator.classList.remove('hidden');
-                
-                // Show the assistant's response after a delay
-                setTimeout(() => {
-                  messages[1].classList.remove('hidden');
-                  messages[1].classList.add('visible');
-                  typingIndicator.classList.add('hidden');
-                  
-                  // Continue with the conversation
-                  continueConversation(2);
-                }, 1500);
-              }, 500);
-            }
-          }
-        }
+        // Setup intersection observers to control message visibility
+        setupScrollObservers();
+      }
+      
+      // Set up scroll-based observers for animation
+      function setupScrollObservers() {
+        // Track which message we're currently showing
+        let currentIndex = 0;
+        const messages = document.querySelectorAll('.message');
+        const typingIndicators = document.querySelectorAll('.typing-indicator');
         
-        // Function to continue showing messages in sequence
-        function continueConversation(index) {
-          if (index >= messages.length) return;
-          
-          const currentMsg = messages[index];
-          
-          // Show the current message
-          currentMsg.classList.remove('hidden');
-          currentMsg.classList.add('visible');
-          
-          // If this is a user message and next message is assistant, show typing
-          if (currentMsg.classList.contains('user') && 
-              index + 1 < messages.length && 
-              messages[index + 1].classList.contains('assistant')) {
-            
-            // Find the typing indicator after this user message
-            const typingIndicator = currentMsg.nextElementSibling;
-            if (typingIndicator && typingIndicator.classList.contains('typing-indicator')) {
-              // Show typing indicator
-              setTimeout(() => {
-                typingIndicator.classList.remove('hidden');
+        // Create observer for messages
+        const messageObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            // Only process if the current element is fully visible
+            if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
+              const currentMsg = entry.target;
+              const index = Array.from(messages).indexOf(currentMsg);
+              
+              // If this is a user message and not the last one
+              if (currentMsg.classList.contains('user') && index < messages.length - 1) {
+                // Get the next message which should be an assistant message
+                const nextMsg = messages[index + 1];
                 
-                // Show assistant response after delay
-                setTimeout(() => {
-                  messages[index + 1].classList.remove('hidden');
-                  messages[index + 1].classList.add('visible');
-                  typingIndicator.classList.add('hidden');
-                  
-                  // Continue with next message
-                  continueConversation(index + 2);
-                }, 1500);
-              }, 500);
+                // Find the typing indicator between these messages
+                let typingIndicator = null;
+                let node = currentMsg.nextSibling;
+                while (node && node !== nextMsg) {
+                  if (node.classList && node.classList.contains('typing-indicator')) {
+                    typingIndicator = node;
+                    break;
+                  }
+                  node = node.nextSibling;
+                }
+                
+                if (typingIndicator && nextMsg.classList.contains('assistant')) {
+                  // Only proceed if the next message is still hidden
+                  if (nextMsg.classList.contains('hidden')) {
+                    // Show typing indicator
+                    setTimeout(() => {
+                      typingIndicator.classList.add('visible');
+                      
+                      // After a delay, show the assistant message and hide the indicator
+                      setTimeout(() => {
+                        nextMsg.classList.remove('hidden');
+                        nextMsg.classList.add('visible');
+                        
+                        // Start observing the next message
+                        messageObserver.observe(nextMsg);
+                        
+                        // Hide the typing indicator after the message is visible
+                        setTimeout(() => {
+                          typingIndicator.classList.remove('visible');
+                        }, 300);
+                      }, 1500);
+                    }, 800);
+                    
+                    // Stop observing this message to avoid duplicate animations
+                    messageObserver.unobserve(currentMsg);
+                  }
+                }
+              }
             }
-          } else {
-            // If this is an assistant message, continue to next message after a delay
-            setTimeout(() => {
-              continueConversation(index + 1);
-            }, 300);
-          }
+          });
+        }, { 
+          threshold: 0.8,
+          rootMargin: "0px 0px -100px 0px" // Trigger when message is fully in view with 100px space below
+        });
+        
+        // Start observing the first visible message (user message)
+        if (messages.length > 0 && messages[0].classList.contains('visible')) {
+          messageObserver.observe(messages[0]);
         }
       }
       
@@ -460,7 +466,7 @@ layout: null
           });
           
           typingIndicators.forEach(indicator => {
-            indicator.classList.add('hidden');
+            indicator.classList.remove('visible');
           });
         } else {
           // Reset and re-initialize animations
@@ -470,7 +476,7 @@ layout: null
           });
           
           typingIndicators.forEach(indicator => {
-            indicator.classList.add('hidden');
+            indicator.classList.remove('visible');
           });
           
           // Setup animations from scratch
