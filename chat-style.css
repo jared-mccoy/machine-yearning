@@ -120,6 +120,7 @@ a:hover {
   border-radius: 4px;
   transition: all 0.3s ease;
   margin-right: 8px;
+  position: relative;
 }
 
 .animation-toggle:hover {
@@ -131,15 +132,22 @@ a:hover {
   width: 20px;
   height: 20px;
   fill: currentColor;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
 }
 
 /* Show the appropriate icon based on animation state */
-.animation-toggle.enabled .disabled-icon {
-  display: none;
+[data-animation="disabled"] .animation-toggle .enabled-icon,
+.animation-toggle[data-state="disabled"] .enabled-icon {
+  opacity: 0;
 }
 
-.animation-toggle.disabled .enabled-icon {
-  display: none;
+[data-animation="enabled"] .animation-toggle .disabled-icon,
+.animation-toggle[data-state="enabled"] .disabled-icon {
+  opacity: 0;
 }
 
 /* Chat navigation subheader */
@@ -402,80 +410,64 @@ a:hover {
 .typing-indicator {
   display: flex;
   align-items: center;
+  justify-content: center;
   align-self: flex-start;
-  background-color: transparent;
+  background-color: var(--background-color);
   border: 2px solid var(--assistant-color-light);
-  border-bottom-left-radius: 2px;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-radius: 12px;
+  padding: 8px 12px;
   margin-bottom: 20px;
   position: relative;
-  width: auto;
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
-  transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+  min-width: 60px;
+  min-height: 30px;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
 }
 
-.typing-indicator.visible {
-  opacity: 1;
-  height: auto;
-  padding: 16px 24px;
-  margin-bottom: 20px;
+.typing-indicator.hidden {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .typing-indicator span {
   width: 8px;
   height: 8px;
-  margin: 0 2px;
+  margin: 0 3px;
   background-color: var(--assistant-color);
   border-radius: 50%;
   display: inline-block;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .typing-indicator span:nth-child(1) {
-  animation: typing 1.4s infinite ease-in-out;
+  animation: bounce 1s infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-  animation: typing 1.4s infinite ease-in-out 0.2s;
+  animation: bounce 1s infinite 0.2s;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation: typing 1.4s infinite ease-in-out 0.4s;
+  animation: bounce 1s infinite 0.4s;
 }
 
-@keyframes typing {
-  0% {
+@keyframes bounce {
+  0%, 60%, 100% {
     transform: translateY(0);
-    opacity: 0.6;
   }
-  50% {
-    transform: translateY(-5px);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 0.6;
+  30% {
+    transform: translateY(-6px);
   }
 }
 
 /* Hidden message for sequential display */
 .message.hidden {
-  opacity: 0;
-  height: 0;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  transition: opacity 0.4s ease, height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+  display: none;
 }
 
 .message.visible {
-  opacity: 1;
-  height: auto;
-  padding: 12px 16px;
-  margin-bottom: 20px;
+  display: block;
 }
 
 .message p {

@@ -85,7 +85,8 @@ title: machine yearning
     
     // Set initial toggle state
     const animationState = document.documentElement.getAttribute('data-animation') || 'enabled';
-    animationToggle.classList.add(animationState === 'enabled' ? 'enabled' : 'disabled');
+    const toggleClass = animationState === 'enabled' ? 'enabled' : 'disabled';
+    animationToggle.setAttribute('data-state', toggleClass);
     
     // Toggle animation on button click
     animationToggle.addEventListener('click', function() {
@@ -95,9 +96,8 @@ title: machine yearning
       document.documentElement.setAttribute('data-animation', newState);
       localStorage.setItem('animationEnabled', newState === 'enabled');
       
-      // Update toggle button class
-      this.classList.remove('enabled', 'disabled');
-      this.classList.add(newState);
+      // Update toggle button state
+      animationToggle.setAttribute('data-state', newState === 'enabled' ? 'enabled' : 'disabled');
     });
     
     // Load chats using the scanner

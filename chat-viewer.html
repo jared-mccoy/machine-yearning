@@ -224,7 +224,8 @@ layout: null
       
       // Set initial toggle state
       const animationState = document.documentElement.getAttribute('data-animation') || 'enabled';
-      animationToggle.classList.add(animationState === 'enabled' ? 'enabled' : 'disabled');
+      const toggleClass = animationState === 'enabled' ? 'enabled' : 'disabled';
+      animationToggle.setAttribute('data-state', toggleClass);
       
       // Toggle animation on button click
       animationToggle.addEventListener('click', function() {
@@ -234,9 +235,8 @@ layout: null
         document.documentElement.setAttribute('data-animation', newState);
         localStorage.setItem('animationEnabled', newState === 'enabled');
         
-        // Update toggle button class
-        this.classList.remove('enabled', 'disabled');
-        this.classList.add(newState);
+        // Update toggle button state
+        animationToggle.setAttribute('data-state', newState === 'enabled' ? 'enabled' : 'disabled');
         
         // Apply animation state to messages
         applyAnimationState(newState === 'enabled');
@@ -331,126 +331,150 @@ layout: null
       function setupAnimations() {
         const animationEnabled = document.documentElement.getAttribute('data-animation') === 'enabled';
         
+        // Get all messages
+        const messages = document.querySelectorAll('.message');
+        
+        // Remove any existing typing indicators
+        document.querySelectorAll('.typing-indicator').forEach(indicator => {
+          indicator.remove();
+        });
+        
         if (!animationEnabled) {
           // If animations are disabled, make sure all messages are visible
-          document.querySelectorAll('.message').forEach(msg => {
+          messages.forEach(msg => {
             msg.classList.remove('hidden');
             msg.classList.add('visible');
           });
           return;
         }
         
-        // Initialize animation state
-        const messages = document.querySelectorAll('.message');
-        
-        // Initially hide all messages except the first in each conversation
-        let visibleCount = 0;
+        // First, hide all messages except the first user message
         messages.forEach((msg, index) => {
-          // Show the first message from each speaker by default
-          const isFirstUserMsg = msg.classList.contains('user') && 
-                              !Array.from(messages).slice(0, index).some(m => m.classList.contains('user'));
-          const isFirstAssistantMsg = msg.classList.contains('assistant') && 
-                                  !Array.from(messages).slice(0, index).some(m => m.classList.contains('assistant'));
-          
-          if (isFirstUserMsg || isFirstAssistantMsg || visibleCount < 2) {
+          if (index === 0 && msg.classList.contains('user')) {
             msg.classList.add('visible');
-            visibleCount++;
+            msg.classList.remove('hidden');
           } else {
             msg.classList.add('hidden');
+            msg.classList.remove('visible');
           }
         });
         
-        // Create typing indicators after each visible user message that's followed by a hidden assistant message
-        messages.forEach((msg, index) => {
-          if (msg.classList.contains('user') && msg.classList.contains('visible') && 
-              index < messages.length - 1 && 
-              messages[index + 1].classList.contains('assistant') && 
-              messages[index + 1].classList.contains('hidden')) {
-            
-            // Create typing indicator
-            const typingIndicator = document.createElement('div');
-            typingIndicator.className = 'typing-indicator';
-            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            
-            // Insert after the current message
-            msg.parentNode.insertBefore(typingIndicator, msg.nextSibling);
-          }
-        });
-        
-        // Setup intersection observers to trigger animations
-        setupIntersectionObservers();
-      }
-      
-      // Setup intersection observers to trigger typing and message reveals
-      function setupIntersectionObservers() {
-        const messages = document.querySelectorAll('.message.visible');
-        const hiddenMessages = document.querySelectorAll('.message.hidden');
-        
-        // Create observer for visible messages to trigger typing indicators
-        const messageObserver = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && entry.target.classList.contains('user')) {
-              // Find the next typing indicator
-              let nextElement = entry.target.nextElementSibling;
-              if (nextElement && nextElement.classList.contains('typing-indicator')) {
-                // Show typing indicator with delay
-                setTimeout(() => {
-                  nextElement.classList.add('visible');
-                  
-                  // After a delay, show the next message and remove the indicator
-                  setTimeout(() => {
-                    const nextMessage = nextElement.nextElementSibling;
-                    if (nextMessage && nextMessage.classList.contains('hidden')) {
-                      nextMessage.classList.remove('hidden');
-                      nextMessage.classList.add('visible');
-                      nextElement.classList.remove('visible');
-                      
-                      // Update observers
-                      messageObserver.observe(nextMessage);
-                      setupIntersectionObservers();
-                    }
-                  }, 1200); // Time typing indicator is shown
-                }, 500); // Delay before typing indicator appears
-              }
+        // Add typing indicators after user messages
+        for (let i = 0; i < messages.length; i++) {
+          const currentMsg = messages[i];
+          
+          if (currentMsg.classList.contains('user')) {
+            // If this is a user message and there's a next message that's an assistant message
+            if (i + 1 < messages.length && messages[i + 1].classList.contains('assistant')) {
+              // Add typing indicator after this user message
+              const typingIndicator = document.createElement('div');
+              typingIndicator.className = 'typing-indicator';
+              typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+              typingIndicator.classList.add('hidden'); // Initially hidden
+              currentMsg.parentNode.insertBefore(typingIndicator, currentMsg.nextSibling);
             }
-          });
-        }, { threshold: 0.5 });
+          }
+        }
         
-        // Observe all visible messages
-        messages.forEach(msg => {
-          messageObserver.observe(msg);
-        });
+        // Show the first message immediately
+        if (messages.length > 0) {
+          messages[0].classList.remove('hidden');
+          messages[0].classList.add('visible');
+          
+          // Show typing indicator after a short delay if the first message is from user
+          if (messages[0].classList.contains('user') && messages.length > 1 && messages[1].classList.contains('assistant')) {
+            const typingIndicator = messages[0].nextElementSibling;
+            if (typingIndicator && typingIndicator.classList.contains('typing-indicator')) {
+              setTimeout(() => {
+                typingIndicator.classList.remove('hidden');
+                
+                // Show the assistant's response after a delay
+                setTimeout(() => {
+                  messages[1].classList.remove('hidden');
+                  messages[1].classList.add('visible');
+                  typingIndicator.classList.add('hidden');
+                  
+                  // Continue with the conversation
+                  continueConversation(2);
+                }, 1500);
+              }, 500);
+            }
+          }
+        }
+        
+        // Function to continue showing messages in sequence
+        function continueConversation(index) {
+          if (index >= messages.length) return;
+          
+          const currentMsg = messages[index];
+          
+          // Show the current message
+          currentMsg.classList.remove('hidden');
+          currentMsg.classList.add('visible');
+          
+          // If this is a user message and next message is assistant, show typing
+          if (currentMsg.classList.contains('user') && 
+              index + 1 < messages.length && 
+              messages[index + 1].classList.contains('assistant')) {
+            
+            // Find the typing indicator after this user message
+            const typingIndicator = currentMsg.nextElementSibling;
+            if (typingIndicator && typingIndicator.classList.contains('typing-indicator')) {
+              // Show typing indicator
+              setTimeout(() => {
+                typingIndicator.classList.remove('hidden');
+                
+                // Show assistant response after delay
+                setTimeout(() => {
+                  messages[index + 1].classList.remove('hidden');
+                  messages[index + 1].classList.add('visible');
+                  typingIndicator.classList.add('hidden');
+                  
+                  // Continue with next message
+                  continueConversation(index + 2);
+                }, 1500);
+              }, 500);
+            }
+          } else {
+            // If this is an assistant message, continue to next message after a delay
+            setTimeout(() => {
+              continueConversation(index + 1);
+            }, 300);
+          }
+        }
       }
       
       // Apply animation state change (enable/disable)
       function applyAnimationState(enabled) {
+        document.documentElement.setAttribute('data-animation', enabled ? 'enabled' : 'disabled');
+        
+        // Get all messages and typing indicators
         const messages = document.querySelectorAll('.message');
         const typingIndicators = document.querySelectorAll('.typing-indicator');
         
-        if (enabled) {
-          // Reset to initial state and re-setup animations
-          messages.forEach(msg => {
-            msg.classList.remove('visible');
-            msg.classList.add('hidden');
-          });
-          
-          // Remove existing typing indicators
-          typingIndicators.forEach(indicator => {
-            indicator.remove();
-          });
-          
-          // Re-setup animations from scratch
-          setupAnimations();
-        } else {
-          // Make all messages visible and remove typing indicators
+        if (!enabled) {
+          // Show all messages and hide all typing indicators
           messages.forEach(msg => {
             msg.classList.remove('hidden');
             msg.classList.add('visible');
           });
           
           typingIndicators.forEach(indicator => {
-            indicator.remove();
+            indicator.classList.add('hidden');
           });
+        } else {
+          // Reset and re-initialize animations
+          messages.forEach(msg => {
+            msg.classList.remove('visible');
+            msg.classList.add('hidden');
+          });
+          
+          typingIndicators.forEach(indicator => {
+            indicator.classList.add('hidden');
+          });
+          
+          // Setup animations from scratch
+          setupAnimations();
         }
       }
       
