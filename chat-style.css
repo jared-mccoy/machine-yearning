@@ -22,6 +22,9 @@ html, body {
   --section-header-bg-hover: #ebebeb;
   --accent-color: var(--assistant-color);  /* Default accent uses assistant color */
   --accent-color-light: var(--assistant-color-light);
+  --color-light: rgb(101, 123, 131); /* Plaintext color for light mode */
+  --color-dark: rgb(204, 204, 204);  /* Plaintext color for dark mode */
+  --code-color: var(--color-light);  /* Default code color */
 }
 
 /* Dark theme colors */
@@ -34,6 +37,7 @@ html, body {
   --section-header-bg-hover: #3d3d3d;
   --accent-color: var(--user-color);  /* Invert: accent uses user color in dark mode */
   --accent-color-light: var(--user-color-light);
+  --code-color: var(--color-dark);    /* Code color for dark mode */
 }
 
 /* Chat Interface Styling for GitHub Pages */
@@ -375,9 +379,14 @@ a:hover {
   margin-bottom: 4px;
 }
 
-/* Basic code styling that works with Prism's Solarized Light theme */
+/* Basic code styling that works with Prism's themes */
 code {
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  color: var(--code-color);
+}
+
+pre {
+  background-color: transparent;
 }
 
 blockquote {
