@@ -171,13 +171,19 @@ async function initChatViewer(chatPath) {
     const markdown = await response.text();
     debugLog(`Received markdown content (${markdown.length} chars)`);
     
+    // Extract the filename from the path to use as fallback
+    const fileName = chatPath.split('/').pop().replace('.md', '');
+    
     // Extract title from the markdown
-    let title = 'Chat';
+    let title = fileName; // Default to filename instead of hardcoded 'Chat'
     const titleMatch = markdown.match(/^#\s+(.+)$/m);
     if (titleMatch) {
       title = titleMatch[1].trim();
       document.title = `${title} | Machine Yearning`;
-      debugLog(`Set page title to: ${title}`);
+      debugLog(`Set page title to: ${title} (from H1 header)`);
+    } else {
+      document.title = `${title} | Machine Yearning`;
+      debugLog(`Set page title to: ${title} (from filename)`);
     }
     
     // Update navigation elements

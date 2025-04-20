@@ -171,7 +171,7 @@ class ChatDirectoryScanner {
           logMsg(`Received API data with ${apiData.chats.length} files`);
           
           // Process files from API
-          this.processFilesFromApi(apiData.chats);
+          await this.processFilesFromApi(apiData.chats);
           this.isLoading = false;
           return this.dates;
         } else {
@@ -255,18 +255,19 @@ class ChatDirectoryScanner {
    * Process files from the API response
    * @param {Array} files Array of file objects from the API
    */
-  processFilesFromApi(files) {
+  async processFilesFromApi(files) {
     // Group files by date
     const dateMap = {};
     
-    files.forEach(file => {
+    // Create an array of promises for fetching file contents
+    const filePromises = files.map(async file => {
       // Extract date from path (assuming path format like "content/2025.04.15/file.md")
       const pathParts = file.path.split('/');
       if (pathParts.length >= 2) {
         const dateDir = pathParts[1];
         
         // Skip non-markdown files
-        if (!file.name.endsWith('.md')) return;
+        if (!file.name.endsWith('.md')) return null;
         
         // Create date entry if it doesn't exist
         if (!dateMap[dateDir]) {
@@ -277,16 +278,38 @@ class ChatDirectoryScanner {
           };
         }
         
-        // Add file to date
+        // Create the file data object with filename as default title
         const fileData = {
           path: file.path,
           title: file.name.replace('.md', '')
         };
         
+        // Try to extract title from the file content
+        try {
+          const fileResponse = await fetch(file.path);
+          if (fileResponse.ok) {
+            const markdown = await fileResponse.text();
+            const titleMatch = markdown.match(/^#\s+(.+)$/m);
+            if (titleMatch) {
+              fileData.title = titleMatch[1].trim();
+            }
+          }
+        } catch (e) {
+          console.warn(`Failed to extract title from ${file.path}:`, e);
+        }
+        
+        // Add to the date's files array
         dateMap[dateDir].files.push(fileData);
-        this.chats.push(fileData);
+        return fileData;
       }
+      return null;
     });
+    
+    // Wait for all file processing to complete
+    const processedFiles = await Promise.all(filePromises);
+    
+    // Add valid files to the chats array
+    this.chats = processedFiles.filter(file => file !== null);
     
     // Convert map to array
     this.dates = Object.values(dateMap);
