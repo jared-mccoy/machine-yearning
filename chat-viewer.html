@@ -563,13 +563,13 @@ layout: null
           entries.forEach(entry => {
             const currentMsg = entry.target;
             
-            // We want to be quite generous with what we consider "intersecting"
-            // A small portion visible should be enough to start observing
+            // Process when message enters viewport or gets close to it
             if (entry.isIntersecting || entry.intersectionRatio > 0.05) {
               const index = Array.from(messages).indexOf(currentMsg);
               
-              // Track which messages have been observed to avoid double-queueing
-              if (!currentMsg.hasAttribute('data-observed')) {
+              // Ensure we're handling this message if it's not processed yet
+              if (!currentMsg.hasAttribute('data-observed') || currentMsg.classList.contains('hidden')) {
+                // Mark as observed
                 currentMsg.setAttribute('data-observed', 'true');
                 
                 // Queue this message if it's not already visible and not already queued
@@ -580,32 +580,8 @@ layout: null
                   processNextInQueue();
                 }
                 
-                // Check if there's a next message to reveal
-                if (index < messages.length - 1) {
-                  const nextMsg = messages[index + 1];
-                  
-                  // Add a small delay before checking the next message
-                  setTimeout(() => {
-                    // If next message is near view, queue it
-                    const rect = nextMsg.getBoundingClientRect();
-                    const distanceFromViewport = rect.top - window.innerHeight;
-                    
-                    // Queue even if it's well below viewport to look ahead more aggressively
-                    if (distanceFromViewport < 500) { // Increased lookahead distance
-                      if (nextMsg.classList.contains('hidden') && 
-                          !nextMsg.hasAttribute('data-observed') &&
-                          !messageQueue.includes(nextMsg) && 
-                          !animationFailedMessages.includes(nextMsg)) {
-                        nextMsg.setAttribute('data-observed', 'true');
-                        messageQueue.push(nextMsg);
-                        processNextInQueue();
-                      }
-                    }
-                    
-                    // Start observing the next message regardless
-                    messageObserver.observe(nextMsg);
-                  }, 100);
-                }
+                // Always check if there are more messages to queue
+                checkFollowingMessages(index);
               }
               
               // If message is fully visible, stop observing 
@@ -616,8 +592,45 @@ layout: null
           });
         }, {
           threshold: [0.05, 0.5, 0.8], // Observe at multiple thresholds
-          rootMargin: "0px 0px 100px 0px" // Extend bottom margin to detect earlier
+          rootMargin: "0px 0px 300px 0px" // Extend bottom margin to detect earlier - increased to 300px
         });
+        
+        // Helper function to check and queue following messages
+        function checkFollowingMessages(currentIndex) {
+          // Check for next messages to reveal
+          if (currentIndex < messages.length - 1) {
+            // Look ahead for up to 3 messages
+            const lookaheadCount = Math.min(3, messages.length - currentIndex - 1);
+            
+            for (let i = 1; i <= lookaheadCount; i++) {
+              const nextMsg = messages[currentIndex + i];
+              
+              // Skip if already being processed
+              if (nextMsg.hasAttribute('data-observed') && !nextMsg.classList.contains('hidden')) {
+                continue;
+              }
+              
+              // Check if in view or near viewport
+              const rect = nextMsg.getBoundingClientRect();
+              const distanceFromViewport = rect.top - window.innerHeight;
+              
+              // Queue if within generous range
+              if (distanceFromViewport < 800) { // Very generous lookahead for end of page
+                if (nextMsg.classList.contains('hidden') && 
+                    !messageQueue.includes(nextMsg) && 
+                    !animationFailedMessages.includes(nextMsg)) {
+                  // Mark message for observation
+                  nextMsg.setAttribute('data-observed', 'true');
+                  messageQueue.push(nextMsg);
+                  processNextInQueue();
+                }
+              }
+              
+              // Always observe the next message for better tracking
+              messageObserver.observe(nextMsg);
+            }
+          }
+        }
         
         // Start by observing the first message
         if (messages.length > 0) {
@@ -626,26 +639,56 @@ layout: null
             lastSenderWasUser = true;
           }
           messageObserver.observe(messages[0]);
+          
+          // Pre-queue the second message to prevent stalling
+          if (messages.length > 1) {
+            const secondMsg = messages[1];
+            if (!secondMsg.hasAttribute('data-observed') && 
+                secondMsg.classList.contains('hidden') &&
+                !messageQueue.includes(secondMsg)) {
+              secondMsg.setAttribute('data-observed', 'true');
+              messageQueue.push(secondMsg);
+            }
+          }
         }
         
-        // Add scroll event listener to trigger checking for failed messages
+        // Add scroll event listener for more aggressive message queueing at page bottom
         window.addEventListener('scroll', function() {
+          // Handle failed messages
           if (animationFailedMessages.length > 0 && !animationInProgress && !typingIndicatorVisible) {
-            // Use a debounced version to prevent too many checks
             clearTimeout(window.scrollDebounceTimer);
             window.scrollDebounceTimer = setTimeout(() => {
               processNextInQueue();
             }, 100);
+            return;
           }
-        });
+          
+          // Check if we're near the bottom of the page
+          const scrollPosition = window.scrollY + window.innerHeight;
+          const pageHeight = document.documentElement.scrollHeight;
+          const isNearBottom = (pageHeight - scrollPosition) < 300;
+          
+          if (isNearBottom) {
+            // Find the last visible message
+            const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
+            if (visibleMessages.length > 0) {
+              const lastVisible = visibleMessages[visibleMessages.length - 1];
+              const lastVisibleIndex = Array.from(messages).indexOf(lastVisible);
+              
+              // Queue more messages when near the bottom
+              checkFollowingMessages(lastVisibleIndex);
+            }
+          }
+        }, { passive: true });
         
-        // Also start observing more initial messages that are close to the viewport
-        const initialVisibleCount = Math.min(6, messages.length);
+        // Also start observing more initial messages
+        const initialVisibleCount = Math.min(8, messages.length); // Increased from 6 to 8
         for (let i = 0; i < initialVisibleCount; i++) {
           const msg = messages[i];
           const rect = msg.getBoundingClientRect();
-          if (rect.top < window.innerHeight + 500) { // Much more generous initial observation
+          if (rect.top < window.innerHeight + 800) { // Much more generous initial observation range
             messageObserver.observe(msg);
+            msg.setAttribute('data-observed', 'true');
           }
         }
       }
