@@ -42,15 +42,10 @@ function initChatAnimations(firstMessageShown = false) {
   animationFailedMessages = [];
   typingIndicatorVisible = false;
   
-  // Hide all messages initially except the first
+  // Hide all messages initially except the first if it's already shown
   messages.forEach((msg, index) => {
     if (index === 0 && firstMessageShown) {
       // First message already shown by loading animation
-      msg.classList.add('visible');
-      msg.classList.remove('hidden');
-      msg.setAttribute('data-observed', 'processed');
-    } else if (index === 0) {
-      // First message should be shown if not already
       msg.classList.add('visible');
       msg.classList.remove('hidden');
       msg.setAttribute('data-observed', 'processed');
@@ -66,6 +61,13 @@ function initChatAnimations(firstMessageShown = false) {
   
   // Set up bottom-of-page detection for revealing more messages
   setupScrollHandler();
+  
+  // If first message is not shown yet, queue it up for immediate animation
+  if (!firstMessageShown && messages.length > 0) {
+    const firstMessage = messages[0];
+    animationQueue.push(firstMessage);
+    processNextInQueue();
+  }
   
   if (window.debugLog) {
     window.debugLog('Chat animations initialized');
@@ -135,20 +137,14 @@ function setupScrollObservers() {
       lastSenderWasUser = true;
     }
     
-    // Mark first message as already processed and make it visible immediately
-    firstMsg.setAttribute('data-observed', 'processed');
-    firstMsg.classList.remove('hidden');
-    firstMsg.classList.add('visible');
-    
     // Start observing the second message
     if (messages.length > 1) {
       const secondMsg = messages[1];
       if (!secondMsg.hasAttribute('data-observed')) {
         messageObserver.observe(secondMsg);
         
-        // Pre-queue the second message to start animations
+        // Pre-queue the second message to be ready after the first
         secondMsg.setAttribute('data-observed', 'true');
-        animationQueue.push(secondMsg);
         
         // Also observe third message if it exists
         if (messages.length > 2) {
@@ -291,21 +287,8 @@ function processNextInQueue() {
   // Get the visible message count
   const visibleCount = document.querySelectorAll('.message.visible').length;
   
-  // Skip animation for the first few messages to get things started
-  if (visibleCount < 1) {
-    // First message should be visible immediately without animation
-    currentMsg.classList.remove('hidden');
-    currentMsg.classList.add('visible');
-    currentMsg.setAttribute('data-observed', 'processed');
-    lastSenderWasUser = currentIsUser;
-    
-    // Move to next message immediately
-    setTimeout(() => {
-      animationInProgress = false;
-      processNextInQueue();
-    }, 100);
-    return;
-  }
+  // For the first message, always show the typing animation
+  const isFirstMessage = visibleCount === 0;
   
   // Create typing indicator with appropriate class
   const typingIndicator = document.createElement('div');
