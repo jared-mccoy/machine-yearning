@@ -196,7 +196,7 @@ layout: null
   </div>
   
   <div id="chat-container">
-    <div id="loading" class="loading-indicator">Loading conversation...</div>
+    <div id="loading" class="loading-indicator"></div>
     <div id="markdown-content" class="markdown-body" style="display: none;"></div>
   </div>
   
@@ -285,6 +285,16 @@ layout: null
       // Main function to load and display the chat
       const loadChat = async () => {
         try {
+          // Immediately convert the loading div to a typing animation
+          const loadingIndicator = document.getElementById('loading');
+          loadingIndicator.className = 'typing-indicator initial-loader';
+          loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
+          loadingIndicator.classList.add('visible');
+          
+          // Minimum typing animation duration for initial loading
+          const MIN_TYPING_DURATION = 1200;
+          const startTime = Date.now();
+          
           // Initialize the chat scanner
           await window.chatScanner.init();
           
@@ -309,12 +319,6 @@ layout: null
           document.title = `machine yearning - ${pageTitle}`;
           document.getElementById('chat-nav-title').textContent = pageTitle;
           
-          // Replace loading text with typing indicator for initial animation
-          const loadingIndicator = document.getElementById('loading');
-          loadingIndicator.innerHTML = ''; // Clear loading text
-          loadingIndicator.className = 'typing-indicator initial-loader';
-          loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
-          
           // Short delay before displaying the markdown content
           const markdownContent = document.getElementById('markdown-content');
           
@@ -329,61 +333,57 @@ layout: null
             showTitle: false
           });
           
-          // Minimum typing animation duration for initial loading
-          const MIN_TYPING_DURATION = 1200;
-          const startTime = Date.now();
+          // Calculate elapsed time so far
+          let elapsed = Date.now() - startTime;
+          let remainingDelay = Math.max(0, MIN_TYPING_DURATION - elapsed);
           
-          // Wait for a short delay to let the content render 
+          // Wait for content to be ready, ensuring we meet minimum typing duration
           setTimeout(() => {
+            // Show the content container (but keep messages hidden)
+            markdownContent.style.display = 'block';
+            
             // Enhance code blocks
             enhanceCodeBlocks();
             
             // Get all messages after content is rendered
             const messages = document.querySelectorAll('.message');
             
-            // Show the content container but keep all messages hidden initially
-            markdownContent.style.display = 'block';
-            
-            // Hide all messages
+            // Hide all messages initially
             messages.forEach(msg => {
               msg.classList.add('hidden');
               msg.classList.remove('visible');
             });
             
-            // Prepare the first message
+            // Prepare to position the typing indicator for the first message
             const firstMessage = messages[0];
-            if (firstMessage) {
-              // Position the loading typing indicator before the first message
-              if (firstMessage.parentNode) {
-                // Move the loading indicator to be positioned exactly where the first message will appear
-                loadingIndicator.classList.add('visible');
-                firstMessage.parentNode.insertBefore(loadingIndicator, firstMessage);
+            if (firstMessage && firstMessage.parentNode) {
+              // Move the loading indicator to be positioned exactly where the first message will appear
+              firstMessage.parentNode.insertBefore(loadingIndicator, firstMessage);
+              
+              // Now wait for the remaining minimum typing time before showing the first message
+              const totalElapsed = Date.now() - startTime;
+              const finalDelay = Math.max(0, MIN_TYPING_DURATION - totalElapsed);
+              
+              setTimeout(() => {
+                // Hide the typing indicator with fade-out
+                loadingIndicator.classList.remove('visible');
                 
-                // Calculate how much more time we need to show the animation
-                const elapsed = Date.now() - startTime;
-                const remainingDelay = Math.max(MIN_TYPING_DURATION, elapsed) - elapsed;
-                
-                // After the minimum animation duration, show the first message
+                // After animation completes, show the first message
                 setTimeout(() => {
-                  // Remove loading indicator with fade-out effect
-                  loadingIndicator.classList.remove('visible');
+                  // Remove the typing indicator
+                  loadingIndicator.remove();
                   
-                  // Complete removal after transition
+                  // Show first message
+                  firstMessage.classList.remove('hidden');
+                  firstMessage.classList.add('visible');
+                  firstMessage.setAttribute('data-observed', 'processed');
+                  
+                  // Setup animations for the rest after first message is shown
                   setTimeout(() => {
-                    loadingIndicator.remove();
-                    
-                    // Show first message
-                    firstMessage.classList.remove('hidden');
-                    firstMessage.classList.add('visible');
-                    firstMessage.setAttribute('data-observed', 'processed');
-                    
-                    // Setup animations for the rest after the first message is shown
-                    setTimeout(() => {
-                      setupAnimations(true); // Pass true to indicate first message is already shown
-                    }, 100);
-                  }, 300);
-                }, remainingDelay);
-              }
+                    setupAnimations(true); // Pass true to indicate first message is already shown
+                  }, 100);
+                }, 300);
+              }, finalDelay);
             } else {
               // Edge case: no messages found
               loadingIndicator.remove();
