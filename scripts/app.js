@@ -180,10 +180,42 @@ async function initChatViewer(chatPath) {
       debugLog(`Set page title to: ${title}`);
     }
     
+    // Update navigation elements
+    const navElement = document.getElementById('chat-nav');
+    const prevLink = document.getElementById('prev-link');
+    const nextLink = document.getElementById('next-link');
+    const chatTitle = document.getElementById('chat-title');
+    
+    if (navElement && prevLink && nextLink && chatTitle) {
+      // Show the navigation
+      navElement.style.display = 'flex';
+      
+      // Update title
+      chatTitle.textContent = title;
+      
+      // Update prev link
+      if (nav.prev) {
+        prevLink.href = `index.html?path=${nav.prev.path}`;
+        prevLink.classList.remove('disabled');
+      } else {
+        prevLink.href = '#';
+        prevLink.classList.add('disabled');
+      }
+      
+      // Update next link
+      if (nav.next) {
+        nextLink.href = `index.html?path=${nav.next.path}`;
+        nextLink.classList.remove('disabled');
+      } else {
+        nextLink.href = '#';
+        nextLink.classList.add('disabled');
+      }
+    }
+    
     // Set up navigation config with proper links
     const navConfig = {
-      prevLink: nav.prev ? `index.html?path=${nav.prev.path}` : null,
-      nextLink: nav.next ? `index.html?path=${nav.next.path}` : null,
+      prevLink: null, // Don't use converter's navigation
+      nextLink: null, // Don't use converter's navigation
       title: title
     };
     
