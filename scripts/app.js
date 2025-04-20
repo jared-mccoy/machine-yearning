@@ -185,7 +185,7 @@ async function initChatViewer(chatPath) {
     
     // Calculate minimum loading time for a better UI experience
     const startTime = Date.now();
-    const MIN_LOADING_TIME = 800;
+    const MIN_LOADING_TIME = 1200; // Longer time to match original
     
     // Initialize the chat converter with the markdown content
     if (window.initChatConverter) {
@@ -212,15 +212,15 @@ async function initChatViewer(chatPath) {
             if (loadingIndicator.parentNode) {
               loadingIndicator.parentNode.removeChild(loadingIndicator);
             }
+            
+            // Initialize animations if available - moved inside to ensure proper timing
+            if (window.chatAnimations) {
+              debugLog('Initializing chat animations');
+              window.chatAnimations.initChatAnimations(true); // Pass true to indicate first message is shown
+            } else {
+              debugLog('Chat animations not available');
+            }
           }, 300);
-        }
-        
-        // Initialize animations if available
-        if (window.chatAnimations) {
-          debugLog('Initializing chat animations');
-          window.chatAnimations.initChatAnimations();
-        } else {
-          debugLog('Chat animations not available');
         }
       }, remainingDelay);
     } else {

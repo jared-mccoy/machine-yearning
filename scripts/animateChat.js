@@ -312,6 +312,15 @@ function processNextInQueue() {
   typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
   typingIndicator.innerHTML = '<span></span><span></span><span></span>';
   
+  // Position indicator appropriately based on type
+  if (currentIsUser) {
+    typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
+    typingIndicator.style.marginLeft = 'auto';    // Push to the right side
+  } else {
+    typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
+    typingIndicator.style.marginRight = 'auto';     // Keep on the left side
+  }
+  
   // Store reference to current message
   typingIndicator.messageReference = currentMsg;
   
@@ -446,6 +455,10 @@ function createInitialTypingIndicator() {
   loadingIndicator.className = 'typing-indicator initial-loader';
   loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
   loadingIndicator.classList.add('visible');
+  
+  // Add specific styling for initial loader to center it
+  loadingIndicator.style.cssText = 'text-align: center; padding: 3rem; margin: 2rem auto; max-width: 100px;';
+  
   return loadingIndicator;
 }
 

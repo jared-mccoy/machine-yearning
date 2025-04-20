@@ -127,6 +127,20 @@
   height: 0;
 }
 
+/* Chat container */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Message container */
+.message-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* Message styling */
 .message {
   margin-bottom: 20px;
@@ -140,6 +154,7 @@
 
 .user {
   align-self: flex-end;
+  margin-left: auto; /* Add this to push user messages to the right */
   background-color: transparent;
   border: 2px solid var(--user-color-light);
   border-bottom-right-radius: 2px;
@@ -151,6 +166,7 @@
 
 .assistant {
   align-self: flex-start;
+  margin-right: auto; /* Add this to keep assistant messages on the left */
   background-color: transparent;
   border: 2px solid var(--assistant-color-light);
   border-bottom-left-radius: 2px;
@@ -310,4 +326,22 @@ pre code::-webkit-scrollbar-thumb {
 
 [data-theme="dark"] pre::-webkit-scrollbar-thumb {
   background: var(--color-dark);
+}
+
+/* Styling for the initial loading indicator */
+.initial-loader {
+  text-align: center;
+  padding: 3rem !important;
+  margin: 2rem auto !important;
+  max-width: 100px !important;
+  align-self: center !important;
+}
+
+.initial-loader span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  margin: 0 6px;
 } 

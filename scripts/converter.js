@@ -470,7 +470,12 @@ function processConversation(messages, renderer) {
   // Process each message
   messages.forEach((message, index) => {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${message.speaker.toLowerCase()}`;
+    // Add the hidden class to all messages except the first one to enable animations
+    if (index === 0) {
+      messageDiv.className = `message ${message.speaker.toLowerCase()}`;
+    } else {
+      messageDiv.className = `message ${message.speaker.toLowerCase()} hidden`;
+    }
     messageDiv.dataset.index = index;
     
     // Render the message content using the provided renderer
