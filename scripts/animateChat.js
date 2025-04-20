@@ -241,6 +241,78 @@ function checkFollowingMessages(currentIndex) {
 }
 
 /**
+ * Calculate typing time based on message content
+ * @param {Element} message - The message element
+ * @param {boolean} isUserMessage - Whether this is a user message
+ * @returns {number} Milliseconds for typing animation
+ */
+function calculateTypingTime(message, isUserMessage) {
+  // Get settings
+  let settings = DEFAULT_ANIMATION_SETTINGS;
+  if (window.appSettings && window.appSettings.get) {
+    settings = window.appSettings.get().chat.typingAnimation;
+  }
+  
+  // Default times in case of error or special cases
+  if (isUserMessage) {
+    return settings.minTypingTime; // User messages are always fast
+  }
+  
+  // Get the text content (all text, including nested elements)
+  const text = message.textContent || '';
+  
+  // Count words (approximately)
+  const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+  
+  // If wordsPerMinute is false or 0, use fixed range
+  if (!settings.wordsPerMinute) {
+    return Math.min(
+      settings.maxTypingTime,
+      Math.max(settings.minTypingTime, wordCount * 50)
+    );
+  }
+  
+  // Calculate base time in milliseconds: (words / words per minute) * 60 * 1000
+  const baseTimeMs = (wordCount / settings.wordsPerMinute) * 60 * 1000;
+  
+  // Add variance to make it more natural
+  const varianceFactor = 1 + (Math.random() * (settings.variancePercentage / 100) * 2 - settings.variancePercentage / 100);
+  
+  // Apply bounds
+  return Math.min(
+    settings.maxTypingTime,
+    Math.max(settings.minTypingTime, baseTimeMs * varianceFactor)
+  );
+}
+
+/**
+ * Determine the size category of a message for animation
+ * @param {Element} message - The message element
+ * @returns {string} Size category: "small", "medium", or "large"
+ */
+function getMessageSize(message) {
+  const text = message.textContent || '';
+  const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+  
+  if (wordCount < 20) {
+    return "small";
+  } else if (wordCount < 50) {
+    return "medium";
+  } else {
+    return "large";
+  }
+}
+
+// Default animation settings in case settings module is not available
+const DEFAULT_ANIMATION_SETTINGS = {
+  enabled: true,
+  wordsPerMinute: 200,
+  minTypingTime: 800,
+  maxTypingTime: 6000,
+  variancePercentage: 15
+};
+
+/**
  * Process the next message in the animation queue
  */
 function processNextInQueue() {
@@ -284,6 +356,16 @@ function processNextInQueue() {
   typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
   typingIndicator.innerHTML = '<span></span><span></span><span></span>';
   
+  // Set size attribute based on message length
+  if (!currentIsUser) { // Only apply to assistant messages
+    const messageSize = getMessageSize(currentMsg);
+    typingIndicator.setAttribute('data-size', messageSize);
+    
+    if (window.debugLog) {
+      window.debugLog(`Message size category: ${messageSize}`);
+    }
+  }
+  
   // Position indicator appropriately based on type
   if (currentIsUser) {
     typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
@@ -325,6 +407,13 @@ function processNextInQueue() {
   // For debugging
   if (window.debugLog && isFirstMessage) {
     window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
+  }
+  
+  // Calculate dynamic typing time based on message content
+  const typingTime = calculateTypingTime(currentMsg, currentIsUser);
+  
+  if (window.debugLog) {
+    window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
   }
   
   // After typing animation completes, show the message
@@ -374,7 +463,7 @@ function processNextInQueue() {
         processNextInQueue();
       }, 300);
     }
-  }, currentIsUser ? 800 : 1200); // Shorter typing time for user messages
+  }, typingTime); // Use calculated dynamic typing time instead of fixed values
 }
 
 /**

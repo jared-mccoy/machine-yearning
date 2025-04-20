@@ -13,14 +13,24 @@ function initTheme() {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
   
-  // Check for saved animation preference
-  const animationEnabled = localStorage.getItem('animationEnabled');
-  if (animationEnabled !== null) {
-    document.documentElement.setAttribute('data-animation', animationEnabled === 'true' ? 'enabled' : 'disabled');
+  // Check for saved animation preference - fallback to local storage if settings aren't loaded yet
+  let animationEnabled;
+  
+  if (window.appSettings && window.appSettings.get) {
+    // Use settings module if available
+    animationEnabled = window.appSettings.get().chat.typingAnimation.enabled;
   } else {
-    // Default to enabled
-    document.documentElement.setAttribute('data-animation', 'enabled');
+    // Fallback to localStorage
+    animationEnabled = localStorage.getItem('animationEnabled');
+    if (animationEnabled !== null) {
+      animationEnabled = animationEnabled === 'true';
+    } else {
+      // Default to enabled
+      animationEnabled = true;
+    }
   }
+  
+  document.documentElement.setAttribute('data-animation', animationEnabled ? 'enabled' : 'disabled');
 }
 
 // Set up theme toggle functionality
@@ -35,6 +45,19 @@ function setupThemeToggle() {
     
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
+    
+    // Update theme in settings if available
+    if (window.appSettings && window.appSettings.get) {
+      const settings = window.appSettings.get();
+      if (newTheme === 'light') {
+        document.documentElement.style.setProperty('--assistant-color', settings.theme.accentA);
+        document.documentElement.style.setProperty('--user-color', settings.theme.accentB);
+      } else {
+        // In dark mode, we swap the accents
+        document.documentElement.style.setProperty('--assistant-color', settings.theme.accentB);
+        document.documentElement.style.setProperty('--user-color', settings.theme.accentA);
+      }
+    }
   });
 }
 
@@ -44,7 +67,16 @@ function setupAnimationToggle() {
   if (!animationToggle) return;
   
   // Set initial toggle state
-  const animationState = document.documentElement.getAttribute('data-animation') || 'enabled';
+  let animationState;
+  
+  if (window.appSettings && window.appSettings.get) {
+    // Use settings module if available
+    animationState = window.appSettings.get().chat.typingAnimation.enabled ? 'enabled' : 'disabled';
+  } else {
+    // Fallback to DOM attribute
+    animationState = document.documentElement.getAttribute('data-animation') || 'enabled';
+  }
+  
   const toggleClass = animationState === 'enabled' ? 'enabled' : 'disabled';
   animationToggle.setAttribute('data-state', toggleClass);
   
@@ -55,6 +87,12 @@ function setupAnimationToggle() {
     
     document.documentElement.setAttribute('data-animation', newState);
     localStorage.setItem('animationEnabled', newState === 'enabled');
+    
+    // Update settings if available
+    if (window.appSettings && window.appSettings.get) {
+      const settings = window.appSettings.get();
+      settings.chat.typingAnimation.enabled = newState === 'enabled';
+    }
     
     // Update toggle button state
     animationToggle.setAttribute('data-state', newState === 'enabled' ? 'enabled' : 'disabled');

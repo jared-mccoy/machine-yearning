@@ -1,0 +1,15 @@
+{
+  "chat": {
+    "typingAnimation": {
+      "enabled": true,
+      "wordsPerMinute": 100,
+      "minTypingTime": 800,
+      "maxTypingTime": 6000,
+      "variancePercentage": 15
+    }
+  },
+  "theme": {
+    "accentA": "#192b91",
+    "accentB": "#ffc400"
+  }
+} 

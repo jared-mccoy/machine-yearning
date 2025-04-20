@@ -136,4 +136,116 @@ body {
 [data-animation="enabled"] .animation-toggle .disabled-icon,
 .animation-toggle[data-state="enabled"] .disabled-icon {
   opacity: 0;
+}
+
+/* Settings toggle button */
+.settings-toggle {
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+}
+
+.settings-toggle:hover {
+  background-color: transparent;
+  border-color: var(--accent-color);
+}
+
+.settings-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Settings panel */
+.settings-panel {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 300px;
+  background-color: var(--background-color);
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.settings-panel.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.settings-panel h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--accent-color);
+  font-size: 1.2rem;
+}
+
+.settings-panel label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.settings-panel input[type="number"],
+.settings-panel input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin-bottom: 12px;
+}
+
+.settings-panel input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.settings-panel .setting-group {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-panel .setting-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.settings-panel button {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.settings-panel button:hover {
+  opacity: 0.9;
+}
+
+.settings-panel .settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 } 
