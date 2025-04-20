@@ -58,6 +58,11 @@ function setupAnimationToggle() {
     
     // Update toggle button state
     animationToggle.setAttribute('data-state', newState === 'enabled' ? 'enabled' : 'disabled');
+    
+    // Update animation state using the animation controller
+    if (window.chatAnimations && window.chatAnimations.updateAnimationState) {
+      window.chatAnimations.updateAnimationState(newState === 'enabled');
+    }
   });
 }
 
