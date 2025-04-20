@@ -439,9 +439,9 @@ function createInitialTypingIndicator() {
   loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
   loadingIndicator.classList.add('visible');
   
-  // Add specific styling for initial loader to center it
-  // Use more compact styling to match regular typing indicators
-  loadingIndicator.style.cssText = 'text-align: center; padding: 8px 12px; margin: 2rem auto; width: auto; min-width: 60px; height: 34px; border-radius: 12px;';
+  // Remove excess inline styling, rely on CSS classes
+  // Only add minimal styling needed for initial positioning
+  loadingIndicator.style.margin = '2rem auto';
   
   return loadingIndicator;
 }
