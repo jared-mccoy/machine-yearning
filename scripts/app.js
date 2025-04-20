@@ -240,8 +240,12 @@ async function initChatViewer(chatPath) {
         msg.classList.remove('visible');
       });
       
-      // Wait until the minimum loading time has passed, then start animations
-      setTimeout(() => {
+      // Ensure the container has proper flex display for positioning
+      markdownContent.style.display = 'flex';
+      markdownContent.style.flexDirection = 'column';
+      
+      // Function to start animations once DOM is properly ready
+      const startAnimations = () => {
         if (window.chatAnimations) {
           debugLog('Initializing chat animations');
           window.chatAnimations.initChatAnimations();
@@ -255,7 +259,13 @@ async function initChatViewer(chatPath) {
             msg.classList.add('visible');
           });
         }
-      }, remainingDelay);
+      };
+
+      // Wait for next animation frame to ensure DOM is rendered
+      requestAnimationFrame(() => {
+        // Then wait one more frame to be extra sure
+        requestAnimationFrame(startAnimations);
+      });
     } else {
       debugLog('Chat converter not available');
       console.error('Chat converter not available');

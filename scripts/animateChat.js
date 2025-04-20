@@ -55,11 +55,17 @@ function initChatAnimations(firstMessageShown = false) {
   // Set up bottom-of-page detection for revealing more messages
   setupScrollHandler();
   
-  // Always queue up the first message for immediate animation
+  // Queue up the first message for animation
+  // We'll use requestAnimationFrame to ensure DOM is ready before starting
   if (messages.length > 0) {
     const firstMessage = messages[0];
     animationQueue.push(firstMessage);
-    processNextInQueue();
+    
+    // Wait for next animation frame to ensure DOM is fully ready
+    requestAnimationFrame(() => {
+      // Process the queue to start animations
+      processNextInQueue();
+    });
   }
   
   if (window.debugLog) {
