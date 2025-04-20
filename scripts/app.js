@@ -138,10 +138,15 @@ async function initChatViewer(chatPath) {
       return;
     }
     
-    // Make sure the loading indicator is visible
-    const loadingIndicator = document.getElementById('markdown-loading');
+    // Create a loading indicator if needed
+    let loadingIndicator = document.getElementById('markdown-loading');
     if (loadingIndicator) {
       loadingIndicator.style.display = 'block';
+    } else if (window.chatAnimations) {
+      // Create a typing indicator style loading animation
+      loadingIndicator = window.chatAnimations.createInitialTypingIndicator();
+      markdownContent.appendChild(loadingIndicator);
+      debugLog('Created animated loading indicator');
     }
 
     // Initialize the chat scanner to get navigation data
@@ -178,10 +183,9 @@ async function initChatViewer(chatPath) {
       title: title
     };
     
-    // Hide the loading indicator
-    if (loadingIndicator) {
-      loadingIndicator.style.display = 'none';
-    }
+    // Calculate minimum loading time for a better UI experience
+    const startTime = Date.now();
+    const MIN_LOADING_TIME = 800;
     
     // Initialize the chat converter with the markdown content
     if (window.initChatConverter) {
@@ -193,10 +197,41 @@ async function initChatViewer(chatPath) {
         showTitle: true
       });
       debugLog('Chat converter initialized');
+      
+      // Calculate remaining time for minimum loading experience
+      const elapsed = Date.now() - startTime;
+      const remainingDelay = Math.max(0, MIN_LOADING_TIME - elapsed);
+      
+      // Hide the loading indicator after minimum time has passed
+      setTimeout(() => {
+        if (loadingIndicator) {
+          loadingIndicator.classList.remove('visible');
+          
+          // Remove the indicator after its transition completes
+          setTimeout(() => {
+            if (loadingIndicator.parentNode) {
+              loadingIndicator.parentNode.removeChild(loadingIndicator);
+            }
+          }, 300);
+        }
+        
+        // Initialize animations if available
+        if (window.chatAnimations) {
+          debugLog('Initializing chat animations');
+          window.chatAnimations.initChatAnimations();
+        } else {
+          debugLog('Chat animations not available');
+        }
+      }, remainingDelay);
     } else {
       debugLog('Chat converter not available');
       console.error('Chat converter not available');
       markdownContent.innerHTML = `<div class="error-message">Chat converter not available. Please check that all scripts are loaded correctly.</div>`;
+      
+      // Remove loading indicator
+      if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+      }
     }
   } catch (error) {
     debugLog(`Error in initChatViewer: ${error.message}`);
@@ -209,6 +244,12 @@ async function initChatViewer(chatPath) {
         <p><a href="index.html">Return to Home</a></p>
       </div>
     `;
+    
+    // Remove loading indicator
+    const loadingIndicator = document.getElementById('markdown-loading');
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'none';
+    }
   }
 }
 
