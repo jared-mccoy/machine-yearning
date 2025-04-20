@@ -1,0 +1,135 @@
+/* Theme colors */
+:root {
+  --user-color: #ffc400;      /* User message color - solid version */
+  --user-color-light: #ffc40078; /* User message color - semi-transparent */
+  --assistant-color: #192b91;  /* Assistant message color - solid version */
+  --assistant-color-light: #192b9171; /* Assistant message color - semi-transparent */
+  --background-color: #ffffff;
+  --text-color: #333333;
+  --muted-color: #888888;
+  --border-color: #eeeeee;
+  --section-header-bg: #f5f5f5;
+  --section-header-bg-hover: #ebebeb;
+  --accent-color: var(--assistant-color);  /* Default accent uses assistant color */
+  --accent-color-light: var(--assistant-color-light);
+  --color-light: rgb(101, 123, 131); /* Plaintext color for light mode */
+  --color-dark: rgb(204, 204, 204);  /* Plaintext color for dark mode */
+  --code-color: var(--color-light);  /* Default code color */
+}
+
+/* Dark theme colors */
+[data-theme="dark"] {
+  --background-color: #1e1e1e;
+  --text-color: #ffffff;
+  --muted-color: #bbbbbb;
+  --border-color: #333333;
+  --section-header-bg: #2d2d2d;
+  --section-header-bg-hover: #3d3d3d;
+  --accent-color: var(--user-color);  /* Invert: accent uses user color in dark mode */
+  --accent-color-light: var(--user-color-light);
+  --code-color: var(--color-dark);    /* Code color for dark mode */
+}
+
+/* Simple reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Base styling */
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 20px 60px 20px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background-color: transparent;
+  border-color: var(--accent-color);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+/* Hide one icon at a time based on theme */
+[data-theme="dark"] .theme-toggle .sun-icon {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .moon-icon {
+  display: none;
+}
+
+/* Animation toggle button */
+.animation-toggle {
+  background: transparent;
+  border: 2px solid transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+  position: relative;
+}
+
+.animation-toggle:hover {
+  background-color: transparent;
+  border-color: var(--accent-color);
+}
+
+.animation-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+}
+
+/* Show the appropriate icon based on animation state */
+[data-animation="disabled"] .animation-toggle .enabled-icon,
+.animation-toggle[data-state="disabled"] .enabled-icon {
+  opacity: 0;
+}
+
+[data-animation="enabled"] .animation-toggle .disabled-icon,
+.animation-toggle[data-state="enabled"] .disabled-icon {
+  opacity: 0;
+} 

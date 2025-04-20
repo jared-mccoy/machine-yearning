@@ -1,0 +1,313 @@
+#chat-container,
+.markdown-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 50vh; /* Ensure minimum height */
+  padding-bottom: 50px; /* Add padding at the bottom */
+}
+
+/* Section header styling */
+.chat-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 25px 0 15px;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Collapsed header style */
+.chat-section-header.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Header levels styling */
+.chat-section-header[data-level="2"],
+.chat-section-header[data-level="3"],
+.chat-section-header[data-level="4"] {
+  width: 100%;
+  margin-left: 0;
+}
+
+.chat-section-header[data-level="2"] .header-content {
+  font-size: 1.2rem;
+}
+
+.chat-section-header[data-level="3"] .header-content {
+  font-size: 1.1rem;
+}
+
+.chat-section-header[data-level="4"] .header-content {
+  font-size: 1rem;
+}
+
+.chat-section-header:hover {
+  background-color: var(--accent-color-light);
+}
+
+/* Toggle button for sections */
+.section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  padding: 0;
+  color: var(--accent-color);
+}
+
+.section-toggle:hover {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.section-toggle:focus {
+  outline: none;
+}
+
+.section-toggle .toggle-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+  fill: currentColor;
+}
+
+.section-toggle[aria-expanded="false"] .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.header-content {
+  flex: 1;
+  text-align: left;
+}
+
+.header-content h2, 
+.header-content h3, 
+.header-content h4 {
+  margin: 0;
+  padding: 0;
+  color: var(--accent-color);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat section container */
+.chat-section {
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  overflow: hidden;
+  max-height: none; /* Remove max-height limit */
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  opacity: 1;
+  visibility: visible;
+}
+
+.chat-section.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+}
+
+/* Message styling */
+.message {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 80%;
+  position: relative;
+  transition: border-color 0.3s ease;
+  display: block; /* Ensure proper display */
+}
+
+.user {
+  align-self: flex-end;
+  background-color: transparent;
+  border: 2px solid var(--user-color-light);
+  border-bottom-right-radius: 2px;
+}
+
+.user:hover {
+  border-color: var(--user-color);
+}
+
+.assistant {
+  align-self: flex-start;
+  background-color: transparent;
+  border: 2px solid var(--assistant-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.assistant:hover {
+  border-color: var(--assistant-color);
+}
+
+/* Typing animation indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  background-color: var(--background-color);
+  border: 2px solid var(--assistant-color-light);
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 0;
+  position: relative;
+  min-width: 60px;
+  min-height: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  transform-origin: left center;
+  transform: scale(0.8);
+}
+
+/* User typing indicator appears on the right side */
+.typing-indicator.user-typing {
+  align-self: flex-end;
+  border: 2px solid var(--user-color-light);
+  transform-origin: right center;
+}
+
+.typing-indicator.visible {
+  opacity: 1;
+  height: 34px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+  overflow: visible;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  margin: 0 3px;
+  background-color: var(--assistant-color);
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.8;
+}
+
+/* User typing indicator dots use user color */
+.typing-indicator.user-typing span {
+  background-color: var(--user-color);
+}
+
+.typing-indicator span:nth-child(1) {
+  animation: bounce 0.8s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation: bounce 0.8s infinite 0.15s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation: bounce 0.8s infinite 0.3s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Hidden message for sequential display */
+.message.hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: none;
+  pointer-events: none;
+}
+
+.message.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease-out, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: auto;
+}
+
+/* Message content styling */
+.message p {
+  margin: 0;
+}
+
+.message p + p {
+  margin-top: 8px;
+}
+
+.message ul, .message ol {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-left: 20px;
+}
+
+.message li {
+  margin-bottom: 4px;
+}
+
+/* Code styling */
+code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  color: var(--code-color);
+}
+
+pre {
+  position: relative;
+  margin: 1.2em 0;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+pre > code {
+  display: block;
+  overflow-x: auto;
+  padding: 0;
+}
+
+/* Code controls */
+.code-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Scrollbar styling */
+pre::-webkit-scrollbar,
+pre code::-webkit-scrollbar {
+  height: 4px;
+}
+
+pre::-webkit-scrollbar-thumb,
+pre code::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] pre::-webkit-scrollbar-thumb {
+  background: var(--color-dark);
+} 

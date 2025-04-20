@@ -1,0 +1,248 @@
+/**
+ * Chat Directory Scanner
+ * Dynamically discovers all chat files in the _chats directory
+ */
+
+class ChatDirectoryScanner {
+  constructor() {
+    this.chats = [];
+    this.dates = [];
+    this.isLoading = false;
+    this.cacheKey = 'machine-yearning-chats';
+    this.cacheDuration = 3600000; // 1 hour in milliseconds
+  }
+
+  /**
+   * Initialize the scanner
+   * @returns {Promise} Resolves when scan is complete
+   */
+  async init() {
+    // Check for cached data first
+    const cachedData = this.loadFromCache();
+    if (cachedData) {
+      this.dates = cachedData.dates;
+      this.chats = cachedData.chats;
+      return Promise.resolve(this.dates);
+    }
+
+    // If no cached data, scan the directory
+    return this.scanChatDirectory();
+  }
+
+  /**
+   * Attempt to load data from cache
+   * @returns {Object|null} Cached data or null if no valid cache exists
+   */
+  loadFromCache() {
+    try {
+      const cached = localStorage.getItem(this.cacheKey);
+      if (!cached) return null;
+
+      const data = JSON.parse(cached);
+      const timestamp = data.timestamp || 0;
+      const now = Date.now();
+
+      // Check if cache is still valid
+      if (now - timestamp < this.cacheDuration) {
+        return data;
+      }
+      
+      return null;
+    } catch (e) {
+      console.warn('Failed to load from cache:', e);
+      return null;
+    }
+  }
+
+  /**
+   * Save data to cache
+   */
+  saveToCache() {
+    try {
+      const data = {
+        dates: this.dates,
+        chats: this.chats,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(this.cacheKey, JSON.stringify(data));
+    } catch (e) {
+      console.warn('Failed to save to cache:', e);
+    }
+  }
+
+  /**
+   * Scan the _chats directory to find all conversation files
+   * @returns {Promise} Resolves with an array of date objects
+   */
+  async scanChatDirectory() {
+    if (this.isLoading) {
+      return new Promise(resolve => {
+        // Poll until loading is complete
+        const checkLoading = () => {
+          if (!this.isLoading) {
+            resolve(this.dates);
+          } else {
+            setTimeout(checkLoading, 100);
+          }
+        };
+        checkLoading();
+      });
+    }
+
+    this.isLoading = true;
+    this.dates = [];
+    this.chats = [];
+
+    try {
+      // Fetch the _chats directory
+      const response = await fetch('/_chats/');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch _chats directory: ${response.status}`);
+      }
+
+      const html = await response.text();
+      const dateDirs = this.parseDateDirectories(html);
+
+      // Process each date directory
+      const datePromises = dateDirs.map(async dateDir => {
+        const dateObj = {
+          name: dateDir,
+          displayName: dateDir,
+          files: []
+        };
+
+        // Fetch the date directory
+        const dateResponse = await fetch(`/_chats/${dateDir}/`);
+        if (!dateResponse.ok) {
+          return dateObj;
+        }
+
+        const dateHtml = await dateResponse.text();
+        const chatFiles = this.parseChatFiles(dateHtml, dateDir);
+        
+        // Add additional metadata for each file
+        const filePromises = chatFiles.map(async file => {
+          const fileData = {
+            path: file.path,
+            title: file.filename.replace('.md', '')
+          };
+
+          // Try to extract the title from the file
+          try {
+            const fileResponse = await fetch(file.path);
+            if (fileResponse.ok) {
+              const markdown = await fileResponse.text();
+              const titleMatch = markdown.match(/^#\s+(.+)$/m);
+              if (titleMatch) {
+                fileData.title = titleMatch[1].trim();
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to extract title from ${file.path}:`, e);
+          }
+
+          this.chats.push(fileData);
+          return fileData;
+        });
+
+        dateObj.files = await Promise.all(filePromises);
+        return dateObj;
+      });
+
+      this.dates = await Promise.all(datePromises);
+      this.dates.sort((a, b) => b.name.localeCompare(a.name)); // Sort in reverse chronological order
+      this.saveToCache();
+      this.isLoading = false;
+      return this.dates;
+    } catch (error) {
+      console.error('Error scanning chat directory:', error);
+      this.isLoading = false;
+      return [];
+    }
+  }
+
+  /**
+   * Parse HTML from the _chats directory to find date subdirectories
+   * @param {string} html HTML content of the _chats directory
+   * @returns {Array} Array of date directory names
+   */
+  parseDateDirectories(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a'));
+    
+    // Find directories (they end with /)
+    return links
+      .filter(link => {
+        const href = link.getAttribute('href');
+        return href && href.endsWith('/') && !href.startsWith('..') && href !== './';
+      })
+      .map(link => {
+        let href = link.getAttribute('href');
+        // Remove trailing slash
+        if (href.endsWith('/')) {
+          href = href.slice(0, -1);
+        }
+        return href;
+      });
+  }
+
+  /**
+   * Parse HTML from a date directory to find markdown files
+   * @param {string} html HTML content of a date directory
+   * @param {string} dateDir Name of the date directory
+   * @returns {Array} Array of file objects with path and filename
+   */
+  parseChatFiles(html, dateDir) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a'));
+    
+    // Find markdown files
+    return links
+      .filter(link => {
+        const href = link.getAttribute('href');
+        return href && href.endsWith('.md') && !href.startsWith('..') && href !== './';
+      })
+      .map(link => {
+        const filename = link.getAttribute('href');
+        return {
+          path: `_chats/${dateDir}/${filename}`,
+          filename
+        };
+      });
+  }
+
+  /**
+   * Get a flat array of all chat files
+   * @returns {Array} Array of chat file objects
+   */
+  getAllChats() {
+    return this.chats;
+  }
+
+  /**
+   * Find the previous and next chats relative to a given path
+   * @param {string} currentPath Path of the current chat
+   * @returns {Object} Object with prev and next properties
+   */
+  getNavigation(currentPath) {
+    const index = this.chats.findIndex(chat => chat.path === currentPath);
+    
+    let prev = null;
+    let next = null;
+    
+    if (index > 0) {
+      prev = this.chats[index - 1];
+    }
+    
+    if (index !== -1 && index < this.chats.length - 1) {
+      next = this.chats[index + 1];
+    }
+    
+    return { prev, next };
+  }
+}
+
+// Create a global instance
+window.chatScanner = new ChatDirectoryScanner(); 
