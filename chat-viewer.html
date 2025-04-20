@@ -238,8 +238,39 @@ layout: null
         // Update toggle button state
         animationToggle.setAttribute('data-state', newState === 'enabled' ? 'enabled' : 'disabled');
         
+        // Remove any typing indicators
+        document.querySelectorAll('.typing-indicator').forEach(indicator => {
+          indicator.classList.remove('visible');
+          indicator.remove();
+        });
+        
+        // Clear queue state
+        window.animationQueue = [];
+        window.animationFailedMessages = [];
+        window.animationInProgress = false;
+        window.typingIndicatorVisible = false;
+        
         // Apply animation state to messages
-        applyAnimationState(newState === 'enabled');
+        const messages = document.querySelectorAll('.message');
+        
+        if (newState === 'disabled') {
+          // Show all messages immediately when disabling animations
+          messages.forEach(msg => {
+            msg.removeAttribute('data-observed');
+            msg.classList.remove('hidden');
+            msg.classList.add('visible');
+          });
+        } else {
+          // Reset for animation
+          messages.forEach(msg => {
+            msg.removeAttribute('data-observed');
+            msg.classList.remove('visible');
+            msg.classList.add('hidden');
+          });
+          
+          // Setup animations from scratch
+          setupAnimations();
+        }
       });
       
       // Get the conversation path from URL
@@ -394,6 +425,13 @@ layout: null
           const nextMsg = messageQueue[0];
           const isUser = nextMsg.classList.contains('user');
           
+          // Skip if message is already visible (prevent double animations)
+          if (nextMsg.classList.contains('visible')) {
+            messageQueue.shift(); // Remove from queue
+            processNextInQueue(); // Process next message
+            return;
+          }
+          
           // During initial fill, enforce alternating turn-taking
           if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 4) {
             // If last message shown was from user, next should be assistant and vice versa
@@ -402,7 +440,8 @@ layout: null
               let foundAlternate = false;
               for (let i = 1; i < messageQueue.length; i++) {
                 const alternateMsg = messageQueue[i];
-                if (isUser !== alternateMsg.classList.contains('user')) {
+                if (isUser !== alternateMsg.classList.contains('user') && 
+                    !alternateMsg.classList.contains('visible')) { // Check not already visible
                   // Swap this message to front of queue to maintain alternation
                   messageQueue.splice(i, 1);
                   messageQueue.unshift(alternateMsg);
@@ -422,6 +461,22 @@ layout: null
           animationInProgress = true;
           const currentMsg = messageQueue.shift();
           const currentIsUser = currentMsg.classList.contains('user');
+          
+          // Always show the first message without animation on page load
+          const isFirstMessage = document.querySelectorAll('.message.visible').length === 0;
+          if (isFirstMessage) {
+            // Show first message immediately without typing animation
+            currentMsg.classList.remove('hidden');
+            currentMsg.classList.add('visible');
+            lastSenderWasUser = currentIsUser;
+            
+            // Move to next message after a short delay
+            setTimeout(() => {
+              animationInProgress = false;
+              processNextInQueue();
+            }, 300);
+            return;
+          }
           
           // Create typing indicator with appropriate class
           const typingIndicator = document.createElement('div');
@@ -513,41 +568,48 @@ layout: null
             if (entry.isIntersecting || entry.intersectionRatio > 0.05) {
               const index = Array.from(messages).indexOf(currentMsg);
               
-              // Queue this message if it's not already visible and not already queued
-              if (currentMsg.classList.contains('hidden') && 
-                  !messageQueue.includes(currentMsg) && 
-                  !animationFailedMessages.includes(currentMsg)) {
-                messageQueue.push(currentMsg);
-                processNextInQueue();
-              }
-              
-              // Check if there's a next message to reveal
-              if (index < messages.length - 1) {
-                const nextMsg = messages[index + 1];
+              // Track which messages have been observed to avoid double-queueing
+              if (!currentMsg.hasAttribute('data-observed')) {
+                currentMsg.setAttribute('data-observed', 'true');
                 
-                // Add a small delay before checking the next message
-                setTimeout(() => {
-                  // If next message is near view, queue it
-                  const rect = nextMsg.getBoundingClientRect();
-                  const distanceFromViewport = rect.top - window.innerHeight;
+                // Queue this message if it's not already visible and not already queued
+                if (currentMsg.classList.contains('hidden') && 
+                    !messageQueue.includes(currentMsg) && 
+                    !animationFailedMessages.includes(currentMsg)) {
+                  messageQueue.push(currentMsg);
+                  processNextInQueue();
+                }
+                
+                // Check if there's a next message to reveal
+                if (index < messages.length - 1) {
+                  const nextMsg = messages[index + 1];
                   
-                  // Queue even if it's well below viewport to look ahead more aggressively
-                  if (distanceFromViewport < 500) { // Increased from 200px to 500px - much more generous lookahead
-                    if (nextMsg.classList.contains('hidden') && 
-                        !messageQueue.includes(nextMsg) && 
-                        !animationFailedMessages.includes(nextMsg)) {
-                      messageQueue.push(nextMsg);
-                      processNextInQueue();
+                  // Add a small delay before checking the next message
+                  setTimeout(() => {
+                    // If next message is near view, queue it
+                    const rect = nextMsg.getBoundingClientRect();
+                    const distanceFromViewport = rect.top - window.innerHeight;
+                    
+                    // Queue even if it's well below viewport to look ahead more aggressively
+                    if (distanceFromViewport < 500) { // Increased lookahead distance
+                      if (nextMsg.classList.contains('hidden') && 
+                          !nextMsg.hasAttribute('data-observed') &&
+                          !messageQueue.includes(nextMsg) && 
+                          !animationFailedMessages.includes(nextMsg)) {
+                        nextMsg.setAttribute('data-observed', 'true');
+                        messageQueue.push(nextMsg);
+                        processNextInQueue();
+                      }
                     }
-                  }
-                  
-                  // Start observing the next message regardless
-                  messageObserver.observe(nextMsg);
-                }, 100);
+                    
+                    // Start observing the next message regardless
+                    messageObserver.observe(nextMsg);
+                  }, 100);
+                }
               }
               
               // If message is fully visible, stop observing 
-              if (entry.intersectionRatio > 0.8) {
+              if (entry.intersectionRatio > 0.8 || currentMsg.classList.contains('visible')) {
                 messageObserver.unobserve(currentMsg);
               }
             }
@@ -585,40 +647,6 @@ layout: null
           if (rect.top < window.innerHeight + 500) { // Much more generous initial observation
             messageObserver.observe(msg);
           }
-        }
-      }
-      
-      // Apply animation state change (enable/disable)
-      function applyAnimationState(enabled) {
-        document.documentElement.setAttribute('data-animation', enabled ? 'enabled' : 'disabled');
-        
-        // Get all messages and typing indicators
-        const messages = document.querySelectorAll('.message');
-        const typingIndicators = document.querySelectorAll('.typing-indicator');
-        
-        if (!enabled) {
-          // Show all messages and hide all typing indicators
-          messages.forEach(msg => {
-            msg.classList.remove('hidden');
-            msg.classList.add('visible');
-          });
-          
-          typingIndicators.forEach(indicator => {
-            indicator.classList.remove('visible');
-          });
-        } else {
-          // Reset and re-initialize animations
-          messages.forEach(msg => {
-            msg.classList.remove('visible');
-            msg.classList.add('hidden');
-          });
-          
-          typingIndicators.forEach(indicator => {
-            indicator.classList.remove('visible');
-          });
-          
-          // Setup animations from scratch
-          setupAnimations();
         }
       }
       
