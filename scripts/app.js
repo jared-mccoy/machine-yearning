@@ -3,6 +3,9 @@
  * Main application logic and routing
  */
 
+// Track initialization state
+let isInitialized = false;
+
 // Debug function to log to console only, not the page
 function debugLog(message) {
   // Only log to console, never to the page
@@ -29,8 +32,17 @@ function errorLog(message) {
 
 // Initialize the application
 async function initApp() {
+  // Prevent double initialization
+  if (isInitialized) {
+    debugLog('App already initialized, skipping');
+    return;
+  }
+  
   try {
     debugLog(`Document readyState: ${document.readyState}`);
+    
+    // Mark as initialized immediately to prevent race conditions
+    isInitialized = true;
     
     // Apply theme immediately to avoid flicker
     if (window.themeControls) {
@@ -279,6 +291,13 @@ async function initDirectoryView() {
     if (loadingIndicator) {
       loadingIndicator.style.display = 'none';
     }
+    
+    // Clear any existing content first (except the loading indicator)
+    Array.from(postContainer.children).forEach(child => {
+      if (child.id !== 'loading') {
+        postContainer.removeChild(child);
+      }
+    });
     
     // Create HTML for each date
     debugLog('Creating date sections');
