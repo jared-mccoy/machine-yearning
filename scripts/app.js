@@ -133,25 +133,59 @@ async function initApp() {
 // Initialize the chat viewer with a specific chat file
 async function initChatViewer(chatPath) {
   try {
+    debugLog(`Initializing chat viewer for path: ${chatPath}`);
+    
     // Make sure chat scanner is initialized
     if (!window.chatScanner) {
+      debugLog('Chat scanner not available');
       console.error('Chat scanner not available');
       return;
     }
 
+    // Try to find the markdown content container, or create it if it doesn't exist
+    let markdownContent = document.getElementById('markdown-content');
+    if (!markdownContent) {
+      debugLog('Markdown content container not found, creating one');
+      
+      // Find a suitable parent element - use the .content div or body
+      const parentElement = document.querySelector('.content') || document.body;
+      
+      // Create a new markdown content container
+      markdownContent = document.createElement('div');
+      markdownContent.id = 'markdown-content';
+      markdownContent.className = 'markdown-body';
+      
+      // Add a loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.id = 'loading';
+      loadingIndicator.className = 'loading-indicator';
+      loadingIndicator.textContent = 'Loading conversation...';
+      
+      markdownContent.appendChild(loadingIndicator);
+      parentElement.appendChild(markdownContent);
+      
+      debugLog('Created markdown content container and added to DOM');
+    } else {
+      debugLog('Found existing markdown content container');
+    }
+
     // Initialize the chat scanner to get navigation data
+    debugLog('Initializing chat scanner');
     await window.chatScanner.init();
     
     // Get navigation links
     const nav = window.chatScanner.getNavigation(chatPath);
+    debugLog(`Navigation: prev=${nav.prev ? 'yes' : 'no'}, next=${nav.next ? 'yes' : 'no'}`);
     
     // Fetch the chat content
+    debugLog(`Fetching chat content from: ${chatPath}`);
     const response = await fetch(chatPath);
     if (!response.ok) {
       throw new Error(`Failed to load chat: ${response.status}`);
     }
     
     const markdown = await response.text();
+    debugLog(`Received markdown content (${markdown.length} chars)`);
     
     // Extract title from the markdown
     let title = 'Chat';
@@ -159,29 +193,35 @@ async function initChatViewer(chatPath) {
     if (titleMatch) {
       title = titleMatch[1].trim();
       document.title = `${title} | Machine Yearning`;
+      debugLog(`Set page title to: ${title}`);
     }
     
     // Set up navigation config
     const navConfig = {
-      prevLink: nav.prev ? `?path=${nav.prev.path}` : null,
-      nextLink: nav.next ? `?path=${nav.next.path}` : null,
+      prevLink: nav.prev ? `viewer.html?path=${nav.prev.path}` : null,
+      nextLink: nav.next ? `viewer.html?path=${nav.next.path}` : null,
       title: title
     };
     
     // Initialize the chat converter with the markdown content
     if (window.initChatConverter) {
+      debugLog('Initializing chat converter');
       window.initChatConverter({
         contentSelector: '#markdown-content',
         rawMarkdown: markdown,
         navConfig: navConfig,
         showTitle: true
       });
+      debugLog('Chat converter initialized');
     } else {
+      debugLog('Chat converter not available');
       console.error('Chat converter not available');
+      markdownContent.innerHTML = `<div class="error-message">Chat converter not available. Please check that all scripts are loaded correctly.</div>`;
     }
   } catch (error) {
+    debugLog(`Error in initChatViewer: ${error.message}`);
     console.error('Error initializing chat viewer:', error);
-    const content = document.querySelector('#markdown-content') || document.body;
+    const content = document.querySelector('#markdown-content') || document.querySelector('.content') || document.body;
     content.innerHTML = `<div class="error-message">Error loading chat: ${error.message}</div>`;
   }
 }
@@ -195,16 +235,38 @@ async function initDirectoryView() {
       return;
     }
     
-    const postContainer = document.getElementById('post-container');
-    const loadingIndicator = document.getElementById('loading');
-    
+    // Try to find the post container, or create it if it doesn't exist
+    let postContainer = document.getElementById('post-container');
     if (!postContainer) {
-      console.error('Post container element not found');
-      return;
+      debugLog('Post container not found, creating one');
+      
+      // Find a suitable parent element - use the .content div or body
+      const parentElement = document.querySelector('.content') || document.body;
+      
+      // Create a new post container
+      postContainer = document.createElement('div');
+      postContainer.id = 'post-container';
+      
+      // Add a loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.id = 'loading';
+      loadingIndicator.className = 'loading-indicator';
+      loadingIndicator.textContent = 'Scanning for conversations...';
+      
+      postContainer.appendChild(loadingIndicator);
+      parentElement.appendChild(postContainer);
+      
+      debugLog('Created post container and added to DOM');
+    } else {
+      debugLog('Found existing post container');
     }
     
+    const loadingIndicator = document.getElementById('loading');
+    
     // Initialize the chat scanner and get the dates
+    debugLog('Initializing chat scanner');
     const dates = await window.chatScanner.init();
+    debugLog(`Received ${dates.length} date directories`);
     
     if (dates.length === 0) {
       if (loadingIndicator) {
@@ -219,6 +281,7 @@ async function initDirectoryView() {
     }
     
     // Create HTML for each date
+    debugLog('Creating date sections');
     dates.forEach(date => {
       if (date.files.length === 0) return; // Skip dates with no files
       
@@ -236,7 +299,7 @@ async function initDirectoryView() {
         const listItem = document.createElement('li');
         
         const link = document.createElement('a');
-        link.href = `?path=${file.path}`;
+        link.href = `viewer.html?path=${file.path}`;
         link.textContent = file.title;
         
         listItem.appendChild(link);
@@ -246,9 +309,14 @@ async function initDirectoryView() {
       dateSection.appendChild(postList);
       postContainer.appendChild(dateSection);
     });
+    
+    debugLog('Directory view initialization completed');
   } catch (error) {
+    debugLog(`Error in initDirectoryView: ${error.message}`);
     console.error('Error initializing directory view:', error);
-    const postContainer = document.getElementById('post-container');
+    
+    // Try to display an error message
+    const postContainer = document.getElementById('post-container') || document.querySelector('.content') || document.body;
     if (postContainer) {
       postContainer.innerHTML = `<div class="error-message">Error loading chat directory: ${error.message}</div>`;
     }
