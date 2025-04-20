@@ -142,16 +142,13 @@ async function initChatViewer(chatPath) {
     const MIN_LOADING_TIME = 1800; // Increased from 1200ms for more dramatic effect
     const startTime = Date.now();
     
-    // Create a loading indicator if needed
-    let loadingIndicator = document.getElementById('markdown-loading');
-    if (loadingIndicator) {
-      loadingIndicator.style.display = 'block';
-    } else if (window.chatAnimations) {
-      // Create a typing indicator style loading animation
-      loadingIndicator = window.chatAnimations.createInitialTypingIndicator();
-      markdownContent.appendChild(loadingIndicator);
-      debugLog('Created animated loading indicator');
-    }
+    // Remove any existing loading indicators
+    const existingLoaders = document.querySelectorAll('#markdown-loading, .initial-loader');
+    existingLoaders.forEach(loader => {
+      if (loader && loader.parentNode) {
+        loader.parentNode.removeChild(loader);
+      }
+    });
 
     // Initialize the chat scanner to get navigation data
     debugLog('Initializing chat scanner');
@@ -255,42 +252,25 @@ async function initChatViewer(chatPath) {
       setTimeout(() => {
         debugLog('Minimum loading time reached, starting animations');
         
-        // Hide the loading indicator with a fade-out
-        if (loadingIndicator) {
-          loadingIndicator.classList.remove('visible');
+        // Initialize animations if available
+        if (window.chatAnimations) {
+          debugLog('Initializing chat animations');
+          window.chatAnimations.initChatAnimations(false); // First message is NOT yet shown
+        } else {
+          debugLog('Chat animations not available');
           
-          // Remove the indicator after its transition completes
-          setTimeout(() => {
-            if (loadingIndicator && loadingIndicator.parentNode) {
-              loadingIndicator.parentNode.removeChild(loadingIndicator);
-            }
-            
-            // Initialize animations if available - moved inside to ensure proper timing
-            if (window.chatAnimations) {
-              debugLog('Initializing chat animations');
-              window.chatAnimations.initChatAnimations(false); // First message is NOT yet shown
-            } else {
-              debugLog('Chat animations not available');
-              
-              // If we don't have animations, make all messages visible
-              const messages = markdownContent.querySelectorAll('.message');
-              messages.forEach(msg => {
-                msg.classList.remove('hidden');
-                msg.classList.add('visible');
-              });
-            }
-          }, 300);
+          // If we don't have animations, make all messages visible
+          const messages = markdownContent.querySelectorAll('.message');
+          messages.forEach(msg => {
+            msg.classList.remove('hidden');
+            msg.classList.add('visible');
+          });
         }
       }, remainingDelay);
     } else {
       debugLog('Chat converter not available');
       console.error('Chat converter not available');
       markdownContent.innerHTML = `<div class="error-message">Chat converter not available. Please check that all scripts are loaded correctly.</div>`;
-      
-      // Remove loading indicator
-      if (loadingIndicator) {
-        loadingIndicator.style.display = 'none';
-      }
     }
   } catch (error) {
     debugLog(`Error in initChatViewer: ${error.message}`);
@@ -303,12 +283,6 @@ async function initChatViewer(chatPath) {
         <p><a href="index.html">Return to Home</a></p>
       </div>
     `;
-    
-    // Remove loading indicator
-    const loadingIndicator = document.getElementById('markdown-loading');
-    if (loadingIndicator) {
-      loadingIndicator.style.display = 'none';
-    }
   }
 }
 
