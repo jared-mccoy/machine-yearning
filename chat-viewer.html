@@ -309,7 +309,7 @@ layout: null
           document.title = `machine yearning - ${pageTitle}`;
           document.getElementById('chat-nav-title').textContent = pageTitle;
           
-          // Replace loading text with typing indicator
+          // Replace loading text with typing indicator for initial animation
           const loadingIndicator = document.getElementById('loading');
           loadingIndicator.innerHTML = ''; // Clear loading text
           loadingIndicator.className = 'typing-indicator initial-loader';
@@ -329,31 +329,67 @@ layout: null
             showTitle: false
           });
           
-          // Minimum typing animation duration
+          // Minimum typing animation duration for initial loading
           const MIN_TYPING_DURATION = 1200;
           const startTime = Date.now();
           
-          // Wait for content to load and then show first message
+          // Wait for a short delay to let the content render 
           setTimeout(() => {
-            // Enhance code blocks 
+            // Enhance code blocks
             enhanceCodeBlocks();
             
-            // Calculate remaining time to meet minimum animation duration
-            const elapsed = Date.now() - startTime;
-            const remainingDelay = Math.max(0, MIN_TYPING_DURATION - elapsed);
+            // Get all messages after content is rendered
+            const messages = document.querySelectorAll('.message');
             
-            // Show content after the minimum duration
-            setTimeout(() => {
-              // Remove the loading indicator
+            // Show the content container but keep all messages hidden initially
+            markdownContent.style.display = 'block';
+            
+            // Hide all messages
+            messages.forEach(msg => {
+              msg.classList.add('hidden');
+              msg.classList.remove('visible');
+            });
+            
+            // Prepare the first message
+            const firstMessage = messages[0];
+            if (firstMessage) {
+              // Position the loading typing indicator before the first message
+              if (firstMessage.parentNode) {
+                // Move the loading indicator to be positioned exactly where the first message will appear
+                loadingIndicator.classList.add('visible');
+                firstMessage.parentNode.insertBefore(loadingIndicator, firstMessage);
+                
+                // Calculate how much more time we need to show the animation
+                const elapsed = Date.now() - startTime;
+                const remainingDelay = Math.max(MIN_TYPING_DURATION, elapsed) - elapsed;
+                
+                // After the minimum animation duration, show the first message
+                setTimeout(() => {
+                  // Remove loading indicator with fade-out effect
+                  loadingIndicator.classList.remove('visible');
+                  
+                  // Complete removal after transition
+                  setTimeout(() => {
+                    loadingIndicator.remove();
+                    
+                    // Show first message
+                    firstMessage.classList.remove('hidden');
+                    firstMessage.classList.add('visible');
+                    firstMessage.setAttribute('data-observed', 'processed');
+                    
+                    // Setup animations for the rest after the first message is shown
+                    setTimeout(() => {
+                      setupAnimations(true); // Pass true to indicate first message is already shown
+                    }, 100);
+                  }, 300);
+                }, remainingDelay);
+              }
+            } else {
+              // Edge case: no messages found
               loadingIndicator.remove();
-              
-              // Show the content container
-              markdownContent.style.display = 'block';
-              
-              // Setup animations after a short delay
-              setTimeout(setupAnimations, 50);
-            }, remainingDelay);
-          }, 500);
+              setupAnimations();
+            }
+          }, 300);
         } catch (error) {
           console.error('Error loading chat:', error);
           document.getElementById('loading').textContent = `Error loading conversation: ${error.message}`;
@@ -383,7 +419,7 @@ layout: null
       }
       
       // Setup animations for sequential message display
-      function setupAnimations() {
+      function setupAnimations(firstMessageShown = false) {
         const animationEnabled = document.documentElement.getAttribute('data-animation') === 'enabled';
         
         // Get all messages
@@ -405,11 +441,18 @@ layout: null
         
         // Hide all messages initially except the first
         messages.forEach((msg, index) => {
-          if (index === 0) {
+          if (index === 0 && firstMessageShown) {
+            // First message already shown by loading animation
             msg.classList.add('visible');
             msg.classList.remove('hidden');
-            msg.setAttribute('data-observed', 'true'); // Mark first message as already observed
+            msg.setAttribute('data-observed', 'processed');
+          } else if (index === 0) {
+            // First message should be shown if not already
+            msg.classList.add('visible');
+            msg.classList.remove('hidden');
+            msg.setAttribute('data-observed', 'processed');
           } else {
+            // All other messages remain hidden for animation
             msg.classList.add('hidden');
             msg.classList.remove('visible');
           }
