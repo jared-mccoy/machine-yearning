@@ -309,12 +309,16 @@ layout: null
           document.title = `machine yearning - ${pageTitle}`;
           document.getElementById('chat-nav-title').textContent = pageTitle;
           
-          // Display the markdown
-          const markdownContent = document.getElementById('markdown-content');
-          markdownContent.style.display = 'block';
-          document.getElementById('loading').style.display = 'none';
+          // Replace loading text with typing indicator
+          const loadingIndicator = document.getElementById('loading');
+          loadingIndicator.innerHTML = ''; // Clear loading text
+          loadingIndicator.className = 'typing-indicator initial-loader';
+          loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
           
-          // Initialize the chat converter with our fetched content
+          // Short delay before displaying the markdown content
+          const markdownContent = document.getElementById('markdown-content');
+          
+          // Initialize the chat converter with our fetched content - but don't display it yet
           initChatConverter({
             rawMarkdown: markdown,
             navConfig: {
@@ -325,10 +329,30 @@ layout: null
             showTitle: false
           });
           
-          // Enhance code blocks once chat is converted
+          // Minimum typing animation duration
+          const MIN_TYPING_DURATION = 1200;
+          const startTime = Date.now();
+          
+          // Wait for content to load and then show first message
           setTimeout(() => {
+            // Enhance code blocks 
             enhanceCodeBlocks();
-            setupAnimations();
+            
+            // Calculate remaining time to meet minimum animation duration
+            const elapsed = Date.now() - startTime;
+            const remainingDelay = Math.max(0, MIN_TYPING_DURATION - elapsed);
+            
+            // Show content after the minimum duration
+            setTimeout(() => {
+              // Remove the loading indicator
+              loadingIndicator.remove();
+              
+              // Show the content container
+              markdownContent.style.display = 'block';
+              
+              // Setup animations after a short delay
+              setTimeout(setupAnimations, 50);
+            }, remainingDelay);
           }, 500);
         } catch (error) {
           console.error('Error loading chat:', error);
@@ -366,7 +390,7 @@ layout: null
         const messages = document.querySelectorAll('.message');
         
         // Remove any existing typing indicators
-        document.querySelectorAll('.typing-indicator').forEach(indicator => {
+        document.querySelectorAll('.typing-indicator:not(.initial-loader)').forEach(indicator => {
           indicator.remove();
         });
         
@@ -384,6 +408,7 @@ layout: null
           if (index === 0) {
             msg.classList.add('visible');
             msg.classList.remove('hidden');
+            msg.setAttribute('data-observed', 'true'); // Mark first message as already observed
           } else {
             msg.classList.add('hidden');
             msg.classList.remove('visible');
@@ -421,7 +446,7 @@ layout: null
             animationFailedMessages = [];
           }
           
-          // Ensure we're maintaining alternating pattern during initial load
+          // Get the next message
           const nextMsg = messageQueue[0];
           const isUser = nextMsg.classList.contains('user');
           
@@ -432,8 +457,8 @@ layout: null
             return;
           }
           
-          // During initial fill, enforce alternating turn-taking
-          if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 4) {
+          // During initial load, enforce alternating pattern 
+          if (messageQueue.length > 1 && document.querySelectorAll('.message.visible').length < 3) {
             // If last message shown was from user, next should be assistant and vice versa
             if ((lastSenderWasUser && isUser) || (!lastSenderWasUser && !isUser)) {
               // Look for next message of correct type
@@ -441,18 +466,13 @@ layout: null
               for (let i = 1; i < messageQueue.length; i++) {
                 const alternateMsg = messageQueue[i];
                 if (isUser !== alternateMsg.classList.contains('user') && 
-                    !alternateMsg.classList.contains('visible')) { // Check not already visible
+                    !alternateMsg.classList.contains('visible')) { 
                   // Swap this message to front of queue to maintain alternation
                   messageQueue.splice(i, 1);
                   messageQueue.unshift(alternateMsg);
                   foundAlternate = true;
                   break;
                 }
-              }
-              
-              // If we can't find an alternate, proceed with what we have
-              if (!foundAlternate) {
-                console.log("Couldn't find an alternating message, proceeding with current queue");
               }
             }
           }
@@ -462,19 +482,22 @@ layout: null
           const currentMsg = messageQueue.shift();
           const currentIsUser = currentMsg.classList.contains('user');
           
-          // Always show the first message without animation on page load
-          const isFirstMessage = document.querySelectorAll('.message.visible').length === 0;
-          if (isFirstMessage) {
-            // Show first message immediately without typing animation
+          // Get the visible message count
+          const visibleCount = document.querySelectorAll('.message.visible').length;
+          
+          // Skip animation for the first few messages to get things started
+          if (visibleCount < 1) {
+            // First message should be visible immediately without animation
             currentMsg.classList.remove('hidden');
             currentMsg.classList.add('visible');
+            currentMsg.setAttribute('data-observed', 'processed');
             lastSenderWasUser = currentIsUser;
             
-            // Move to next message after a short delay
+            // Move to next message immediately
             setTimeout(() => {
               animationInProgress = false;
               processNextInQueue();
-            }, 300);
+            }, 100);
             return;
           }
           
@@ -483,8 +506,11 @@ layout: null
           typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
           typingIndicator.innerHTML = '<span></span><span></span><span></span>';
           
-          // Store reference to current message in the indicator for later validation
+          // Store reference to current message
           typingIndicator.messageReference = currentMsg;
+          
+          // Mark message as processed to avoid double animations
+          currentMsg.setAttribute('data-observed', 'processed');
           
           // Find the chat container
           const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
@@ -635,19 +661,30 @@ layout: null
         // Start by observing the first message
         if (messages.length > 0) {
           // Check if the first message is user or assistant to set initial state
-          if (messages[0].classList.contains('user')) {
+          const firstMsg = messages[0];
+          if (firstMsg.classList.contains('user')) {
             lastSenderWasUser = true;
           }
-          messageObserver.observe(messages[0]);
           
-          // Pre-queue the second message to prevent stalling
+          // Mark first message as already processed and make it visible immediately
+          firstMsg.setAttribute('data-observed', 'processed');
+          firstMsg.classList.remove('hidden');
+          firstMsg.classList.add('visible');
+          
+          // Start observing the second message instead
           if (messages.length > 1) {
             const secondMsg = messages[1];
-            if (!secondMsg.hasAttribute('data-observed') && 
-                secondMsg.classList.contains('hidden') &&
-                !messageQueue.includes(secondMsg)) {
+            if (!secondMsg.hasAttribute('data-observed')) {
+              messageObserver.observe(secondMsg);
+              
+              // Pre-queue the second message to start animations
               secondMsg.setAttribute('data-observed', 'true');
               messageQueue.push(secondMsg);
+              
+              // Also observe third message if it exists
+              if (messages.length > 2) {
+                messageObserver.observe(messages[2]);
+              }
             }
           }
         }
@@ -709,6 +746,41 @@ layout: null
     .header-controls {
       display: flex;
       align-items: center;
+    }
+    
+    /* Styling for the initial loading indicator */
+    .initial-loader {
+      text-align: center;
+      padding: 3rem;
+      margin: 2rem auto;
+      max-width: 100px;
+    }
+    
+    .initial-loader span {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      margin: 0 6px;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    
+    .initial-loader span:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    .initial-loader span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+    
+    @keyframes bounce {
+      0%, 80%, 100% { 
+        transform: scale(0);
+      } 
+      40% { 
+        transform: scale(1.0);
+      }
     }
   </style>
 </body>
