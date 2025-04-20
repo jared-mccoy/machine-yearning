@@ -401,19 +401,11 @@ function processChatContent(options) {
   // Replace the content with our chat UI
   content.innerHTML = '';
   
-  // Add title (only if showTitle is true)
-  if (options.showTitle) {
-    const title = document.createElement('h1');
-    title.textContent = options.navConfig?.title || document.title || 'machine yearning chat';
-    content.appendChild(title);
-  }
-  
-  content.appendChild(chatContainer);
-  
-  // Add footer navigation (only if navigation is provided)
-  if (options.navConfig?.prevLink || options.navConfig?.nextLink) {
-    const footerNav = document.createElement('div');
-    footerNav.className = 'chat-nav footer-nav';
+  // Function to create navigation UI (used for both header and footer)
+  function createNavigationUI(className) {
+    // Create the navigation container
+    const navContainer = document.createElement('div');
+    navContainer.className = `chat-nav ${className}`;
     
     // Create previous button
     const prevLink = document.createElement('a');
@@ -447,11 +439,32 @@ function processChatContent(options) {
       <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
     </svg>`;
     
-    // Append elements to footer nav
-    footerNav.appendChild(prevLink);
-    footerNav.appendChild(chatTitle);
-    footerNav.appendChild(nextLink);
+    // Append elements to navigation container
+    navContainer.appendChild(prevLink);
+    navContainer.appendChild(chatTitle);
+    navContainer.appendChild(nextLink);
     
+    return navContainer;
+  }
+  
+  // Add header navigation (only if navigation is provided)
+  if (options.navConfig?.prevLink || options.navConfig?.nextLink) {
+    const headerNav = createNavigationUI('header-nav');
+    content.appendChild(headerNav);
+  }
+  
+  // Add title (only if showTitle is true and we're not using navigation)
+  if (options.showTitle && !(options.navConfig?.prevLink || options.navConfig?.nextLink)) {
+    const title = document.createElement('h1');
+    title.textContent = options.navConfig?.title || document.title || 'machine yearning chat';
+    content.appendChild(title);
+  }
+  
+  content.appendChild(chatContainer);
+  
+  // Add footer navigation (only if navigation is provided)
+  if (options.navConfig?.prevLink || options.navConfig?.nextLink) {
+    const footerNav = createNavigationUI('footer-nav');
     content.appendChild(footerNav);
   }
 
