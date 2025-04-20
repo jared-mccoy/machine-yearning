@@ -42,6 +42,16 @@ function initChatAnimations(firstMessageShown = false) {
   animationFailedMessages = [];
   typingIndicatorVisible = false;
   
+  // Set the initial lastSenderWasUser based on the first message
+  if (messages.length > 0) {
+    // Check if the first message is from the user or assistant
+    const firstMessage = messages[0];
+    lastSenderWasUser = firstMessage.classList.contains('user');
+    if (window.debugLog) {
+      window.debugLog(`First message is from ${lastSenderWasUser ? 'user' : 'assistant'}`);
+    }
+  }
+  
   // Hide all messages initially
   messages.forEach((msg) => {
     // All messages are hidden for animation, no special handling for first
@@ -258,26 +268,6 @@ function processNextInQueue() {
     return;
   }
   
-  // During initial load, enforce alternating pattern 
-  if (animationQueue.length > 1 && document.querySelectorAll('.message.visible').length < 3) {
-    // If last message shown was from user, next should be assistant and vice versa
-    if ((lastSenderWasUser && isUser) || (!lastSenderWasUser && !isUser)) {
-      // Look for next message of correct type
-      let foundAlternate = false;
-      for (let i = 1; i < animationQueue.length; i++) {
-        const alternateMsg = animationQueue[i];
-        if (isUser !== alternateMsg.classList.contains('user') && 
-            !alternateMsg.classList.contains('visible')) { 
-          // Swap this message to front of queue to maintain alternation
-          animationQueue.splice(i, 1);
-          animationQueue.unshift(alternateMsg);
-          foundAlternate = true;
-          break;
-        }
-      }
-    }
-  }
-  
   // Now process the message at the front of the queue
   animationInProgress = true;
   const currentMsg = animationQueue.shift();
@@ -331,6 +321,11 @@ function processNextInQueue() {
   setTimeout(() => {
     typingIndicator.classList.add('visible');
   }, 50);
+  
+  // For debugging
+  if (window.debugLog && isFirstMessage) {
+    window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
+  }
   
   // After typing animation completes, show the message
   setTimeout(() => {
