@@ -138,18 +138,10 @@ async function initChatViewer(chatPath) {
       return;
     }
     
-    // Define the minimum loading time for a better UI experience
-    const MIN_LOADING_TIME = 1800; // Increased from 1200ms for more dramatic effect
+    // Define the minimum loading time for data fetching
+    const MIN_LOADING_TIME = 500; // Reduced from 1800ms as we're not showing a loader anymore
     const startTime = Date.now();
     
-    // Remove any existing loading indicators
-    const existingLoaders = document.querySelectorAll('#markdown-loading, .initial-loader');
-    existingLoaders.forEach(loader => {
-      if (loader && loader.parentNode) {
-        loader.parentNode.removeChild(loader);
-      }
-    });
-
     // Initialize the chat scanner to get navigation data
     debugLog('Initializing chat scanner');
     await window.chatScanner.init();
@@ -230,7 +222,7 @@ async function initChatViewer(chatPath) {
     
     debugLog(`Page load took ${elapsed}ms, will wait additional ${remainingDelay}ms to meet minimum loading time`);
     
-    // Initialize the chat converter with the markdown content but don't show it yet
+    // Initialize the chat converter with the markdown content
     if (window.initChatConverter) {
       debugLog('Initializing chat converter');
       window.initChatConverter({
@@ -241,21 +233,18 @@ async function initChatViewer(chatPath) {
       });
       debugLog('Chat converter initialized');
       
-      // Make the messages hidden until animation starts
+      // Make all messages hidden initially - animation system will reveal them
       const messages = markdownContent.querySelectorAll('.message');
       messages.forEach(msg => {
         msg.classList.add('hidden');
         msg.classList.remove('visible');
       });
       
-      // Wait until the minimum loading time has passed
+      // Wait until the minimum loading time has passed, then start animations
       setTimeout(() => {
-        debugLog('Minimum loading time reached, starting animations');
-        
-        // Initialize animations if available
         if (window.chatAnimations) {
           debugLog('Initializing chat animations');
-          window.chatAnimations.initChatAnimations(false); // First message is NOT yet shown
+          window.chatAnimations.initChatAnimations();
         } else {
           debugLog('Chat animations not available');
           

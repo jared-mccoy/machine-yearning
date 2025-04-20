@@ -23,7 +23,7 @@ function initChatAnimations(firstMessageShown = false) {
   const messages = document.querySelectorAll('.message');
   
   // Remove any existing typing indicators
-  document.querySelectorAll('.typing-indicator:not(.initial-loader)').forEach(indicator => {
+  document.querySelectorAll('.typing-indicator').forEach(indicator => {
     indicator.remove();
   });
   
@@ -42,18 +42,11 @@ function initChatAnimations(firstMessageShown = false) {
   animationFailedMessages = [];
   typingIndicatorVisible = false;
   
-  // Hide all messages initially except the first if it's already shown
-  messages.forEach((msg, index) => {
-    if (index === 0 && firstMessageShown) {
-      // First message already shown by loading animation
-      msg.classList.add('visible');
-      msg.classList.remove('hidden');
-      msg.setAttribute('data-observed', 'processed');
-    } else {
-      // All other messages remain hidden for animation
-      msg.classList.add('hidden');
-      msg.classList.remove('visible');
-    }
+  // Hide all messages initially
+  messages.forEach((msg) => {
+    // All messages are hidden for animation, no special handling for first
+    msg.classList.add('hidden');
+    msg.classList.remove('visible');
   });
   
   // Set up intersection observer to reveal messages as they scroll into view
@@ -62,8 +55,8 @@ function initChatAnimations(firstMessageShown = false) {
   // Set up bottom-of-page detection for revealing more messages
   setupScrollHandler();
   
-  // If first message is not shown yet, queue it up for immediate animation
-  if (!firstMessageShown && messages.length > 0) {
+  // Always queue up the first message for immediate animation
+  if (messages.length > 0) {
     const firstMessage = messages[0];
     animationQueue.push(firstMessage);
     processNextInQueue();
@@ -429,26 +422,8 @@ function updateAnimationState(enabled) {
   }
 }
 
-/**
- * Create a typing indicator for initial page load
- * @returns {HTMLElement} The typing indicator element
- */
-function createInitialTypingIndicator() {
-  const loadingIndicator = document.createElement('div');
-  loadingIndicator.className = 'typing-indicator initial-loader';
-  loadingIndicator.innerHTML = '<span></span><span></span><span></span>';
-  loadingIndicator.classList.add('visible');
-  
-  // Remove excess inline styling, rely on CSS classes
-  // Only add minimal styling needed for initial positioning
-  loadingIndicator.style.margin = '2rem auto';
-  
-  return loadingIndicator;
-}
-
 // Export functions for use in other modules
 window.chatAnimations = {
   initChatAnimations,
-  updateAnimationState,
-  createInitialTypingIndicator
+  updateAnimationState
 }; 

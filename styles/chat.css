@@ -326,24 +326,4 @@ pre code::-webkit-scrollbar-thumb {
 
 [data-theme="dark"] pre::-webkit-scrollbar-thumb {
   background: var(--color-dark);
-}
-
-/* Styling for the initial loading indicator */
-.initial-loader {
-  text-align: center;
-  margin: 2rem auto !important;
-  align-self: center !important;
-  max-width: 80px !important; /* Match similar width to regular indicators */
-  border-radius: 12px !important;
-  /* Remove the explicit height, width overrides that were making it inconsistent */
-  /* Let it use the same dimensions as regular typing indicators */
-}
-
-.initial-loader span {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--accent-color);
-  margin: 0 3px;
 } 
