@@ -214,7 +214,8 @@ class ChatDirectoryScanner {
         const filePromises = chatFiles.map(async file => {
           const fileData = {
             path: file.path,
-            title: file.filename.replace('.md', '')
+            title: file.filename.replace('.md', ''),
+            originalFilename: file.filename  // Store original filename for sorting
           };
 
           // Try to extract the title from the file
@@ -236,6 +237,10 @@ class ChatDirectoryScanner {
         });
 
         dateObj.files = await Promise.all(filePromises);
+        
+        // Sort files by their original filename
+        dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
+        
         return dateObj;
       });
 
@@ -281,7 +286,8 @@ class ChatDirectoryScanner {
         // Create the file data object with filename as default title
         const fileData = {
           path: file.path,
-          title: file.name.replace('.md', '')
+          title: file.name.replace('.md', ''),
+          originalFilename: file.name  // Store original filename for sorting
         };
         
         // Try to extract title from the file content
@@ -310,6 +316,11 @@ class ChatDirectoryScanner {
     
     // Add valid files to the chats array
     this.chats = processedFiles.filter(file => file !== null);
+    
+    // Sort files in each date directory
+    Object.values(dateMap).forEach(dateObj => {
+      dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
+    });
     
     // Convert map to array
     this.dates = Object.values(dateMap);
