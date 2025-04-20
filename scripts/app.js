@@ -5,21 +5,31 @@
 
 // Debug function to log directly to the page
 function debugLog(message) {
-  const debugElement = document.createElement('div');
-  debugElement.className = 'debug-log';
-  debugElement.style.padding = '8px';
-  debugElement.style.margin = '8px';
-  debugElement.style.background = '#f0f0f0';
-  debugElement.style.border = '1px solid #ccc';
-  debugElement.style.color = '#333';
-  debugElement.textContent = message;
-  document.body.appendChild(debugElement);
   console.log(message);
+  try {
+    const debugElement = document.createElement('div');
+    debugElement.className = 'debug-log';
+    debugElement.style.padding = '8px';
+    debugElement.style.margin = '8px';
+    debugElement.style.background = '#f0f0f0';
+    debugElement.style.border = '1px solid #ccc';
+    debugElement.style.color = '#333';
+    debugElement.textContent = message;
+    document.body.appendChild(debugElement);
+  } catch (e) {
+    console.error('Error adding debug element:', e);
+  }
 }
 
 // Initialize the application
 async function initApp() {
   try {
+    // Make sure DOM is fully loaded
+    if (document.readyState !== 'complete') {
+      debugLog(`Document not ready yet, state: ${document.readyState}`);
+      return;
+    }
+    
     debugLog('App initialization started');
     
     // Apply theme immediately to avoid flicker
@@ -36,32 +46,82 @@ async function initApp() {
     
     debugLog(`URL parameters: path=${chatPath}`);
     
-    // Determine if we're on the viewer page or index page
-    const markdownContent = document.getElementById('markdown-content');
-    const postContainer = document.getElementById('post-container');
+    // Dump the entire HTML for debugging
+    debugLog(`HTML structure: ${document.documentElement.innerHTML.slice(0, 100)}...`);
+    
+    // Check for the container elements
+    let markdownContent = null;
+    let postContainer = null;
+    
+    debugLog(`All IDs on page: ${Array.from(document.querySelectorAll('[id]')).map(el => el.id).join(', ')}`);
+    
+    try {
+      markdownContent = document.getElementById('markdown-content');
+      debugLog(`markdown-content element: ${markdownContent ? 'found' : 'not found'}`);
+    } catch (e) {
+      debugLog(`Error getting markdown-content: ${e.message}`);
+    }
+    
+    try {
+      postContainer = document.getElementById('post-container');
+      debugLog(`post-container element: ${postContainer ? 'found' : 'not found'}`);
+    } catch (e) {
+      debugLog(`Error getting post-container: ${e.message}`);
+    }
+    
     const isViewerPage = markdownContent !== null;
     const isIndexPage = postContainer !== null;
     
     debugLog(`Page context: isViewerPage=${isViewerPage}, isIndexPage=${isIndexPage}`);
     
+    // Check if the chat scanner is available
+    debugLog(`chatScanner available: ${window.chatScanner ? 'yes' : 'no'}`);
+    
     if (chatPath) {
       // Chat viewer mode - show specific chat
       debugLog('Starting chat viewer mode');
-      await initChatViewer(chatPath);
+      try {
+        await initChatViewer(chatPath);
+      } catch (e) {
+        debugLog(`Error in chat viewer: ${e.message}`);
+        console.error('Chat viewer error:', e);
+      }
     } else if (isIndexPage) {
       // Home/directory mode - show list of chats
       debugLog('Starting directory view mode');
-      await initDirectoryView();
+      try {
+        await initDirectoryView();
+      } catch (e) {
+        debugLog(`Error in directory view: ${e.message}`);
+        console.error('Directory view error:', e);
+      }
     } else if (isViewerPage && !chatPath) {
       // We're on the viewer page without a path
       debugLog('Viewer page without path parameter');
       if (markdownContent) {
         markdownContent.innerHTML = '<div class="info-message">No chat selected. Please select a chat from the <a href="index.html">home page</a>.</div>';
       }
+    } else {
+      debugLog('Could not determine page type');
     }
   } catch (error) {
     debugLog(`Error in initApp: ${error.message}`);
     console.error('App initialization error:', error);
+    
+    // Create a visible error message on the page
+    try {
+      const errorElement = document.createElement('div');
+      errorElement.className = 'error-message';
+      errorElement.style.padding = '16px';
+      errorElement.style.margin = '16px';
+      errorElement.style.background = '#ffeeee';
+      errorElement.style.border = '1px solid #cc0000';
+      errorElement.style.color = '#cc0000';
+      errorElement.innerHTML = `<strong>Error:</strong> ${error.message}<br><pre>${error.stack}</pre>`;
+      document.body.appendChild(errorElement);
+    } catch (e) {
+      console.error('Failed to add error element:', e);
+    }
   }
 }
 
@@ -191,7 +251,15 @@ async function initDirectoryView() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  // DOM already loaded, initialize now
+  initApp();
+}
+
+// Also try again after window load to be extra sure
+window.addEventListener('load', initApp);
 
 // Expose methods for use in other scripts
 window.appController = {

@@ -13,6 +13,13 @@ class ChatDirectoryScanner {
     
     // Clear the cache on page load to force a fresh scan
     this.clearCache();
+    
+    // Log constructor completion
+    if (typeof window.debugLog === 'function') {
+      window.debugLog('ChatDirectoryScanner constructor completed');
+    } else {
+      console.log('ChatDirectoryScanner constructor completed');
+    }
   }
   
   // Clear the browser cache for this app
@@ -34,16 +41,49 @@ class ChatDirectoryScanner {
    * @returns {Promise} Resolves when scan is complete
    */
   async init() {
+    const log = (msg) => {
+      if (typeof window.debugLog === 'function') {
+        window.debugLog(msg);
+      } else {
+        console.log(msg);
+      }
+    };
+    
+    log('ChatDirectoryScanner.init() called');
+    
     // Check for cached data first
     const cachedData = this.loadFromCache();
     if (cachedData) {
+      log('Using cached directory data');
       this.dates = cachedData.dates;
       this.chats = cachedData.chats;
       return Promise.resolve(this.dates);
     }
 
     // If no cached data, scan the directory
-    return this.scanChatDirectory();
+    log('No cache found, scanning directory');
+    return this.scanChatDirectory().catch(error => {
+      log(`Directory scan error: ${error.message}`);
+      
+      // Display a user-friendly error on the page
+      const postContainer = document.getElementById('post-container');
+      if (postContainer) {
+        postContainer.innerHTML = `
+          <div class="error-message" style="padding: 16px; margin: 16px; background: #ffeeee; border: 1px solid #cc0000; color: #cc0000;">
+            <strong>Error loading conversations:</strong> ${error.message}<br><br>
+            <p>Please check that:</p>
+            <ul>
+              <li>Your content directory exists and contains markdown files</li>
+              <li>The Jekyll server is running properly</li>
+              <li>There are no JavaScript errors in the console</li>
+            </ul>
+          </div>
+        `;
+      }
+      
+      // Return empty result
+      return [];
+    });
   }
 
   /**
