@@ -52,20 +52,12 @@ async function initApp() {
       debugLog('Theme controls not available');
     }
 
-    // Determine which view to show based on URL and page context
+    // Determine which view to show based on URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const chatPath = urlParams.get('path');
     
     debugLog(`URL parameters: path=${chatPath}`);
     debugLog(`Current URL: ${window.location.href}`);
-    
-    // Check if we're viewing index.html or viewer.html
-    const isViewerPage = window.location.href.includes('viewer.html');
-    const isIndexPage = !isViewerPage && (window.location.pathname === '/' || 
-                                         window.location.pathname === '/index.html' ||
-                                         window.location.href.includes('index.html'));
-    
-    debugLog(`Page detection: isViewerPage=${isViewerPage}, isIndexPage=${isIndexPage}`);
     
     // Check for the container elements
     let markdownContent = null;
@@ -91,40 +83,30 @@ async function initApp() {
     if (chatPath) {
       // Chat viewer mode - show specific chat
       debugLog('Starting chat viewer mode');
+      
+      // Show chat view, hide directory view
+      if (markdownContent) markdownContent.style.display = 'block';
+      if (postContainer) postContainer.style.display = 'none';
+      
       try {
         await initChatViewer(chatPath);
       } catch (e) {
         debugLog(`Error in chat viewer: ${e.message}`);
         console.error('Chat viewer error:', e);
       }
-    } else if (isIndexPage || postContainer) {
+    } else {
       // Home/directory mode - show list of chats
       debugLog('Starting directory view mode');
+      
+      // Show directory view, hide chat view
+      if (markdownContent) markdownContent.style.display = 'none';
+      if (postContainer) postContainer.style.display = 'block';
+      
       try {
         await initDirectoryView();
       } catch (e) {
         debugLog(`Error in directory view: ${e.message}`);
         console.error('Directory view error:', e);
-      }
-    } else if (isViewerPage || markdownContent) {
-      // We're on the viewer page without a path
-      debugLog('Viewer page without path parameter');
-      if (markdownContent) {
-        markdownContent.innerHTML = '<div class="info-message" style="text-align: center; padding: 20px;"><p>No chat selected.</p><p>Please select a conversation from the <a href="index.html">home page</a>.</p></div>';
-      }
-    } else {
-      debugLog('Could not determine page type');
-      // Try to add fallback content to the page
-      const mainContent = document.querySelector('.content') || document.body;
-      if (mainContent) {
-        mainContent.innerHTML = `
-          <div style="text-align: center; padding: 20px; margin: 20px;">
-            <h3>Machine Yearning</h3>
-            <p>Please use one of these links:</p>
-            <p><a href="index.html" style="margin: 10px; padding: 5px 10px; display: inline-block; border: 1px solid #333; text-decoration: none;">Home Page</a>
-            <a href="viewer.html" style="margin: 10px; padding: 5px 10px; display: inline-block; border: 1px solid #333; text-decoration: none;">Chat Viewer</a></p>
-          </div>
-        `;
       }
     }
   } catch (error) {
@@ -148,31 +130,18 @@ async function initChatViewer(chatPath) {
       return;
     }
 
-    // Try to find the markdown content container, or create it if it doesn't exist
-    let markdownContent = document.getElementById('markdown-content');
+    // Get the markdown content container
+    const markdownContent = document.getElementById('markdown-content');
     if (!markdownContent) {
-      debugLog('Markdown content container not found, creating one');
-      
-      // Find a suitable parent element - use the .content div or body
-      const parentElement = document.querySelector('.content') || document.body;
-      
-      // Create a new markdown content container
-      markdownContent = document.createElement('div');
-      markdownContent.id = 'markdown-content';
-      markdownContent.className = 'markdown-body';
-      
-      // Add a loading indicator
-      const loadingIndicator = document.createElement('div');
-      loadingIndicator.id = 'loading';
-      loadingIndicator.className = 'loading-indicator';
-      loadingIndicator.textContent = 'Loading conversation...';
-      
-      markdownContent.appendChild(loadingIndicator);
-      parentElement.appendChild(markdownContent);
-      
-      debugLog('Created markdown content container and added to DOM');
-    } else {
-      debugLog('Found existing markdown content container');
+      debugLog('Markdown content container not found');
+      console.error('Markdown content container not found');
+      return;
+    }
+    
+    // Make sure the loading indicator is visible
+    const loadingIndicator = document.getElementById('markdown-loading');
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'block';
     }
 
     // Initialize the chat scanner to get navigation data
@@ -204,10 +173,15 @@ async function initChatViewer(chatPath) {
     
     // Set up navigation config
     const navConfig = {
-      prevLink: nav.prev ? `viewer.html?path=${nav.prev.path}` : null,
-      nextLink: nav.next ? `viewer.html?path=${nav.next.path}` : null,
+      prevLink: nav.prev ? `index.html?path=${nav.prev.path}` : null,
+      nextLink: nav.next ? `index.html?path=${nav.next.path}` : null,
       title: title
     };
+    
+    // Hide the loading indicator
+    if (loadingIndicator) {
+      loadingIndicator.style.display = 'none';
+    }
     
     // Initialize the chat converter with the markdown content
     if (window.initChatConverter) {
@@ -247,30 +221,12 @@ async function initDirectoryView() {
       return;
     }
     
-    // Try to find the post container, or create it if it doesn't exist
-    let postContainer = document.getElementById('post-container');
+    // Get the post container
+    const postContainer = document.getElementById('post-container');
     if (!postContainer) {
-      debugLog('Post container not found, creating one');
-      
-      // Find a suitable parent element - use the .content div or body
-      const parentElement = document.querySelector('.content') || document.body;
-      
-      // Create a new post container
-      postContainer = document.createElement('div');
-      postContainer.id = 'post-container';
-      
-      // Add a loading indicator
-      const loadingIndicator = document.createElement('div');
-      loadingIndicator.id = 'loading';
-      loadingIndicator.className = 'loading-indicator';
-      loadingIndicator.textContent = 'Scanning for conversations...';
-      
-      postContainer.appendChild(loadingIndicator);
-      parentElement.appendChild(postContainer);
-      
-      debugLog('Created post container and added to DOM');
-    } else {
-      debugLog('Found existing post container');
+      debugLog('Post container not found');
+      console.error('Post container not found');
+      return;
     }
     
     const loadingIndicator = document.getElementById('loading');
@@ -318,7 +274,7 @@ async function initDirectoryView() {
         const listItem = document.createElement('li');
         
         const link = document.createElement('a');
-        link.href = `viewer.html?path=${file.path}`;
+        link.href = `index.html?path=${file.path}`;
         link.textContent = file.title;
         
         listItem.appendChild(link);
