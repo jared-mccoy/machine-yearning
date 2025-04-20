@@ -1,6 +1,6 @@
 /**
  * Chat Directory Scanner
- * Dynamically discovers all chat files in the _chats directory
+ * Dynamically discovers all chat files in the content directory
  */
 
 class ChatDirectoryScanner {
@@ -10,6 +10,23 @@ class ChatDirectoryScanner {
     this.isLoading = false;
     this.cacheKey = 'machine-yearning-chats';
     this.cacheDuration = 3600000; // 1 hour in milliseconds
+    
+    // Clear the cache on page load to force a fresh scan
+    this.clearCache();
+  }
+  
+  // Clear the browser cache for this app
+  clearCache() {
+    try {
+      localStorage.removeItem(this.cacheKey);
+      if (window.debugLog) {
+        window.debugLog('Chat scanner cache cleared');
+      } else {
+        console.log('Chat scanner cache cleared');
+      }
+    } catch (e) {
+      console.warn('Failed to clear cache:', e);
+    }
   }
 
   /**
@@ -71,7 +88,7 @@ class ChatDirectoryScanner {
   }
 
   /**
-   * Scan the _chats directory to find all conversation files
+   * Scan the content directory to find all conversation files
    * @returns {Promise} Resolves with an array of date objects
    */
   async scanChatDirectory() {
@@ -92,16 +109,49 @@ class ChatDirectoryScanner {
     this.isLoading = true;
     this.dates = [];
     this.chats = [];
+    
+    const logMsg = (msg) => {
+      if (window.debugLog) {
+        window.debugLog(msg);
+      } else {
+        console.log(msg);
+      }
+    };
 
     try {
-      // Fetch the _chats directory
-      const response = await fetch('/_chats/');
+      logMsg('Starting to scan content directory');
+      
+      // Try to use the API first
+      try {
+        logMsg('Fetching chat list from API');
+        const apiResponse = await fetch('/api.json');
+        
+        if (apiResponse.ok) {
+          const apiData = await apiResponse.json();
+          logMsg(`Received API data with ${apiData.chats.length} files`);
+          
+          // Process files from API
+          this.processFilesFromApi(apiData.chats);
+          this.isLoading = false;
+          return this.dates;
+        } else {
+          logMsg('API not available, falling back to directory scanning');
+        }
+      } catch (apiError) {
+        logMsg(`API error: ${apiError.message}, falling back to directory scanning`);
+      }
+      
+      // Fallback: Fetch the content directory
+      logMsg('Fetching content directory listing');
+      const response = await fetch('/content/');
       if (!response.ok) {
-        throw new Error(`Failed to fetch _chats directory: ${response.status}`);
+        throw new Error(`Failed to fetch content directory: ${response.status}`);
       }
 
       const html = await response.text();
+      logMsg(`Received content directory listing (${html.length} chars)`);
       const dateDirs = this.parseDateDirectories(html);
+      logMsg(`Found ${dateDirs.length} date directories: ${dateDirs.join(', ')}`);
 
       // Process each date directory
       const datePromises = dateDirs.map(async dateDir => {
@@ -112,7 +162,7 @@ class ChatDirectoryScanner {
         };
 
         // Fetch the date directory
-        const dateResponse = await fetch(`/_chats/${dateDir}/`);
+        const dateResponse = await fetch(`/content/${dateDir}/`);
         if (!dateResponse.ok) {
           return dateObj;
         }
@@ -160,10 +210,57 @@ class ChatDirectoryScanner {
       return [];
     }
   }
+  
+  /**
+   * Process files from the API response
+   * @param {Array} files Array of file objects from the API
+   */
+  processFilesFromApi(files) {
+    // Group files by date
+    const dateMap = {};
+    
+    files.forEach(file => {
+      // Extract date from path (assuming path format like "content/2025.04.15/file.md")
+      const pathParts = file.path.split('/');
+      if (pathParts.length >= 2) {
+        const dateDir = pathParts[1];
+        
+        // Skip non-markdown files
+        if (!file.name.endsWith('.md')) return;
+        
+        // Create date entry if it doesn't exist
+        if (!dateMap[dateDir]) {
+          dateMap[dateDir] = {
+            name: dateDir,
+            displayName: dateDir,
+            files: []
+          };
+        }
+        
+        // Add file to date
+        const fileData = {
+          path: file.path,
+          title: file.name.replace('.md', '')
+        };
+        
+        dateMap[dateDir].files.push(fileData);
+        this.chats.push(fileData);
+      }
+    });
+    
+    // Convert map to array
+    this.dates = Object.values(dateMap);
+    
+    // Sort dates in reverse chronological order
+    this.dates.sort((a, b) => b.name.localeCompare(a.name));
+    
+    // Save to cache
+    this.saveToCache();
+  }
 
   /**
-   * Parse HTML from the _chats directory to find date subdirectories
-   * @param {string} html HTML content of the _chats directory
+   * Parse HTML from the content directory to find date subdirectories
+   * @param {string} html HTML content of the content directory
    * @returns {Array} Array of date directory names
    */
   parseDateDirectories(html) {
@@ -207,7 +304,7 @@ class ChatDirectoryScanner {
       .map(link => {
         const filename = link.getAttribute('href');
         return {
-          path: `_chats/${dateDir}/${filename}`,
+          path: `content/${dateDir}/${filename}`,
           filename
         };
       });

@@ -9,13 +9,16 @@ highlighter: rouge
 theme: null # Disable default theme
 remote_theme: null # Disable remote theme
 
+# Directory browsing
+show_dir_listing: true
+
 # Include all files
 include:
   - "*.md"
   - "**/*.md"
   - "**/.*"
-  - "_chats"
-  - "_chats/**/*"
+  - "content"
+  - "content/**/*"
 
 # Exclude from processing
 exclude:

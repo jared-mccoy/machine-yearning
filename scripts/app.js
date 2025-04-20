@@ -3,23 +3,65 @@
  * Main application logic and routing
  */
 
+// Debug function to log directly to the page
+function debugLog(message) {
+  const debugElement = document.createElement('div');
+  debugElement.className = 'debug-log';
+  debugElement.style.padding = '8px';
+  debugElement.style.margin = '8px';
+  debugElement.style.background = '#f0f0f0';
+  debugElement.style.border = '1px solid #ccc';
+  debugElement.style.color = '#333';
+  debugElement.textContent = message;
+  document.body.appendChild(debugElement);
+  console.log(message);
+}
+
 // Initialize the application
 async function initApp() {
-  // Apply theme immediately to avoid flicker
-  if (window.themeControls) {
-    window.themeControls.initTheme();
-  }
+  try {
+    debugLog('App initialization started');
+    
+    // Apply theme immediately to avoid flicker
+    if (window.themeControls) {
+      window.themeControls.initTheme();
+      debugLog('Theme initialized');
+    } else {
+      debugLog('Theme controls not available');
+    }
 
-  // Determine which view to show based on URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const chatPath = urlParams.get('path');
-
-  if (chatPath) {
-    // Chat viewer mode
-    await initChatViewer(chatPath);
-  } else {
-    // Home/directory mode
-    await initDirectoryView();
+    // Determine which view to show based on URL and page context
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatPath = urlParams.get('path');
+    
+    debugLog(`URL parameters: path=${chatPath}`);
+    
+    // Determine if we're on the viewer page or index page
+    const markdownContent = document.getElementById('markdown-content');
+    const postContainer = document.getElementById('post-container');
+    const isViewerPage = markdownContent !== null;
+    const isIndexPage = postContainer !== null;
+    
+    debugLog(`Page context: isViewerPage=${isViewerPage}, isIndexPage=${isIndexPage}`);
+    
+    if (chatPath) {
+      // Chat viewer mode - show specific chat
+      debugLog('Starting chat viewer mode');
+      await initChatViewer(chatPath);
+    } else if (isIndexPage) {
+      // Home/directory mode - show list of chats
+      debugLog('Starting directory view mode');
+      await initDirectoryView();
+    } else if (isViewerPage && !chatPath) {
+      // We're on the viewer page without a path
+      debugLog('Viewer page without path parameter');
+      if (markdownContent) {
+        markdownContent.innerHTML = '<div class="info-message">No chat selected. Please select a chat from the <a href="index.html">home page</a>.</div>';
+      }
+    }
+  } catch (error) {
+    debugLog(`Error in initApp: ${error.message}`);
+    console.error('App initialization error:', error);
   }
 }
 
@@ -101,7 +143,7 @@ async function initDirectoryView() {
     
     if (dates.length === 0) {
       if (loadingIndicator) {
-        loadingIndicator.textContent = 'No conversations found. Add markdown files to the _chats directory to get started.';
+        loadingIndicator.textContent = 'No conversations found. Add markdown files to the content directory to get started.';
       }
       return;
     }
@@ -157,3 +199,6 @@ window.appController = {
   initChatViewer,
   initDirectoryView
 }; 
+
+// Make debug logging globally available
+window.debugLog = debugLog; 
