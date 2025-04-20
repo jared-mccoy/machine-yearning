@@ -259,6 +259,12 @@ async function initChatViewer(chatPath) {
             msg.classList.add('visible');
           });
         }
+        
+        // Enhance code blocks after messages are shown
+        if (typeof enhanceCodeBlocks === 'function') {
+          debugLog('Enhancing code blocks');
+          enhanceCodeBlocks();
+        }
       };
 
       // Wait for next animation frame to ensure DOM is rendered

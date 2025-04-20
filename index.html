@@ -15,9 +15,51 @@
   <link rel="stylesheet" href="styles/layout.css">
   <link rel="stylesheet" href="styles/chat.css">
 
+  <!-- Add PrismJS for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-solarizedlight.min.css" id="prism-light-theme">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" id="prism-dark-theme" disabled>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-python.min.js"></script>
+
   <!-- Add required JavaScript libraries -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  
+  <!-- Theme switching script -->
+  <script>
+    // Function to toggle theme stylesheets
+    function togglePrismTheme(isDark) {
+      document.getElementById('prism-light-theme').disabled = isDark;
+      document.getElementById('prism-dark-theme').disabled = !isDark;
+      
+      // Re-highlight any code blocks to properly apply the new theme
+      if (window.Prism) {
+        setTimeout(() => {
+          Prism.highlightAll();
+        }, 100);
+      }
+    }
+    
+    // Watch for theme changes
+    document.addEventListener('DOMContentLoaded', function() {
+      // Apply current theme on load
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      togglePrismTheme(currentTheme === 'dark');
+      
+      // Set up observer to watch for theme changes
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.attributeName === 'data-theme') {
+            const theme = document.documentElement.getAttribute('data-theme');
+            togglePrismTheme(theme === 'dark');
+          }
+        });
+      });
+      
+      observer.observe(document.documentElement, { attributes: true });
+    });
+  </script>
 </head>
 <body>
   <div class="site-header">

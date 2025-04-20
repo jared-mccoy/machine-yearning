@@ -23,6 +23,9 @@ function initChatConverter(options = {}) {
   } else {
     processChatContent(opts);
   }
+  
+  // Add function to enhance code blocks with language tags and copy buttons
+  enhanceCodeBlocks();
 }
 
 // Main processing function
@@ -529,4 +532,86 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Export the function for use in other scripts
-window.initChatConverter = initChatConverter; 
+window.initChatConverter = initChatConverter;
+
+// Function to enhance code blocks with language tags and copy buttons
+function enhanceCodeBlocks() {
+  // Find all pre elements
+  setTimeout(() => {
+    document.querySelectorAll('pre').forEach(pre => {
+      // Skip if already enhanced
+      if (pre.querySelector('.code-controls')) return;
+      
+      // Try to get language
+      let language = 'plaintext';
+      const codeElement = pre.querySelector('code');
+      
+      if (codeElement && codeElement.className) {
+        const match = codeElement.className.match(/language-(\w+)/);
+        if (match) language = match[1];
+      }
+
+      // Apply background and padding to pre
+      pre.style.padding = "10px";
+      pre.style.paddingTop = "10px";
+      pre.style.borderRadius = "6px";
+      pre.style.backgroundColor = "var(--code-block-bg)";
+      pre.style.border = "1px solid var(--border-color)";
+      
+      // Create controls container
+      const controls = document.createElement('div');
+      controls.className = 'code-controls';
+      
+      // Add lang tag (on the left)
+      const langTag = document.createElement('div');
+      langTag.className = 'lang-tag';
+      langTag.textContent = language;
+      
+      // Add copy button with SVG (on the right)
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'copy-button';
+      copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+      
+      copyBtn.onclick = function() {
+        const code = codeElement ? codeElement.textContent : pre.textContent;
+        navigator.clipboard.writeText(code);
+        this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(() => { 
+          this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        }, 2000);
+      };
+      
+      // Append elements (lang tag first, copy button last)
+      controls.appendChild(langTag);
+      controls.appendChild(copyBtn);
+      
+      // Insert at the beginning of the pre element
+      pre.insertBefore(controls, pre.firstChild);
+      
+      // If using Prism for highlighting, ensure theme-appropriate styling
+      if (window.Prism) {
+        // Ensure token backgrounds are transparent
+        pre.querySelectorAll('.token').forEach(token => {
+          token.style.background = 'transparent';
+        });
+      }
+    });
+    
+    // If there's a theme toggle, monitor for changes to re-apply code block styling
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        // Wait for theme change to complete
+        setTimeout(() => {
+          document.querySelectorAll('pre').forEach(pre => {
+            pre.style.backgroundColor = "var(--code-block-bg)";
+            const controls = pre.querySelector('.code-controls');
+            if (controls) {
+              controls.style.backgroundColor = "var(--code-header-bg)";
+            }
+          });
+        }, 50);
+      });
+    }
+  }, 500);
+} 
