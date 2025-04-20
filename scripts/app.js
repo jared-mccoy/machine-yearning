@@ -3,21 +3,27 @@
  * Main application logic and routing
  */
 
-// Debug function to log directly to the page
+// Debug function to log to console only, not the page
 function debugLog(message) {
+  // Only log to console, never to the page
   console.log(message);
+}
+
+// Special function for error messages that should be visible on the page
+function errorLog(message) {
+  console.error(message);
   try {
-    const debugElement = document.createElement('div');
-    debugElement.className = 'debug-log';
-    debugElement.style.padding = '8px';
-    debugElement.style.margin = '8px';
-    debugElement.style.background = '#f0f0f0';
-    debugElement.style.border = '1px solid #ccc';
-    debugElement.style.color = '#333';
-    debugElement.textContent = message;
-    document.body.appendChild(debugElement);
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.padding = '16px';
+    errorElement.style.margin = '16px';
+    errorElement.style.background = '#ffeeee';
+    errorElement.style.border = '1px solid #cc0000';
+    errorElement.style.color = '#cc0000';
+    errorElement.innerHTML = `<strong>Error:</strong> ${message}`;
+    document.body.appendChild(errorElement);
   } catch (e) {
-    console.error('Error adding debug element:', e);
+    console.error('Failed to add error element:', e);
   }
 }
 
@@ -92,7 +98,7 @@ async function initApp() {
       // We're on the viewer page without a path
       debugLog('Viewer page without path parameter');
       if (markdownContent) {
-        markdownContent.innerHTML = '<div class="info-message">No chat selected. Please select a chat from the <a href="index.html">home page</a>.</div>';
+        markdownContent.innerHTML = '<div class="info-message" style="text-align: center; padding: 20px;"><p>No chat selected.</p><p>Please select a conversation from the <a href="index.html">home page</a>.</p></div>';
       }
     } else {
       debugLog('Could not determine page type');
@@ -114,19 +120,7 @@ async function initApp() {
     console.error('App initialization error:', error);
     
     // Create a visible error message on the page
-    try {
-      const errorElement = document.createElement('div');
-      errorElement.className = 'error-message';
-      errorElement.style.padding = '16px';
-      errorElement.style.margin = '16px';
-      errorElement.style.background = '#ffeeee';
-      errorElement.style.border = '1px solid #cc0000';
-      errorElement.style.color = '#cc0000';
-      errorElement.innerHTML = `<strong>Error:</strong> ${error.message}<br><pre>${error.stack}</pre>`;
-      document.body.appendChild(errorElement);
-    } catch (e) {
-      console.error('Failed to add error element:', e);
-    }
+    errorLog(`App initialization error: ${error.message}`);
   }
 }
 
@@ -222,7 +216,13 @@ async function initChatViewer(chatPath) {
     debugLog(`Error in initChatViewer: ${error.message}`);
     console.error('Error initializing chat viewer:', error);
     const content = document.querySelector('#markdown-content') || document.querySelector('.content') || document.body;
-    content.innerHTML = `<div class="error-message">Error loading chat: ${error.message}</div>`;
+    content.innerHTML = `
+      <div class="error-message" style="text-align: center; padding: 20px;">
+        <p><strong>Error loading chat:</strong> ${error.message}</p>
+        <p>Please check that the file exists and is accessible.</p>
+        <p><a href="index.html">Return to Home</a></p>
+      </div>
+    `;
   }
 }
 
@@ -270,7 +270,7 @@ async function initDirectoryView() {
     
     if (dates.length === 0) {
       if (loadingIndicator) {
-        loadingIndicator.textContent = 'No conversations found. Add markdown files to the content directory to get started.';
+        loadingIndicator.innerHTML = '<div class="info-message" style="text-align: center; padding: 20px;"><p>No conversations found.</p><p>Add markdown files to the content directory to get started.</p></div>';
       }
       return;
     }
@@ -318,7 +318,12 @@ async function initDirectoryView() {
     // Try to display an error message
     const postContainer = document.getElementById('post-container') || document.querySelector('.content') || document.body;
     if (postContainer) {
-      postContainer.innerHTML = `<div class="error-message">Error loading chat directory: ${error.message}</div>`;
+      postContainer.innerHTML = `
+        <div class="error-message" style="text-align: center; padding: 20px;">
+          <p><strong>Error loading chat directory:</strong> ${error.message}</p>
+          <p>Please check that the content directory exists and is accessible.</p>
+        </div>
+      `;
     }
   }
 }
