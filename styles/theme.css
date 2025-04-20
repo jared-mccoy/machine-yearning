@@ -69,12 +69,13 @@ body {
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 50%;
   transition: all 0.3s ease;
+  margin-right: 8px;
 }
 
 .theme-toggle:hover {
-  background-color: transparent;
+  background-color: var(--accent-color-light);
   border-color: var(--accent-color);
 }
 
@@ -105,14 +106,14 @@ body {
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 50%;
   transition: all 0.3s ease;
   margin-right: 8px;
   position: relative;
 }
 
 .animation-toggle:hover {
-  background-color: transparent;
+  background-color: var(--accent-color-light);
   border-color: var(--accent-color);
 }
 
@@ -150,13 +151,12 @@ body {
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 50%;
   transition: all 0.3s ease;
-  margin-right: 8px;
 }
 
 .settings-toggle:hover {
-  background-color: transparent;
+  background-color: var(--accent-color-light);
   border-color: var(--accent-color);
 }
 
@@ -248,4 +248,10 @@ body {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+/* Header controls layout */
+.header-controls {
+  display: flex;
+  align-items: center;
 } 
