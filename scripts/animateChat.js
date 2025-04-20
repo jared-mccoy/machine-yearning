@@ -321,6 +321,61 @@ const DEFAULT_ANIMATION_SETTINGS = {
   typingAppliesTo: "both"
 };
 
+// Default read delay settings
+const DEFAULT_READ_DELAY_SETTINGS = {
+  enabled: true,
+  wordsPerMinute: 300,
+  minReadTime: 300,
+  maxReadTime: 3000,
+  variancePercentage: 20
+};
+
+/**
+ * Calculate reading time based on previous message content
+ * @param {Element} message - The previous message element
+ * @returns {number} Milliseconds for read delay
+ */
+function calculateReadDelay(message) {
+  // If no message to read, return minimum delay
+  if (!message) {
+    return 0;
+  }
+  
+  // Get settings
+  let settings = DEFAULT_READ_DELAY_SETTINGS;
+  if (window.appSettings && window.appSettings.get) {
+    settings = window.appSettings.get().chat.readDelay;
+  }
+  
+  // If read delay is disabled, return 0
+  if (!settings.enabled) {
+    return 0;
+  }
+  
+  // Get the text content (all text, including nested elements)
+  const text = message.textContent || '';
+  
+  // Count words (approximately)
+  const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+  
+  // If no words or wordsPerMinute is 0, use minimum time
+  if (wordCount === 0 || !settings.wordsPerMinute) {
+    return settings.minReadTime;
+  }
+  
+  // Calculate base time in milliseconds: (words / words per minute) * 60 * 1000
+  const baseTimeMs = (wordCount / settings.wordsPerMinute) * 60 * 1000;
+  
+  // Add variance to make it more natural
+  const varianceFactor = 1 + (Math.random() * (settings.variancePercentage / 100) * 2 - settings.variancePercentage / 100);
+  
+  // Apply bounds
+  return Math.min(
+    settings.maxReadTime,
+    Math.max(settings.minReadTime, baseTimeMs * varianceFactor)
+  );
+}
+
 /**
  * Process the next message in the animation queue
  */
@@ -357,122 +412,133 @@ function processNextInQueue() {
   // Get the visible message count
   const visibleCount = document.querySelectorAll('.message.visible').length;
   
-  // For the first message, always show the typing animation
+  // For the first message, always show the typing animation immediately
   const isFirstMessage = visibleCount === 0;
   
-  // Create typing indicator with appropriate class
-  const typingIndicator = document.createElement('div');
-  typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
-  typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+  // Find the last visible message to calculate read delay
+  const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
+  const lastVisibleMessage = visibleMessages.length > 0 ? visibleMessages[visibleMessages.length - 1] : null;
   
-  // Set size attribute based on message length
-  if (!currentIsUser) { // Only apply to assistant messages
-    const messageSize = getMessageSize(currentMsg);
-    typingIndicator.setAttribute('data-size', messageSize);
+  // Calculate read delay (only if this isn't the first message)
+  const readDelay = isFirstMessage ? 0 : calculateReadDelay(lastVisibleMessage);
+  
+  if (window.debugLog && readDelay > 0) {
+    window.debugLog(`Read delay for message: ${readDelay}ms`);
+  }
+  
+  // Wait for read delay before showing typing indicator
+  setTimeout(() => {
+    // Create typing indicator with appropriate class
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
+    typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Set size attribute based on message length
+    if (!currentIsUser) { // Only apply to assistant messages
+      const messageSize = getMessageSize(currentMsg);
+      typingIndicator.setAttribute('data-size', messageSize);
+      
+      if (window.debugLog) {
+        window.debugLog(`Message size category: ${messageSize}`);
+      }
+    }
+    
+    // Position indicator appropriately based on type
+    if (currentIsUser) {
+      typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
+      typingIndicator.style.marginLeft = 'auto';    // Push to the right side
+    } else {
+      typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
+      typingIndicator.style.marginRight = 'auto';     // Keep on the left side
+    }
+    
+    // Store reference to current message
+    typingIndicator.messageReference = currentMsg;
+    
+    // Mark message as processed to avoid double animations
+    currentMsg.setAttribute('data-observed', 'processed');
+    
+    // Find the chat container
+    const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
+    
+    // Position the typing indicator after the last visible message
+    if (visibleMessages.length > 0) {
+      const lastVisible = visibleMessages[visibleMessages.length - 1];
+      lastVisible.after(typingIndicator);
+    } else {
+      // If no visible messages yet, add to beginning of container
+      container.prepend(typingIndicator);
+    }
+    
+    // Flag that there's a typing indicator showing
+    typingIndicatorVisible = true;
+    
+    // Show the typing indicator with a small delay
+    setTimeout(() => {
+      typingIndicator.classList.add('visible');
+    }, 50);
+    
+    // For debugging
+    if (window.debugLog && isFirstMessage) {
+      window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
+    }
+    
+    // Calculate dynamic typing time based on message content
+    const typingTime = calculateTypingTime(currentMsg, currentIsUser);
     
     if (window.debugLog) {
-      window.debugLog(`Message size category: ${messageSize}`);
+      window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
     }
-  }
-  
-  // Position indicator appropriately based on type
-  if (currentIsUser) {
-    typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
-    typingIndicator.style.marginLeft = 'auto';    // Push to the right side
-  } else {
-    typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
-    typingIndicator.style.marginRight = 'auto';     // Keep on the left side
-  }
-  
-  // Store reference to current message
-  typingIndicator.messageReference = currentMsg;
-  
-  // Mark message as processed to avoid double animations
-  currentMsg.setAttribute('data-observed', 'processed');
-  
-  // Find the chat container
-  const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
-  
-  // Find all visible messages to position indicator correctly
-  const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
-  
-  // Position the typing indicator after the last visible message
-  if (visibleMessages.length > 0) {
-    const lastVisible = visibleMessages[visibleMessages.length - 1];
-    lastVisible.after(typingIndicator);
-  } else {
-    // If no visible messages yet, add to beginning of container
-    container.prepend(typingIndicator);
-  }
-  
-  // Flag that there's a typing indicator showing
-  typingIndicatorVisible = true;
-  
-  // Show the typing indicator with a small delay
-  setTimeout(() => {
-    typingIndicator.classList.add('visible');
-  }, 50);
-  
-  // For debugging
-  if (window.debugLog && isFirstMessage) {
-    window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
-  }
-  
-  // Calculate dynamic typing time based on message content
-  const typingTime = calculateTypingTime(currentMsg, currentIsUser);
-  
-  if (window.debugLog) {
-    window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
-  }
-  
-  // After typing animation completes, show the message
-  setTimeout(() => {
-    // Hide the typing indicator
-    typingIndicator.classList.remove('visible');
-    typingIndicatorVisible = false;
     
-    // Relax the viewport check - just make sure message is near viewport
-    const rect = currentMsg.getBoundingClientRect();
-    
-    // Consider a message "in view" if it's even partially in viewport or within 300px below
-    const isInView = rect.top < window.innerHeight + 300;
-    
-    // If it's anywhere close to view, show the message
-    if (isInView) {
-      // Update the last sender type
-      lastSenderWasUser = currentIsUser;
+    // After typing animation completes, show the message
+    setTimeout(() => {
+      // Hide the typing indicator
+      typingIndicator.classList.remove('visible');
+      typingIndicatorVisible = false;
       
-      // Show the message with animation
-      currentMsg.classList.remove('hidden');
-      currentMsg.classList.add('visible');
+      // Relax the viewport check - just make sure message is near viewport
+      const rect = currentMsg.getBoundingClientRect();
       
-      // Remove the indicator after its transition completes
-      setTimeout(() => typingIndicator.remove(), 300);
+      // Consider a message "in view" if it's even partially in viewport or within 300px below
+      const isInView = rect.top < window.innerHeight + 300;
       
-      // Wait for message animation to complete before processing next
-      setTimeout(() => {
-        animationInProgress = false;
-        processNextInQueue();
-      }, 600);
-    } else {
-      // Message is really far from viewport, don't show it yet
-      if (window.debugLog) {
-        window.debugLog("Message far from viewport, will retry later");
+      // If it's anywhere close to view, show the message
+      if (isInView) {
+        // Update the last sender type
+        lastSenderWasUser = currentIsUser;
+        
+        // Show the message with animation
+        currentMsg.classList.remove('hidden');
+        currentMsg.classList.add('visible');
+        
+        // Remove the indicator after its transition completes
+        setTimeout(() => typingIndicator.remove(), 300);
+        
+        // Wait for message animation to complete before processing next
+        setTimeout(() => {
+          animationInProgress = false;
+          processNextInQueue();
+        }, 600);
+      } else {
+        // Message is really far from viewport, don't show it yet
+        if (window.debugLog) {
+          window.debugLog("Message far from viewport, will retry later");
+        }
+        
+        // Remove the indicator immediately since we're not showing the message
+        typingIndicator.remove();
+        
+        // Add message to failed list to retry later
+        animationFailedMessages.push(currentMsg);
+        
+        // Set a retry timeout that's shorter than normal animation
+        setTimeout(() => {
+          animationInProgress = false;
+          processNextInQueue();
+        }, 300);
       }
-      
-      // Remove the indicator immediately since we're not showing the message
-      typingIndicator.remove();
-      
-      // Add message to failed list to retry later
-      animationFailedMessages.push(currentMsg);
-      
-      // Set a retry timeout that's shorter than normal animation
-      setTimeout(() => {
-        animationInProgress = false;
-        processNextInQueue();
-      }, 300);
-    }
-  }, typingTime); // Use calculated dynamic typing time instead of fixed values
+    }, typingTime); // Use calculated dynamic typing time instead of fixed values
+  }, readDelay); // Add read delay before showing typing indicator
 }
 
 /**

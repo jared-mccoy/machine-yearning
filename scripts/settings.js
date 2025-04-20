@@ -11,7 +11,15 @@ const DEFAULT_SETTINGS = {
       wordsPerMinute: 200,
       minTypingTime: 800,
       maxTypingTime: 6000,
-      variancePercentage: 15
+      variancePercentage: 15,
+      typingAppliesTo: "both"
+    },
+    readDelay: {
+      enabled: true,
+      wordsPerMinute: 300,
+      minReadTime: 300,
+      maxReadTime: 3000,
+      variancePercentage: 20
     }
   },
   theme: {
@@ -173,6 +181,28 @@ function setupSettingsPanel() {
       </div>
       
       <div class="setting-group">
+        <h4>Read Delay</h4>
+        <div>
+          <label>
+            <input type="checkbox" id="read-delay-enabled">
+            Add reading delay between messages
+          </label>
+        </div>
+        
+        <label for="read-delay-wpm">Reading Speed (WPM):</label>
+        <input type="number" id="read-delay-wpm" min="100" max="1500" step="50">
+        
+        <label for="min-read-time">Minimum Read Time (ms):</label>
+        <input type="number" id="min-read-time" min="0" max="2000" step="100">
+        
+        <label for="max-read-time">Maximum Read Time (ms):</label>
+        <input type="number" id="max-read-time" min="500" max="8000" step="100">
+        
+        <label for="read-variance">Reading Variance (%):</label>
+        <input type="number" id="read-variance" min="0" max="50" step="5">
+      </div>
+      
+      <div class="setting-group">
         <h4>Theme Colors</h4>
         <label for="accent-a">Accent A (Assistant):</label>
         <input type="text" id="accent-a">
@@ -216,6 +246,7 @@ function populateSettingsPanel() {
   if (!panel) return;
   
   const animation = appSettings.chat.typingAnimation;
+  const readDelay = appSettings.chat.readDelay;
   const theme = appSettings.theme;
   
   // Animation settings
@@ -225,6 +256,13 @@ function populateSettingsPanel() {
   panel.querySelector('#min-typing-time').value = animation.minTypingTime;
   panel.querySelector('#max-typing-time').value = animation.maxTypingTime;
   panel.querySelector('#variance-percentage').value = animation.variancePercentage;
+  
+  // Read delay settings
+  panel.querySelector('#read-delay-enabled').checked = readDelay.enabled;
+  panel.querySelector('#read-delay-wpm').value = readDelay.wordsPerMinute;
+  panel.querySelector('#min-read-time').value = readDelay.minReadTime;
+  panel.querySelector('#max-read-time').value = readDelay.maxReadTime;
+  panel.querySelector('#read-variance').value = readDelay.variancePercentage;
   
   // Theme settings
   panel.querySelector('#accent-a').value = theme.accentA;
@@ -247,6 +285,13 @@ function saveSettingsFromPanel() {
   newSettings.chat.typingAnimation.minTypingTime = parseInt(panel.querySelector('#min-typing-time').value);
   newSettings.chat.typingAnimation.maxTypingTime = parseInt(panel.querySelector('#max-typing-time').value);
   newSettings.chat.typingAnimation.variancePercentage = parseInt(panel.querySelector('#variance-percentage').value);
+  
+  // Read delay settings
+  newSettings.chat.readDelay.enabled = panel.querySelector('#read-delay-enabled').checked;
+  newSettings.chat.readDelay.wordsPerMinute = parseInt(panel.querySelector('#read-delay-wpm').value);
+  newSettings.chat.readDelay.minReadTime = parseInt(panel.querySelector('#min-read-time').value);
+  newSettings.chat.readDelay.maxReadTime = parseInt(panel.querySelector('#max-read-time').value);
+  newSettings.chat.readDelay.variancePercentage = parseInt(panel.querySelector('#read-variance').value);
   
   // Theme settings
   newSettings.theme.accentA = panel.querySelector('#accent-a').value;
