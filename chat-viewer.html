@@ -460,11 +460,14 @@ layout: null
             typingIndicator.classList.remove('visible');
             typingIndicatorVisible = false;
             
-            // Check if message is scrolled into view far enough to show
+            // Relax the viewport check - just make sure message is near viewport
+            // We'll show even if just the top is visible or close to visible
             const rect = currentMsg.getBoundingClientRect();
-            const isInView = rect.top < window.innerHeight - 100; // Must be at least 100px into view
             
-            // If it's in view, show the message
+            // Consider a message "in view" if it's even partially in viewport or within 300px below
+            const isInView = rect.top < window.innerHeight + 300;
+            
+            // If it's anywhere close to view, show the message
             if (isInView) {
               // Update the last sender type
               lastSenderWasUser = currentIsUser;
@@ -482,8 +485,8 @@ layout: null
                 processNextInQueue();
               }, 600);
             } else {
-              // Message not in view yet, don't show it
-              console.log("Message not in view enough, will retry later");
+              // Message is really far from viewport, don't show it yet
+              console.log("Message far from viewport, will retry later");
               
               // Remove the indicator immediately since we're not showing the message
               typingIndicator.remove();
@@ -528,8 +531,8 @@ layout: null
                   const rect = nextMsg.getBoundingClientRect();
                   const distanceFromViewport = rect.top - window.innerHeight;
                   
-                  // Queue even if it's slightly below viewport
-                  if (distanceFromViewport < 200) { // Queue if within 200px of viewport
+                  // Queue even if it's well below viewport to look ahead more aggressively
+                  if (distanceFromViewport < 500) { // Increased from 200px to 500px - much more generous lookahead
                     if (nextMsg.classList.contains('hidden') && 
                         !messageQueue.includes(nextMsg) && 
                         !animationFailedMessages.includes(nextMsg)) {
@@ -574,12 +577,12 @@ layout: null
           }
         });
         
-        // Also start observing just a few initial messages that are close to the viewport
-        const initialVisibleCount = Math.min(4, messages.length);
+        // Also start observing more initial messages that are close to the viewport
+        const initialVisibleCount = Math.min(6, messages.length);
         for (let i = 0; i < initialVisibleCount; i++) {
           const msg = messages[i];
           const rect = msg.getBoundingClientRect();
-          if (rect.top < window.innerHeight + 200) { // Be more generous with initial observation
+          if (rect.top < window.innerHeight + 500) { // Much more generous initial observation
             messageObserver.observe(msg);
           }
         }
