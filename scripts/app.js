@@ -24,13 +24,7 @@ function debugLog(message) {
 // Initialize the application
 async function initApp() {
   try {
-    // Make sure DOM is fully loaded
-    if (document.readyState !== 'complete') {
-      debugLog(`Document not ready yet, state: ${document.readyState}`);
-      return;
-    }
-    
-    debugLog('App initialization started');
+    debugLog(`Document readyState: ${document.readyState}`);
     
     // Apply theme immediately to avoid flicker
     if (window.themeControls) {
@@ -45,15 +39,19 @@ async function initApp() {
     const chatPath = urlParams.get('path');
     
     debugLog(`URL parameters: path=${chatPath}`);
+    debugLog(`Current URL: ${window.location.href}`);
     
-    // Dump the entire HTML for debugging
-    debugLog(`HTML structure: ${document.documentElement.innerHTML.slice(0, 100)}...`);
+    // Check if we're viewing index.html or viewer.html
+    const isViewerPage = window.location.href.includes('viewer.html');
+    const isIndexPage = !isViewerPage && (window.location.pathname === '/' || 
+                                         window.location.pathname === '/index.html' ||
+                                         window.location.href.includes('index.html'));
+    
+    debugLog(`Page detection: isViewerPage=${isViewerPage}, isIndexPage=${isIndexPage}`);
     
     // Check for the container elements
     let markdownContent = null;
     let postContainer = null;
-    
-    debugLog(`All IDs on page: ${Array.from(document.querySelectorAll('[id]')).map(el => el.id).join(', ')}`);
     
     try {
       markdownContent = document.getElementById('markdown-content');
@@ -69,11 +67,6 @@ async function initApp() {
       debugLog(`Error getting post-container: ${e.message}`);
     }
     
-    const isViewerPage = markdownContent !== null;
-    const isIndexPage = postContainer !== null;
-    
-    debugLog(`Page context: isViewerPage=${isViewerPage}, isIndexPage=${isIndexPage}`);
-    
     // Check if the chat scanner is available
     debugLog(`chatScanner available: ${window.chatScanner ? 'yes' : 'no'}`);
     
@@ -86,7 +79,7 @@ async function initApp() {
         debugLog(`Error in chat viewer: ${e.message}`);
         console.error('Chat viewer error:', e);
       }
-    } else if (isIndexPage) {
+    } else if (isIndexPage || postContainer) {
       // Home/directory mode - show list of chats
       debugLog('Starting directory view mode');
       try {
@@ -95,7 +88,7 @@ async function initApp() {
         debugLog(`Error in directory view: ${e.message}`);
         console.error('Directory view error:', e);
       }
-    } else if (isViewerPage && !chatPath) {
+    } else if (isViewerPage || markdownContent) {
       // We're on the viewer page without a path
       debugLog('Viewer page without path parameter');
       if (markdownContent) {
@@ -103,6 +96,18 @@ async function initApp() {
       }
     } else {
       debugLog('Could not determine page type');
+      // Try to add fallback content to the page
+      const mainContent = document.querySelector('.content') || document.body;
+      if (mainContent) {
+        mainContent.innerHTML = `
+          <div style="text-align: center; padding: 20px; margin: 20px;">
+            <h3>Machine Yearning</h3>
+            <p>Please use one of these links:</p>
+            <p><a href="index.html" style="margin: 10px; padding: 5px 10px; display: inline-block; border: 1px solid #333; text-decoration: none;">Home Page</a>
+            <a href="viewer.html" style="margin: 10px; padding: 5px 10px; display: inline-block; border: 1px solid #333; text-decoration: none;">Chat Viewer</a></p>
+          </div>
+        `;
+      }
     }
   } catch (error) {
     debugLog(`Error in initApp: ${error.message}`);
@@ -251,15 +256,24 @@ async function initDirectoryView() {
 }
 
 // Initialize on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  // DOM already loaded, initialize now
-  initApp();
-}
+document.addEventListener('DOMContentLoaded', function() {
+  debugLog('DOM content loaded event triggered');
+  if (document.readyState === 'loading') {
+    debugLog('Document still loading, waiting for load event');
+  } else {
+    debugLog('Document ready, initializing now');
+    initApp();
+  }
+});
 
 // Also try again after window load to be extra sure
-window.addEventListener('load', initApp);
+window.addEventListener('load', function() {
+  debugLog('Window load event triggered');
+  setTimeout(function() {
+    debugLog('Running delayed initialization');
+    initApp();
+  }, 100); // Small delay to ensure everything is ready
+});
 
 // Expose methods for use in other scripts
 window.appController = {

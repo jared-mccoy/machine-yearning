@@ -164,7 +164,7 @@ class ChatDirectoryScanner {
       // Try to use the API first
       try {
         logMsg('Fetching chat list from API');
-        const apiResponse = await fetch('/api.json');
+        const apiResponse = await fetch('/api.html');
         
         if (apiResponse.ok) {
           const apiData = await apiResponse.json();

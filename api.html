@@ -1,0 +1,18 @@
+---
+layout: null
+---
+{% raw %}
+{
+  "chats": [
+    {% for dir in site.static_files %}
+      {% if dir.path contains 'content/' and dir.path contains '.md' %}
+        {
+          "path": "{{ dir.path | remove_first: '/' }}",
+          "name": "{{ dir.name }}",
+          "modified": "{{ dir.modified_time | date: '%Y-%m-%dT%H:%M:%S' }}"
+        }{% unless forloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  ]
+}
+{% endraw %} 
