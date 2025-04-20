@@ -5,7 +5,8 @@
       "wordsPerMinute": 100,
       "minTypingTime": 800,
       "maxTypingTime": 6000,
-      "variancePercentage": 15
+      "variancePercentage": 15,
+      "typingAppliesTo": "both"
     }
   },
   "theme": {

@@ -253,9 +253,17 @@ function calculateTypingTime(message, isUserMessage) {
     settings = window.appSettings.get().chat.typingAnimation;
   }
   
-  // Default times in case of error or special cases
-  if (isUserMessage) {
-    return settings.minTypingTime; // User messages are always fast
+  // Check which messages should have dynamic timing
+  const typingAppliesTo = settings.typingAppliesTo || 'both';
+  
+  // If it's a user message and dynamic timing doesn't apply to users, return minimum time
+  if (isUserMessage && (typingAppliesTo === 'assistant')) {
+    return settings.minTypingTime; // User messages are always fast if typingAppliesTo is 'assistant'
+  }
+  
+  // If it's an assistant message and dynamic timing doesn't apply to assistant, return minimum time
+  if (!isUserMessage && (typingAppliesTo === 'user')) {
+    return settings.minTypingTime; // Assistant messages are fast if typingAppliesTo is 'user'
   }
   
   // Get the text content (all text, including nested elements)
@@ -309,7 +317,8 @@ const DEFAULT_ANIMATION_SETTINGS = {
   wordsPerMinute: 200,
   minTypingTime: 800,
   maxTypingTime: 6000,
-  variancePercentage: 15
+  variancePercentage: 15,
+  typingAppliesTo: "both"
 };
 
 /**

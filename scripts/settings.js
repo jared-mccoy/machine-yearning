@@ -152,6 +152,13 @@ function setupSettingsPanel() {
             Enable typing animation
           </label>
         </div>
+        <label for="typing-applies-to">Apply typing animation to:</label>
+        <select id="typing-applies-to" class="settings-select">
+          <option value="both">Both user and assistant</option>
+          <option value="assistant">Assistant messages only</option>
+          <option value="user">User messages only</option>
+        </select>
+        
         <label for="words-per-minute">Words Per Minute:</label>
         <input type="number" id="words-per-minute" min="50" max="1000" step="10">
         
@@ -213,6 +220,7 @@ function populateSettingsPanel() {
   
   // Animation settings
   panel.querySelector('#animation-enabled').checked = animation.enabled;
+  panel.querySelector('#typing-applies-to').value = animation.typingAppliesTo;
   panel.querySelector('#words-per-minute').value = animation.wordsPerMinute;
   panel.querySelector('#min-typing-time').value = animation.minTypingTime;
   panel.querySelector('#max-typing-time').value = animation.maxTypingTime;
@@ -234,6 +242,7 @@ function saveSettingsFromPanel() {
   
   // Animation settings
   newSettings.chat.typingAnimation.enabled = panel.querySelector('#animation-enabled').checked;
+  newSettings.chat.typingAnimation.typingAppliesTo = panel.querySelector('#typing-applies-to').value;
   newSettings.chat.typingAnimation.wordsPerMinute = parseInt(panel.querySelector('#words-per-minute').value);
   newSettings.chat.typingAnimation.minTypingTime = parseInt(panel.querySelector('#min-typing-time').value);
   newSettings.chat.typingAnimation.maxTypingTime = parseInt(panel.querySelector('#max-typing-time').value);
