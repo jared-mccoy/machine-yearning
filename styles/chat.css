@@ -331,17 +331,21 @@ pre code::-webkit-scrollbar-thumb {
 /* Styling for the initial loading indicator */
 .initial-loader {
   text-align: center;
-  padding: 3rem !important;
+  padding: 8px 12px !important; /* Match the regular typing indicator padding */
   margin: 2rem auto !important;
-  max-width: 100px !important;
+  max-width: fit-content !important; /* Let the content determine the width */
   align-self: center !important;
+  height: 34px !important; /* Match the visible typing indicator height */
+  border-radius: 12px !important; /* Match the typing indicator border-radius */
+  width: auto !important; /* Let the content determine the width */
+  min-width: 60px !important; /* Match the min-width of typing indicator */
 }
 
 .initial-loader span {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: var(--accent-color);
-  margin: 0 6px;
+  margin: 0 3px;
 } 

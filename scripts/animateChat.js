@@ -440,7 +440,8 @@ function createInitialTypingIndicator() {
   loadingIndicator.classList.add('visible');
   
   // Add specific styling for initial loader to center it
-  loadingIndicator.style.cssText = 'text-align: center; padding: 3rem; margin: 2rem auto; max-width: 100px;';
+  // Use more compact styling to match regular typing indicators
+  loadingIndicator.style.cssText = 'text-align: center; padding: 8px 12px; margin: 2rem auto; width: auto; min-width: 60px; height: 34px; border-radius: 12px;';
   
   return loadingIndicator;
 }
