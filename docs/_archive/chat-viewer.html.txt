@@ -8,7 +8,7 @@ layout: null
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>machine yearning chat</title>
-  <!-- Prevent flash by applying theme immediately -->
+  <<<Prevent flash by applying theme immediately>>>
   <script>
     (function() {
       // Check for saved theme preference or use prefer-color-scheme
@@ -29,27 +29,27 @@ layout: null
       }
     })();
   </script>
-  <!-- Add Space Grotesk font -->
+  <<<Add Space Grotesk font>>>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="chat-style.css">
-  <!-- Dynamic Prism theme selection -->
+  <<<Dynamic Prism theme selection>>>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-solarizedlight.min.css" id="prism-light-theme">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" id="prism-dark-theme" disabled>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-mongodb.min.js"></script>
-  <!-- Include showdown.js for Markdown conversion -->
+  <<<Include showdown.js for Markdown conversion>>>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
-  <!-- Include marked.js for Markdown parsing -->
+  <<<Include marked.js for Markdown parsing>>>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <!-- Include the unified chat converter -->
+  <<<Include the unified chat converter>>>
   <script src="chat-converter.js"></script>
-  <!-- Include the chat directory scanner -->
+  <<<Include the chat directory scanner>>>
   <script src="chats-directory.js"></script>
-  <!-- Theme switching script -->
+  <<<Theme switching script>>>
   <script>
     // Function to toggle theme stylesheets
     function togglePrismTheme(isDark) {
@@ -82,7 +82,7 @@ layout: null
     observer.observe(document.documentElement, { attributes: true });
   </script>
   
-  <!-- Script to add language tag and copy button to code blocks -->
+  <<<Script to add language tag and copy button to code blocks>>>
   <script>
     function enhanceCodeBlocks() {
       // Find all pre elements

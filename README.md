@@ -38,10 +38,10 @@ If you're having issues with Jekyll processing:
 3. Format your conversations with these HTML comments:
 
 ```markdown
-<!-- USER -->
+<<<USER>>>
 User's message goes here
 
-<!-- ASSISTANT -->
+<<<ASSISTANT>>>
 Assistant's response goes here
 ```
 
