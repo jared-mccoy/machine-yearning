@@ -2,7 +2,7 @@
   "chat": {
     "typingAnimation": {
       "enabled": true,
-      "wordsPerMinute": 300,
+      "wordsPerMinute": 1500,
       "minTypingTime": 800,
       "maxTypingTime": 15000,
       "variancePercentage": 15,
@@ -10,7 +10,7 @@
     },
     "readDelay": {
       "enabled": true,
-      "wordsPerMinute": 300,
+      "wordsPerMinute": 3000,
       "minReadTime": 300,
       "maxReadTime": 15000,
       "variancePercentage": 20
