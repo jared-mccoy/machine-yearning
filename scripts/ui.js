@@ -13,6 +13,18 @@ function initTheme() {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
   
+  // Remove the flash prevention style if it exists
+  const flashStyle = document.getElementById('theme-flash-prevention');
+  if (flashStyle) {
+    flashStyle.remove();
+  }
+  
+  // Ensure Prism theme is correct
+  if (typeof togglePrismTheme === 'function') {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    togglePrismTheme(currentTheme === 'dark');
+  }
+  
   // Check for saved animation preference - fallback to local storage if settings aren't loaded yet
   let animationEnabled;
   

@@ -50,6 +50,15 @@ async function initApp() {
       debugLog('Theme initialized');
     } else {
       debugLog('Theme controls not available');
+      
+      // Fallback theme initialization if themeControls isn't loaded yet
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (typeof window.togglePrismTheme === 'function') {
+          window.togglePrismTheme(savedTheme === 'dark');
+        }
+      }
     }
 
     // Determine which view to show based on URL parameters
