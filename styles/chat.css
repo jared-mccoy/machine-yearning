@@ -239,6 +239,18 @@
   border-color: var(--generic-color);
 }
 
+.random {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.random:hover {
+  border-color: var(--accentC-color);
+}
+
 /* Typing animation indicator */
 .typing-indicator {
   display: flex;
@@ -523,4 +535,14 @@ pre code::-webkit-scrollbar-thumb {
 
 .typing-indicator.agent-typing span {
   background-color: var(--assistant-color);
+}
+
+.typing-indicator.random-typing {
+  align-self: flex-start;
+  border: 2px solid var(--accentC-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.random-typing span {
+  background-color: var(--accentC-color);
 }

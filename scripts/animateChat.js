@@ -623,6 +623,7 @@ function processNextInQueue() {
     const isSpeakerD = currentMsg.classList.contains('speakerD');
     const isSpeakerE = currentMsg.classList.contains('speakerE');
     const isGenericSpeaker = currentMsg.classList.contains('generic-speaker');
+    const isRandom = currentMsg.classList.contains('random');
     
     // Get the visible message count
     const visibleCount = document.querySelectorAll('.message.visible').length;
@@ -692,6 +693,8 @@ function processNextInQueue() {
         typingClass += ' speakerE-typing';
       } else if (isGenericSpeaker) {
         typingClass += ' generic-speaker-typing';
+      } else if (isRandom) {
+        typingClass += ' random-typing';
       }
       
       typingIndicator.className = typingClass;
@@ -747,7 +750,8 @@ function processNextInQueue() {
                          isSpeakerC ? 'speakerC' : 
                          isSpeakerD ? 'speakerD' : 
                          isSpeakerE ? 'speakerE' : 
-                         isGenericSpeaker ? 'generic' : 'assistant';
+                         isGenericSpeaker ? 'generic' : 
+                         isRandom ? 'random' : 'assistant';
         window.debugLog(`Showing first message typing indicator - ${speakerType} message`);
       }
       
@@ -759,7 +763,8 @@ function processNextInQueue() {
                          isSpeakerC ? 'speakerC' : 
                          isSpeakerD ? 'speakerD' : 
                          isSpeakerE ? 'speakerE' : 
-                         isGenericSpeaker ? 'generic' : 'assistant';
+                         isGenericSpeaker ? 'generic' : 
+                         isRandom ? 'random' : 'assistant';
         window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`);
       }
       

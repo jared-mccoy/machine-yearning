@@ -44,6 +44,11 @@ function processChatContent(options) {
     // First, check if this speaker has been seen before
     const speakerIndex = speakers.indexOf(speaker);
     
+    // Special case for "random" speaker
+    if (speaker === 'random') {
+      return 'random';
+    }
+    
     // If not found, add to speakers array
     if (speakerIndex === -1) {
       speakers.push(speaker);
