@@ -10,6 +10,7 @@ let animationFailedMessages = [];
 let typingIndicatorVisible = false;
 let lastSenderWasUser = false;
 let messageObserver = null;
+let typewriterAnimationInProgress = false;
 
 /**
  * Initialize animation system when chat content is loaded
@@ -19,8 +20,9 @@ function initChatAnimations(firstMessageShown = false) {
   // Check if animations are enabled
   const animationEnabled = document.documentElement.getAttribute('data-animation') === 'enabled';
   
-  // Get all messages
+  // Get all messages and headers
   const messages = document.querySelectorAll('.message');
+  const headers = document.querySelectorAll('.chat-section-header');
   
   // Remove any existing typing indicators
   document.querySelectorAll('.typing-indicator').forEach(indicator => {
@@ -28,10 +30,23 @@ function initChatAnimations(firstMessageShown = false) {
   });
   
   if (!animationEnabled) {
-    // If animations are disabled, make sure all messages are visible
+    // If animations are disabled, make sure all messages and headers are visible
     messages.forEach(msg => {
       msg.classList.remove('hidden');
       msg.classList.add('visible');
+    });
+    headers.forEach(header => {
+      header.classList.remove('header-hidden');
+      header.classList.remove('typewriter-active');
+      header.classList.add('header-visible');
+      
+      // Make sure the header content is fully visible
+      const headerContent = header.querySelector('.header-content');
+      if (headerContent) {
+        headerContent.style.visibility = 'visible';
+        headerContent.style.width = 'auto';
+        headerContent.classList.remove('typewriter');
+      }
     });
     return;
   }
@@ -41,6 +56,7 @@ function initChatAnimations(firstMessageShown = false) {
   animationInProgress = false;
   animationFailedMessages = [];
   typingIndicatorVisible = false;
+  typewriterAnimationInProgress = false;
   
   // Set the initial lastSenderWasUser based on the first message
   if (messages.length > 0) {
@@ -59,17 +75,64 @@ function initChatAnimations(firstMessageShown = false) {
     msg.classList.remove('visible');
   });
   
+  // Hide all headers initially and prepare them for typewriter effect
+  headers.forEach((header) => {
+    header.classList.add('header-hidden');
+    header.classList.remove('header-visible');
+    
+    // Prepare the header content for typewriter animation
+    const headerContent = header.querySelector('.header-content');
+    if (headerContent) {
+      headerContent.classList.add('typewriter');
+      // Don't set the typewriter-active class yet - it will be applied during animation
+    }
+  });
+  
   // Set up intersection observer to reveal messages as they scroll into view
   setupScrollObservers();
   
   // Set up bottom-of-page detection for revealing more messages
   setupScrollHandler();
   
-  // Queue up the first message for animation
+  // Queue up the first message and header for animation
   // We'll use requestAnimationFrame to ensure DOM is ready before starting
-  if (messages.length > 0) {
+  if (messages.length > 0 || headers.length > 0) {
+    // First, add headers that appear before the first message
     const firstMessage = messages[0];
-    animationQueue.push(firstMessage);
+    let foundFirstMessage = false;
+    
+    headers.forEach((header, index) => {
+      if (!foundFirstMessage) {
+        // If the header is before the first message, add it to queue
+        const headerRect = header.getBoundingClientRect();
+        if (firstMessage) {
+          const messageRect = firstMessage.getBoundingClientRect();
+          if (headerRect.top < messageRect.top) {
+            // This header comes before the first message
+            animationQueue.push({
+              element: header,
+              type: 'header'
+            });
+          } else {
+            foundFirstMessage = true;
+          }
+        } else {
+          // If there are no messages, just add all headers
+          animationQueue.push({
+            element: header,
+            type: 'header'
+          });
+        }
+      }
+    });
+    
+    // Add the first message if it exists
+    if (firstMessage) {
+      animationQueue.push({
+        element: firstMessage,
+        type: 'message'
+      });
+    }
     
     // Wait for next animation frame to ensure DOM is fully ready
     requestAnimationFrame(() => {
@@ -87,38 +150,69 @@ function initChatAnimations(firstMessageShown = false) {
  * Set up intersection observers for scroll-based message reveal
  */
 function setupScrollObservers() {
-  // Get all messages
+  // Get all messages and headers
   const messages = document.querySelectorAll('.message');
+  const headers = document.querySelectorAll('.chat-section-header');
   
-  // Create observer for messages with a sensitive threshold
+  // Create observer for messages and headers with a sensitive threshold
   messageObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      const currentMsg = entry.target;
+      const element = entry.target;
+      const isHeader = element.classList.contains('chat-section-header');
       
-      // Process when message enters viewport or gets close to it
+      // Process when element enters viewport or gets close to it
       if (entry.isIntersecting || entry.intersectionRatio > 0.05) {
-        const index = Array.from(messages).indexOf(currentMsg);
-        
-        // Ensure we're handling this message if it's not processed yet
-        if (!currentMsg.hasAttribute('data-observed') || currentMsg.classList.contains('hidden')) {
-          // Mark as observed
-          currentMsg.setAttribute('data-observed', 'true');
-          
-          // Queue this message if it's not already visible and not already queued
-          if (currentMsg.classList.contains('hidden') && 
-              !animationQueue.includes(currentMsg) && 
-              !animationFailedMessages.includes(currentMsg)) {
-            animationQueue.push(currentMsg);
-            processNextInQueue();
+        // For headers
+        if (isHeader) {
+          if (!element.hasAttribute('data-observed') || element.classList.contains('header-hidden')) {
+            // Mark as observed
+            element.setAttribute('data-observed', 'true');
+            
+            // Queue this header if it's not already visible and not already queued
+            if (element.classList.contains('header-hidden') && 
+                !animationQueue.some(item => item.element === element)) {
+              animationQueue.push({
+                element: element,
+                type: 'header'
+              });
+              processNextInQueue();
+            }
           }
           
-          // Always check if there are more messages to queue
-          checkFollowingMessages(index);
-        }
-        
-        // If message is fully visible, stop observing
-        if (entry.intersectionRatio > 0.8 || currentMsg.classList.contains('visible')) {
-          messageObserver.unobserve(currentMsg);
+          // If header is fully visible, stop observing
+          if (entry.intersectionRatio > 0.8 || element.classList.contains('header-visible')) {
+            messageObserver.unobserve(element);
+          }
+        } 
+        // For messages
+        else {
+          const index = Array.from(messages).indexOf(element);
+          
+          // Ensure we're handling this message if it's not processed yet
+          if (!element.hasAttribute('data-observed') || element.classList.contains('hidden')) {
+            // Mark as observed
+            element.setAttribute('data-observed', 'true');
+            
+            // Queue this message if it's not already visible and not already queued
+            if (element.classList.contains('hidden') && 
+                !animationQueue.some(item => item.element === element) && 
+                !animationFailedMessages.includes(element)) {
+              animationQueue.push({
+                element: element,
+                type: 'message'
+              });
+              processNextInQueue();
+            }
+            
+            // Always check if there are more messages to queue
+            const messagesIndex = Array.from(messages).indexOf(element);
+            checkFollowingMessages(messagesIndex);
+          }
+          
+          // If message is fully visible, stop observing
+          if (entry.intersectionRatio > 0.8 || element.classList.contains('visible')) {
+            messageObserver.unobserve(element);
+          }
         }
       }
     });
@@ -127,37 +221,48 @@ function setupScrollObservers() {
     rootMargin: "0px 0px 300px 0px" // Extend bottom margin to detect earlier
   });
   
-  // Start by observing the first few messages
-  const initialVisibleCount = Math.min(8, messages.length);
+  // Start by observing the first few messages and headers
+  const allElements = [...headers, ...messages];
+  allElements.sort((a, b) => {
+    const aRect = a.getBoundingClientRect();
+    const bRect = b.getBoundingClientRect();
+    return aRect.top - bRect.top;
+  });
+  
+  const initialVisibleCount = Math.min(8, allElements.length);
   for (let i = 0; i < initialVisibleCount; i++) {
-    const msg = messages[i];
-    const rect = msg.getBoundingClientRect();
+    const element = allElements[i];
+    const rect = element.getBoundingClientRect();
     if (rect.top < window.innerHeight + 800) { // Generous initial observation range
-      messageObserver.observe(msg);
-      msg.setAttribute('data-observed', 'true');
+      messageObserver.observe(element);
+      element.setAttribute('data-observed', 'true');
     }
   }
   
-  // Set first message state
-  if (messages.length > 0) {
-    // Check if the first message is user or assistant to set initial state
-    const firstMsg = messages[0];
-    if (firstMsg.classList.contains('user')) {
-      lastSenderWasUser = true;
+  // Set up first pair (message and header) state
+  if (allElements.length > 0) {
+    // If we have messages, set up the initial state based on the first message
+    for (let i = 0; i < allElements.length; i++) {
+      const element = allElements[i];
+      if (!element.classList.contains('chat-section-header')) {
+        // Found first message
+        if (element.classList.contains('user')) {
+          lastSenderWasUser = true;
+        }
+        break;
+      }
     }
     
-    // Start observing the second message
-    if (messages.length > 1) {
-      const secondMsg = messages[1];
-      if (!secondMsg.hasAttribute('data-observed')) {
-        messageObserver.observe(secondMsg);
+    // Pre-queue the second element to be ready after the first
+    if (allElements.length > 1) {
+      const secondElement = allElements[1];
+      if (!secondElement.hasAttribute('data-observed')) {
+        messageObserver.observe(secondElement);
+        secondElement.setAttribute('data-observed', 'true');
         
-        // Pre-queue the second message to be ready after the first
-        secondMsg.setAttribute('data-observed', 'true');
-        
-        // Also observe third message if it exists
-        if (messages.length > 2) {
-          messageObserver.observe(messages[2]);
+        // Also observe third element if it exists
+        if (allElements.length > 2) {
+          messageObserver.observe(allElements[2]);
         }
       }
     }
@@ -204,6 +309,7 @@ function setupScrollHandler() {
  */
 function checkFollowingMessages(currentIndex) {
   const messages = document.querySelectorAll('.message');
+  const headers = document.querySelectorAll('.chat-section-header');
   
   // Check for next messages to reveal
   if (currentIndex < messages.length - 1) {
@@ -225,11 +331,14 @@ function checkFollowingMessages(currentIndex) {
       // Queue if within generous range
       if (distanceFromViewport < 800) { // Very generous lookahead for end of page
         if (nextMsg.classList.contains('hidden') && 
-            !animationQueue.includes(nextMsg) && 
+            !animationQueue.some(item => item.element === nextMsg) && 
             !animationFailedMessages.includes(nextMsg)) {
           // Mark message for observation
           nextMsg.setAttribute('data-observed', 'true');
-          animationQueue.push(nextMsg);
+          animationQueue.push({
+            element: nextMsg,
+            type: 'message'
+          });
           processNextInQueue();
         }
       }
@@ -237,6 +346,35 @@ function checkFollowingMessages(currentIndex) {
       // Always observe the next message for better tracking
       messageObserver.observe(nextMsg);
     }
+    
+    // Also check for headers between or near messages
+    headers.forEach(header => {
+      if (header.hasAttribute('data-observed') && !header.classList.contains('header-hidden')) {
+        return; // Skip already processed headers
+      }
+      
+      const headerRect = header.getBoundingClientRect();
+      const currentMsgRect = messages[currentIndex].getBoundingClientRect();
+      const nextMsgRect = currentIndex < messages.length - 1 ? 
+                          messages[currentIndex + 1].getBoundingClientRect() : 
+                          { top: Infinity };
+      
+      // If header is between current and next message, or right after current message
+      if ((headerRect.top > currentMsgRect.bottom && headerRect.top < nextMsgRect.top) ||
+          Math.abs(headerRect.top - currentMsgRect.bottom) < 100) {
+        header.setAttribute('data-observed', 'true');
+        if (!animationQueue.some(item => item.element === header)) {
+          animationQueue.push({
+            element: header,
+            type: 'header'
+          });
+          processNextInQueue();
+        }
+      }
+      
+      // Observe this header for later detection
+      messageObserver.observe(header);
+    });
   }
 }
 
@@ -377,10 +515,54 @@ function calculateReadDelay(message) {
 }
 
 /**
+ * Animate a header with typewriter effect
+ * @param {Element} header - The header element to animate
+ * @returns {Promise} A promise that resolves when animation completes
+ */
+function animateHeaderTypewriter(header) {
+  return new Promise((resolve) => {
+    // Find the header content element
+    const headerContent = header.querySelector('.header-content');
+    
+    if (!headerContent) {
+      // If no header content is found, resolve immediately
+      resolve();
+      return;
+    }
+    
+    // Make the header element visible
+    header.classList.remove('header-hidden');
+    header.classList.add('header-visible');
+    
+    // Add typewriter animation class
+    headerContent.classList.add('typewriter-active');
+    
+    // Calculate animation duration based on text length
+    const headerText = headerContent.textContent || '';
+    const charCount = headerText.length;
+    
+    // Base duration of 25ms per character with min/max limits
+    const duration = Math.min(Math.max(charCount * 25, 500), 3000);
+    
+    // Start the animation
+    typewriterAnimationInProgress = true;
+    
+    // Set animation complete timeout
+    setTimeout(() => {
+      // Animation complete
+      headerContent.classList.remove('typewriter');
+      headerContent.classList.remove('typewriter-active');
+      typewriterAnimationInProgress = false;
+      resolve();
+    }, duration);
+  });
+}
+
+/**
  * Process the next message in the animation queue
  */
 function processNextInQueue() {
-  if (animationQueue.length === 0 || animationInProgress || typingIndicatorVisible) {
+  if (animationQueue.length === 0 || animationInProgress || typingIndicatorVisible || typewriterAnimationInProgress) {
     return;
   }
   
@@ -388,157 +570,186 @@ function processNextInQueue() {
   if (animationFailedMessages.length > 0) {
     // Add them in reverse order to maintain original sequence
     for (let i = animationFailedMessages.length - 1; i >= 0; i--) {
-      animationQueue.unshift(animationFailedMessages[i]);
+      animationQueue.unshift({
+        element: animationFailedMessages[i],
+        type: 'message'
+      });
     }
     animationFailedMessages = [];
   }
   
-  // Get the next message
-  const nextMsg = animationQueue[0];
-  const isUser = nextMsg.classList.contains('user');
+  // Get the next item in the queue
+  const nextItem = animationQueue[0];
   
-  // Skip if message is already visible (prevent double animations)
-  if (nextMsg.classList.contains('visible')) {
-    animationQueue.shift(); // Remove from queue
-    processNextInQueue(); // Process next message
-    return;
-  }
-  
-  // Now process the message at the front of the queue
-  animationInProgress = true;
-  const currentMsg = animationQueue.shift();
-  const currentIsUser = currentMsg.classList.contains('user');
-  
-  // Get the visible message count
-  const visibleCount = document.querySelectorAll('.message.visible').length;
-  
-  // For the first message, always show the typing animation immediately
-  const isFirstMessage = visibleCount === 0;
-  
-  // Find the last visible message to calculate read delay
-  const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
-  const lastVisibleMessage = visibleMessages.length > 0 ? visibleMessages[visibleMessages.length - 1] : null;
-  
-  // Calculate read delay (only if this isn't the first message)
-  const readDelay = isFirstMessage ? 0 : calculateReadDelay(lastVisibleMessage);
-  
-  if (window.debugLog && readDelay > 0) {
-    window.debugLog(`Read delay for message: ${readDelay}ms`);
-  }
-  
-  // Wait for read delay before showing typing indicator
-  setTimeout(() => {
-    // Create typing indicator with appropriate class
-    const typingIndicator = document.createElement('div');
-    typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
-    typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+  // Process differently based on type
+  if (nextItem.type === 'header') {
+    // Process header animation
+    const header = nextItem.element;
     
-    // Set size attribute based on message length
-    if (!currentIsUser) { // Only apply to assistant messages
-      const messageSize = getMessageSize(currentMsg);
-      typingIndicator.setAttribute('data-size', messageSize);
+    // Skip if header is already visible
+    if (header.classList.contains('header-visible')) {
+      animationQueue.shift(); // Remove from queue
+      processNextInQueue(); // Process next item
+      return;
+    }
+    
+    // Remove from queue
+    animationQueue.shift();
+    
+    // Animate the header with typewriter effect
+    animateHeaderTypewriter(header).then(() => {
+      // When header animation is complete, process next item in queue
+      processNextInQueue();
+    });
+  } 
+  else {
+    // Process message animation (existing code)
+    const nextMsg = nextItem.element;
+    const isUser = nextMsg.classList.contains('user');
+    
+    // Skip if message is already visible
+    if (nextMsg.classList.contains('visible')) {
+      animationQueue.shift(); // Remove from queue
+      processNextInQueue(); // Process next item
+      return;
+    }
+    
+    // Now process the message at the front of the queue
+    animationInProgress = true;
+    const currentMsg = animationQueue.shift().element;
+    const currentIsUser = currentMsg.classList.contains('user');
+    
+    // Get the visible message count
+    const visibleCount = document.querySelectorAll('.message.visible').length;
+    
+    // For the first message, always show the typing animation immediately
+    const isFirstMessage = visibleCount === 0;
+    
+    // Find the last visible message to calculate read delay
+    const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
+    const lastVisibleMessage = visibleMessages.length > 0 ? visibleMessages[visibleMessages.length - 1] : null;
+    
+    // Calculate read delay (only if this isn't the first message)
+    const readDelay = isFirstMessage ? 0 : calculateReadDelay(lastVisibleMessage);
+    
+    if (window.debugLog && readDelay > 0) {
+      window.debugLog(`Read delay for message: ${readDelay}ms`);
+    }
+    
+    // Wait for read delay before showing typing indicator
+    setTimeout(() => {
+      // Create typing indicator with appropriate class
+      const typingIndicator = document.createElement('div');
+      typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
+      typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+      
+      // Set size attribute based on message length
+      if (!currentIsUser) { // Only apply to assistant messages
+        const messageSize = getMessageSize(currentMsg);
+        typingIndicator.setAttribute('data-size', messageSize);
+        
+        if (window.debugLog) {
+          window.debugLog(`Message size category: ${messageSize}`);
+        }
+      }
+      
+      // Position indicator appropriately based on type
+      if (currentIsUser) {
+        typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
+        typingIndicator.style.marginLeft = 'auto';    // Push to the right side
+      } else {
+        typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
+        typingIndicator.style.marginRight = 'auto';     // Keep on the left side
+      }
+      
+      // Store reference to current message
+      typingIndicator.messageReference = currentMsg;
+      
+      // Mark message as processed to avoid double animations
+      currentMsg.setAttribute('data-observed', 'processed');
+      
+      // Find the chat container
+      const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
+      
+      // Position the typing indicator after the last visible message
+      if (visibleMessages.length > 0) {
+        const lastVisible = visibleMessages[visibleMessages.length - 1];
+        lastVisible.after(typingIndicator);
+      } else {
+        // If no visible messages yet, add to beginning of container
+        container.prepend(typingIndicator);
+      }
+      
+      // Flag that there's a typing indicator showing
+      typingIndicatorVisible = true;
+      
+      // Show the typing indicator with a small delay
+      setTimeout(() => {
+        typingIndicator.classList.add('visible');
+      }, 50);
+      
+      // For debugging
+      if (window.debugLog && isFirstMessage) {
+        window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
+      }
+      
+      // Calculate dynamic typing time based on message content
+      const typingTime = calculateTypingTime(currentMsg, currentIsUser);
       
       if (window.debugLog) {
-        window.debugLog(`Message size category: ${messageSize}`);
+        window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
       }
-    }
-    
-    // Position indicator appropriately based on type
-    if (currentIsUser) {
-      typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
-      typingIndicator.style.marginLeft = 'auto';    // Push to the right side
-    } else {
-      typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
-      typingIndicator.style.marginRight = 'auto';     // Keep on the left side
-    }
-    
-    // Store reference to current message
-    typingIndicator.messageReference = currentMsg;
-    
-    // Mark message as processed to avoid double animations
-    currentMsg.setAttribute('data-observed', 'processed');
-    
-    // Find the chat container
-    const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
-    
-    // Position the typing indicator after the last visible message
-    if (visibleMessages.length > 0) {
-      const lastVisible = visibleMessages[visibleMessages.length - 1];
-      lastVisible.after(typingIndicator);
-    } else {
-      // If no visible messages yet, add to beginning of container
-      container.prepend(typingIndicator);
-    }
-    
-    // Flag that there's a typing indicator showing
-    typingIndicatorVisible = true;
-    
-    // Show the typing indicator with a small delay
-    setTimeout(() => {
-      typingIndicator.classList.add('visible');
-    }, 50);
-    
-    // For debugging
-    if (window.debugLog && isFirstMessage) {
-      window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
-    }
-    
-    // Calculate dynamic typing time based on message content
-    const typingTime = calculateTypingTime(currentMsg, currentIsUser);
-    
-    if (window.debugLog) {
-      window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
-    }
-    
-    // After typing animation completes, show the message
-    setTimeout(() => {
-      // Hide the typing indicator
-      typingIndicator.classList.remove('visible');
-      typingIndicatorVisible = false;
       
-      // Relax the viewport check - just make sure message is near viewport
-      const rect = currentMsg.getBoundingClientRect();
-      
-      // Consider a message "in view" if it's even partially in viewport or within 300px below
-      const isInView = rect.top < window.innerHeight + 300;
-      
-      // If it's anywhere close to view, show the message
-      if (isInView) {
-        // Update the last sender type
-        lastSenderWasUser = currentIsUser;
+      // After typing animation completes, show the message
+      setTimeout(() => {
+        // Hide the typing indicator
+        typingIndicator.classList.remove('visible');
+        typingIndicatorVisible = false;
         
-        // Show the message with animation
-        currentMsg.classList.remove('hidden');
-        currentMsg.classList.add('visible');
+        // Relax the viewport check - just make sure message is near viewport
+        const rect = currentMsg.getBoundingClientRect();
         
-        // Remove the indicator after its transition completes
-        setTimeout(() => typingIndicator.remove(), 300);
+        // Consider a message "in view" if it's even partially in viewport or within 300px below
+        const isInView = rect.top < window.innerHeight + 300;
         
-        // Wait for message animation to complete before processing next
-        setTimeout(() => {
-          animationInProgress = false;
-          processNextInQueue();
-        }, 600);
-      } else {
-        // Message is really far from viewport, don't show it yet
-        if (window.debugLog) {
-          window.debugLog("Message far from viewport, will retry later");
+        // If it's anywhere close to view, show the message
+        if (isInView) {
+          // Update the last sender type
+          lastSenderWasUser = currentIsUser;
+          
+          // Show the message with animation
+          currentMsg.classList.remove('hidden');
+          currentMsg.classList.add('visible');
+          
+          // Remove the indicator after its transition completes
+          setTimeout(() => typingIndicator.remove(), 300);
+          
+          // Wait for message animation to complete before processing next
+          setTimeout(() => {
+            animationInProgress = false;
+            processNextInQueue();
+          }, 600);
+        } else {
+          // Message is really far from viewport, don't show it yet
+          if (window.debugLog) {
+            window.debugLog("Message far from viewport, will retry later");
+          }
+          
+          // Remove the indicator immediately since we're not showing the message
+          typingIndicator.remove();
+          
+          // Add message to failed list to retry later
+          animationFailedMessages.push(currentMsg);
+          
+          // Set a retry timeout that's shorter than normal animation
+          setTimeout(() => {
+            animationInProgress = false;
+            processNextInQueue();
+          }, 300);
         }
-        
-        // Remove the indicator immediately since we're not showing the message
-        typingIndicator.remove();
-        
-        // Add message to failed list to retry later
-        animationFailedMessages.push(currentMsg);
-        
-        // Set a retry timeout that's shorter than normal animation
-        setTimeout(() => {
-          animationInProgress = false;
-          processNextInQueue();
-        }, 300);
-      }
-    }, typingTime); // Use calculated dynamic typing time instead of fixed values
-  }, readDelay); // Add read delay before showing typing indicator
+      }, typingTime); // Use calculated dynamic typing time instead of fixed values
+    }, readDelay); // Add read delay before showing typing indicator
+  }
 }
 
 /**
@@ -557,16 +768,32 @@ function updateAnimationState(enabled) {
   animationFailedMessages = [];
   animationInProgress = false;
   typingIndicatorVisible = false;
+  typewriterAnimationInProgress = false;
   
   // Apply animation state to messages
   const messages = document.querySelectorAll('.message');
+  const headers = document.querySelectorAll('.chat-section-header');
   
   if (!enabled) {
-    // Show all messages immediately when disabling animations
+    // Show all messages and headers immediately when disabling animations
     messages.forEach(msg => {
       msg.removeAttribute('data-observed');
       msg.classList.remove('hidden');
       msg.classList.add('visible');
+    });
+    
+    headers.forEach(header => {
+      header.removeAttribute('data-observed');
+      header.classList.remove('header-hidden');
+      header.classList.remove('typewriter-active');
+      header.classList.add('header-visible');
+      
+      // Make sure header content is fully visible
+      const headerContent = header.querySelector('.header-content');
+      if (headerContent) {
+        headerContent.classList.remove('typewriter');
+        headerContent.classList.remove('typewriter-active');
+      }
     });
   } else {
     // Reset for animation
@@ -579,6 +806,19 @@ function updateAnimationState(enabled) {
         msg.removeAttribute('data-observed');
         msg.classList.remove('visible');
         msg.classList.add('hidden');
+      }
+    });
+    
+    // Reset headers for animation
+    headers.forEach((header, index) => {
+      header.removeAttribute('data-observed');
+      header.classList.remove('header-visible');
+      header.classList.add('header-hidden');
+      
+      // Prepare header content for animation
+      const headerContent = header.querySelector('.header-content');
+      if (headerContent) {
+        headerContent.classList.add('typewriter');
       }
     });
     

@@ -28,6 +28,37 @@
   pointer-events: none;
 }
 
+/* Header animation states */
+.chat-section-header.header-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.chat-section-header.header-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease-out, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Typewriter effect for header content */
+.header-content .typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  visibility: hidden;
+  transition: none;
+}
+
+.header-content .typewriter-active {
+  visibility: visible;
+  animation: typewriter-anim 2s steps(40, end) forwards;
+}
+
+@keyframes typewriter-anim {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
 /* Header levels styling */
 .chat-section-header[data-level="2"],
 .chat-section-header[data-level="3"],
@@ -92,6 +123,7 @@
 .header-content {
   flex: 1;
   text-align: left;
+  overflow: hidden;
 }
 
 .header-content h2, 
