@@ -36,6 +36,37 @@ function processChatContent(options) {
     return;
   }
 
+  // Track all unique speakers in the conversation
+  const speakers = [];
+  
+  // Function to get speaker class based on order of appearance
+  function getSpeakerClass(speaker) {
+    // First, check if this speaker has been seen before
+    const speakerIndex = speakers.indexOf(speaker);
+    
+    // If not found, add to speakers array
+    if (speakerIndex === -1) {
+      speakers.push(speaker);
+      const newIndex = speakers.length - 1;
+      
+      // Return appropriate class based on the speaker's position
+      if (newIndex === 0) return 'assistant'; // First speaker
+      if (newIndex === 1) return 'user';      // Second speaker
+      if (newIndex === 2) return 'speakerC';  // Third speaker
+      if (newIndex === 3) return 'speakerD';  // Fourth speaker
+      if (newIndex === 4) return 'speakerE';  // Fifth speaker
+      return 'generic-speaker';               // Any other speakers
+    } else {
+      // Return class for existing speaker
+      if (speakerIndex === 0) return 'assistant';
+      if (speakerIndex === 1) return 'user';
+      if (speakerIndex === 2) return 'speakerC';
+      if (speakerIndex === 3) return 'speakerD';
+      if (speakerIndex === 4) return 'speakerE';
+      return 'generic-speaker';
+    }
+  }
+
   // Function to create a placeholder for spaces
   function createSpacePlaceholder(spaces) {
     return `__SPACES_${spaces}__`;
@@ -487,48 +518,66 @@ function processChatContent(options) {
   }
 }
 
-// Process conversation messages
+// Function to process a conversation array into HTML
 function processConversation(messages, renderer) {
-  const container = document.createElement('div');
-  container.className = 'message-container';
+  // Create message container
+  const messageContainer = document.createElement('div');
+  messageContainer.className = 'message-container';
   
-  // Process each message
   messages.forEach((message, index) => {
+    if (!message || !message.content) return; // Skip empty messages
+    
+    // Create message div
     const messageDiv = document.createElement('div');
-    // Add the hidden class to all messages except the first one to enable animations
-    if (index === 0) {
-      messageDiv.className = `message ${message.speaker.toLowerCase()}`;
+    
+    // Apply the class based on speaker
+    if (typeof getSpeakerClass === 'function') {
+      // If we're being called from processChatContent
+      messageDiv.className = `message ${getSpeakerClass(message.speaker.toLowerCase())}`;
     } else {
-      messageDiv.className = `message ${message.speaker.toLowerCase()} hidden`;
+      // Fallback if we're called directly
+      messageDiv.className = `message ${message.speaker.toLowerCase()}`;
     }
+    
+    // Add hidden class for animation (except the first message)
+    if (index > 0) {
+      messageDiv.classList.add('hidden');
+    }
+    
     messageDiv.dataset.index = index;
     
-    // Render the message content using the provided renderer
-    messageDiv.innerHTML = marked.parse(message.content, { renderer: renderer });
+    try {
+      // Render the message content using the provided renderer
+      messageDiv.innerHTML = marked.parse(message.content, { renderer: renderer });
+      
+      // Post-process code blocks for any remaining space placeholders
+      const codeBlocks = messageDiv.querySelectorAll('pre code');
+      codeBlocks.forEach(codeBlock => {
+        // Check if this code block has space placeholders
+        if (codeBlock.textContent.includes('__SPACES_')) {
+          console.log('Found code block with space placeholders, fixing:', codeBlock.textContent.substring(0, 100));
+          
+          // Just replace space placeholders, no re-highlighting
+          let fixedCode = codeBlock.textContent.replace(/__SPACES_(\d+)__/g, (match, count) => {
+            return ' '.repeat(parseInt(count, 10));
+          });
+          
+          console.log('Fixed code:', fixedCode.substring(0, 100));
+          
+          // Just update the content
+          codeBlock.textContent = fixedCode;
+        }
+      });
+    } catch (error) {
+      console.error('Error parsing markdown:', error);
+      messageDiv.textContent = message.content;
+    }
     
-    // Post-process code blocks for any remaining space placeholders
-    const codeBlocks = messageDiv.querySelectorAll('pre code');
-    codeBlocks.forEach(codeBlock => {
-      // Check if this code block has space placeholders
-      if (codeBlock.textContent.includes('__SPACES_')) {
-        console.log('Found code block with space placeholders, fixing:', codeBlock.textContent.substring(0, 100));
-        
-        // Just replace space placeholders, no re-highlighting
-        let fixedCode = codeBlock.textContent.replace(/__SPACES_(\d+)__/g, (match, count) => {
-          return ' '.repeat(parseInt(count, 10));
-        });
-        
-        console.log('Fixed code:', fixedCode.substring(0, 100));
-        
-        // Just update the content
-        codeBlock.textContent = fixedCode;
-      }
-    });
-    
-    container.appendChild(messageDiv);
+    // Add to container
+    messageContainer.appendChild(messageDiv);
   });
   
-  return container;
+  return messageContainer;
 }
 
 // Auto-initialize on page load for backward compatibility

@@ -64,10 +64,18 @@ function setupThemeToggle() {
       if (newTheme === 'light') {
         document.documentElement.style.setProperty('--assistant-color', settings.theme.accentA);
         document.documentElement.style.setProperty('--user-color', settings.theme.accentB);
+        document.documentElement.style.setProperty('--accentC-color', settings.theme.accentC || '#e63946');
+        document.documentElement.style.setProperty('--accentD-color', settings.theme.accentD || '#2a9d8f');
+        document.documentElement.style.setProperty('--accentE-color', settings.theme.accentE || '#8338ec');
+        document.documentElement.style.setProperty('--generic-color', settings.theme.genericAccent || '#909090');
       } else {
-        // In dark mode, we swap the accents
+        // In dark mode, we swap some accents for better visibility
         document.documentElement.style.setProperty('--assistant-color', settings.theme.accentB);
         document.documentElement.style.setProperty('--user-color', settings.theme.accentA);
+        document.documentElement.style.setProperty('--accentC-color', settings.theme.accentC || '#e63946');
+        document.documentElement.style.setProperty('--accentD-color', settings.theme.accentD || '#2a9d8f');
+        document.documentElement.style.setProperty('--accentE-color', settings.theme.accentE || '#8338ec');
+        document.documentElement.style.setProperty('--generic-color', settings.theme.genericAccent || '#909090');
       }
     }
   });

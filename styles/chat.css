@@ -190,6 +190,55 @@
   border-color: var(--assistant-color);
 }
 
+/* Additional speaker styles */
+.speakerC {
+  align-self: flex-start;
+  margin-right: auto; 
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.speakerC:hover {
+  border-color: var(--accentC-color);
+}
+
+.speakerD {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentD-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.speakerD:hover {
+  border-color: var(--accentD-color);
+}
+
+.speakerE {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentE-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.speakerE:hover {
+  border-color: var(--accentE-color);
+}
+
+.generic-speaker {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--generic-color-light);
+  border-bottom-left-radius: 2px;
+}
+
+.generic-speaker:hover {
+  border-color: var(--generic-color);
+}
+
 /* Typing animation indicator */
 .typing-indicator {
   display: flex;
@@ -423,4 +472,45 @@ pre code::-webkit-scrollbar-thumb {
 
 [data-theme="dark"] .code-controls {
   background-color: var(--code-header-bg);
+} 
+
+/* Typing indicator styles for additional speakers */
+.typing-indicator.speakerC-typing {
+  align-self: flex-start;
+  border: 2px solid var(--accentC-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.speakerC-typing span {
+  background-color: var(--accentC-color);
+}
+
+.typing-indicator.speakerD-typing {
+  align-self: flex-start;
+  border: 2px solid var(--accentD-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.speakerD-typing span {
+  background-color: var(--accentD-color);
+}
+
+.typing-indicator.speakerE-typing {
+  align-self: flex-start;
+  border: 2px solid var(--accentE-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.speakerE-typing span {
+  background-color: var(--accentE-color);
+}
+
+.typing-indicator.generic-speaker-typing {
+  align-self: flex-start;
+  border: 2px solid var(--generic-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.generic-speaker-typing span {
+  background-color: var(--generic-color);
 } 

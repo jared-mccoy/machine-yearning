@@ -18,6 +18,10 @@
   },
   "theme": {
     "accentA": "#192b91",
-    "accentB": "#ffc400"
+    "accentB": "#ffc400",
+    "accentC": "#e63946",
+    "accentD": "#2a9d8f",
+    "accentE": "#8338ec",
+    "genericAccent": "#909090"
   }
 } 

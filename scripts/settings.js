@@ -73,6 +73,18 @@ function applySettings() {
     // Apply theme settings
     document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
     document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
+    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#e63946');
+    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#2a9d8f');
+    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#8338ec');
+    document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#909090');
+    
+    // Set semi-transparent versions
+    document.documentElement.style.setProperty('--assistant-color-light', appSettings.theme.accentA + '71');
+    document.documentElement.style.setProperty('--user-color-light', appSettings.theme.accentB + '78');
+    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#e63946') + '71');
+    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#2a9d8f') + '71');
+    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#8338ec') + '71');
+    document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#909090') + '71');
     
     // Set animation enabled state
     const animationEnabled = appSettings.chat.typingAnimation.enabled;
@@ -209,6 +221,18 @@ function setupSettingsPanel() {
         
         <label for="accent-b">Accent B (User):</label>
         <input type="text" id="accent-b">
+        
+        <label for="accent-c">Accent C (Speaker C):</label>
+        <input type="text" id="accent-c">
+        
+        <label for="accent-d">Accent D (Speaker D):</label>
+        <input type="text" id="accent-d">
+        
+        <label for="accent-e">Accent E (Speaker E):</label>
+        <input type="text" id="accent-e">
+        
+        <label for="generic-accent">Generic Accent (Other Speakers):</label>
+        <input type="text" id="generic-accent">
       </div>
       
       <div class="settings-actions">
@@ -267,6 +291,10 @@ function populateSettingsPanel() {
   // Theme settings
   panel.querySelector('#accent-a').value = theme.accentA;
   panel.querySelector('#accent-b').value = theme.accentB;
+  panel.querySelector('#accent-c').value = theme.accentC || '';
+  panel.querySelector('#accent-d').value = theme.accentD || '';
+  panel.querySelector('#accent-e').value = theme.accentE || '';
+  panel.querySelector('#generic-accent').value = theme.genericAccent || '';
 }
 
 /**
@@ -296,6 +324,10 @@ function saveSettingsFromPanel() {
   // Theme settings
   newSettings.theme.accentA = panel.querySelector('#accent-a').value;
   newSettings.theme.accentB = panel.querySelector('#accent-b').value;
+  newSettings.theme.accentC = panel.querySelector('#accent-c').value || null;
+  newSettings.theme.accentD = panel.querySelector('#accent-d').value || null;
+  newSettings.theme.accentE = panel.querySelector('#accent-e').value || null;
+  newSettings.theme.genericAccent = panel.querySelector('#generic-accent').value || null;
   
   // Update settings
   updateSettings(newSettings);

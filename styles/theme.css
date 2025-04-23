@@ -4,6 +4,14 @@
   --user-color-light: #ffc40078; /* User message color - semi-transparent */
   --assistant-color: #192b91;  /* Assistant message color - solid version */
   --assistant-color-light: #192b9171; /* Assistant message color - semi-transparent */
+  --accentC-color: #e63946;  /* Speaker C color - solid version */
+  --accentC-color-light: #e6394671; /* Speaker C color - semi-transparent */
+  --accentD-color: #2a9d8f;  /* Speaker D color - solid version */
+  --accentD-color-light: #2a9d8f71; /* Speaker D color - semi-transparent */
+  --accentE-color: #8338ec;  /* Speaker E color - solid version */
+  --accentE-color-light: #8338ec71; /* Speaker E color - semi-transparent */
+  --generic-color: #909090;  /* Generic speaker color - solid version */
+  --generic-color-light: #90909071; /* Generic speaker color - semi-transparent */
   --background-color: #ffffff;
   --text-color: #333333;
   --muted-color: #888888;

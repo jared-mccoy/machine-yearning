@@ -605,7 +605,6 @@ function processNextInQueue() {
   else {
     // Process message animation (existing code)
     const nextMsg = nextItem.element;
-    const isUser = nextMsg.classList.contains('user');
     
     // Skip if message is already visible
     if (nextMsg.classList.contains('visible')) {
@@ -617,7 +616,13 @@ function processNextInQueue() {
     // Now process the message at the front of the queue
     animationInProgress = true;
     const currentMsg = animationQueue.shift().element;
-    const currentIsUser = currentMsg.classList.contains('user');
+    
+    // Determine the speaker type from the message class
+    const isUser = currentMsg.classList.contains('user');
+    const isSpeakerC = currentMsg.classList.contains('speakerC');
+    const isSpeakerD = currentMsg.classList.contains('speakerD');
+    const isSpeakerE = currentMsg.classList.contains('speakerE');
+    const isGenericSpeaker = currentMsg.classList.contains('generic-speaker');
     
     // Get the visible message count
     const visibleCount = document.querySelectorAll('.message.visible').length;
@@ -672,13 +677,28 @@ function processNextInQueue() {
     
     // Wait for read delay before showing typing indicator
     setTimeout(() => {
-      // Create typing indicator with appropriate class
+      // Create typing indicator with appropriate class based on speaker type
       const typingIndicator = document.createElement('div');
-      typingIndicator.className = currentIsUser ? 'typing-indicator user-typing' : 'typing-indicator';
+      
+      // Determine the correct typing indicator class
+      let typingClass = 'typing-indicator';
+      if (isUser) {
+        typingClass += ' user-typing';
+      } else if (isSpeakerC) {
+        typingClass += ' speakerC-typing';
+      } else if (isSpeakerD) {
+        typingClass += ' speakerD-typing';
+      } else if (isSpeakerE) {
+        typingClass += ' speakerE-typing';
+      } else if (isGenericSpeaker) {
+        typingClass += ' generic-speaker-typing';
+      }
+      
+      typingIndicator.className = typingClass;
       typingIndicator.innerHTML = '<span></span><span></span><span></span>';
       
       // Set size attribute based on message length
-      if (!currentIsUser) { // Only apply to assistant messages
+      if (!isUser) { // Only apply to non-user messages
         const messageSize = getMessageSize(currentMsg);
         typingIndicator.setAttribute('data-size', messageSize);
         
@@ -688,11 +708,11 @@ function processNextInQueue() {
       }
       
       // Position indicator appropriately based on type
-      if (currentIsUser) {
+      if (isUser) {
         typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
         typingIndicator.style.marginLeft = 'auto';    // Push to the right side
       } else {
-        typingIndicator.style.alignSelf = 'flex-start'; // Align assistant typing to the left
+        typingIndicator.style.alignSelf = 'flex-start'; // Align all other speakers to the left
         typingIndicator.style.marginRight = 'auto';     // Keep on the left side
       }
       
@@ -723,14 +743,24 @@ function processNextInQueue() {
       
       // For debugging
       if (window.debugLog && isFirstMessage) {
-        window.debugLog(`Showing first message typing indicator - ${currentIsUser ? 'user' : 'assistant'} message`);
+        let speakerType = isUser ? 'user' : 
+                         isSpeakerC ? 'speakerC' : 
+                         isSpeakerD ? 'speakerD' : 
+                         isSpeakerE ? 'speakerE' : 
+                         isGenericSpeaker ? 'generic' : 'assistant';
+        window.debugLog(`Showing first message typing indicator - ${speakerType} message`);
       }
       
       // Calculate dynamic typing time based on message content
-      const typingTime = calculateTypingTime(currentMsg, currentIsUser);
+      const typingTime = calculateTypingTime(currentMsg, isUser);
       
       if (window.debugLog) {
-        window.debugLog(`Typing time for message: ${typingTime}ms (${currentIsUser ? 'user' : 'assistant'})`);
+        let speakerType = isUser ? 'user' : 
+                         isSpeakerC ? 'speakerC' : 
+                         isSpeakerD ? 'speakerD' : 
+                         isSpeakerE ? 'speakerE' : 
+                         isGenericSpeaker ? 'generic' : 'assistant';
+        window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`);
       }
       
       // After typing animation completes, show the message
@@ -748,7 +778,7 @@ function processNextInQueue() {
         // If it's anywhere close to view, show the message
         if (isInView) {
           // Update the last sender type
-          lastSenderWasUser = currentIsUser;
+          lastSenderWasUser = isUser;
           
           // Show the message with animation
           currentMsg.classList.remove('hidden');
@@ -882,4 +912,37 @@ function updateAnimationState(enabled) {
 window.chatAnimations = {
   initChatAnimations,
   updateAnimationState
-}; 
+};
+
+// Update the panel with current settings
+function populateSettingsPanel() {
+  const panel = document.getElementById('settings-panel');
+  if (!panel) return;
+  
+  const animation = appSettings.chat.typingAnimation;
+  const readDelay = appSettings.chat.readDelay;
+  const theme = appSettings.theme;
+  
+  // Animation settings
+  panel.querySelector('#animation-enabled').checked = animation.enabled;
+  panel.querySelector('#typing-applies-to').value = animation.typingAppliesTo;
+  panel.querySelector('#words-per-minute').value = animation.wordsPerMinute;
+  panel.querySelector('#min-typing-time').value = animation.minTypingTime;
+  panel.querySelector('#max-typing-time').value = animation.maxTypingTime;
+  panel.querySelector('#variance-percentage').value = animation.variancePercentage;
+  
+  // Read delay settings
+  panel.querySelector('#read-delay-enabled').checked = readDelay.enabled;
+  panel.querySelector('#read-delay-wpm').value = readDelay.wordsPerMinute;
+  panel.querySelector('#min-read-time').value = readDelay.minReadTime;
+  panel.querySelector('#max-read-time').value = readDelay.maxReadTime;
+  panel.querySelector('#read-variance').value = readDelay.variancePercentage;
+  
+  // Theme settings
+  panel.querySelector('#accent-a').value = theme.accentA;
+  panel.querySelector('#accent-b').value = theme.accentB;
+  panel.querySelector('#accent-c').value = theme.accentC || '#e63946';
+  panel.querySelector('#accent-d').value = theme.accentD || '#2a9d8f';
+  panel.querySelector('#accent-e').value = theme.accentE || '#8338ec';
+  panel.querySelector('#generic-accent').value = theme.genericAccent || '#909090';
+} 
