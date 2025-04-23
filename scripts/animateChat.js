@@ -10,7 +10,7 @@ let animationFailedMessages = [];
 let typingIndicatorVisible = false;
 let lastSenderWasUser = false;
 let messageObserver = null;
-let typewriterAnimationInProgress = false;
+let headerAnimationInProgress = false;
 
 /**
  * Initialize animation system when chat content is loaded
@@ -37,16 +37,7 @@ function initChatAnimations(firstMessageShown = false) {
     });
     headers.forEach(header => {
       header.classList.remove('header-hidden');
-      header.classList.remove('typewriter-active');
       header.classList.add('header-visible');
-      
-      // Make sure the header content is fully visible
-      const headerContent = header.querySelector('.header-content');
-      if (headerContent) {
-        headerContent.style.visibility = 'visible';
-        headerContent.style.width = 'auto';
-        headerContent.classList.remove('typewriter');
-      }
     });
     return;
   }
@@ -56,7 +47,7 @@ function initChatAnimations(firstMessageShown = false) {
   animationInProgress = false;
   animationFailedMessages = [];
   typingIndicatorVisible = false;
-  typewriterAnimationInProgress = false;
+  headerAnimationInProgress = false;
   
   // Set the initial lastSenderWasUser based on the first message
   if (messages.length > 0) {
@@ -75,18 +66,37 @@ function initChatAnimations(firstMessageShown = false) {
     msg.classList.remove('visible');
   });
   
-  // Hide all headers initially and prepare them for typewriter effect
+  // Hide all headers initially
   headers.forEach((header) => {
     header.classList.add('header-hidden');
     header.classList.remove('header-visible');
-    
-    // Prepare the header content for typewriter animation
-    const headerContent = header.querySelector('.header-content');
-    if (headerContent) {
-      headerContent.classList.add('typewriter');
-      // Don't set the typewriter-active class yet - it will be applied during animation
-    }
   });
+  
+  // Create a map of content elements sorted by position
+  const allElements = [];
+  
+  // Add headers with their positions
+  headers.forEach(header => {
+    const rect = header.getBoundingClientRect();
+    allElements.push({
+      element: header,
+      type: 'header',
+      top: rect.top
+    });
+  });
+  
+  // Add messages with their positions
+  messages.forEach(message => {
+    const rect = message.getBoundingClientRect();
+    allElements.push({
+      element: message,
+      type: 'message',
+      top: rect.top
+    });
+  });
+  
+  // Sort elements by position
+  allElements.sort((a, b) => a.top - b.top);
   
   // Set up intersection observer to reveal messages as they scroll into view
   setupScrollObservers();
@@ -94,52 +104,17 @@ function initChatAnimations(firstMessageShown = false) {
   // Set up bottom-of-page detection for revealing more messages
   setupScrollHandler();
   
-  // Queue up the first message and header for animation
-  // We'll use requestAnimationFrame to ensure DOM is ready before starting
-  if (messages.length > 0 || headers.length > 0) {
-    // First, add headers that appear before the first message
-    const firstMessage = messages[0];
-    let foundFirstMessage = false;
-    
-    headers.forEach((header, index) => {
-      if (!foundFirstMessage) {
-        // If the header is before the first message, add it to queue
-        const headerRect = header.getBoundingClientRect();
-        if (firstMessage) {
-          const messageRect = firstMessage.getBoundingClientRect();
-          if (headerRect.top < messageRect.top) {
-            // This header comes before the first message
-            animationQueue.push({
-              element: header,
-              type: 'header'
-            });
-          } else {
-            foundFirstMessage = true;
-          }
-        } else {
-          // If there are no messages, just add all headers
-          animationQueue.push({
-            element: header,
-            type: 'header'
-          });
-        }
-      }
-    });
-    
-    // Add the first message if it exists
-    if (firstMessage) {
-      animationQueue.push({
-        element: firstMessage,
-        type: 'message'
-      });
-    }
-    
-    // Wait for next animation frame to ensure DOM is fully ready
-    requestAnimationFrame(() => {
-      // Process the queue to start animations
-      processNextInQueue();
-    });
+  // Add elements to the animation queue in their visual order
+  const initialElementsToQueue = 5; // Number of initial elements to queue
+  for (let i = 0; i < Math.min(initialElementsToQueue, allElements.length); i++) {
+    animationQueue.push(allElements[i]);
   }
+  
+  // Wait for next animation frame to ensure DOM is fully ready
+  requestAnimationFrame(() => {
+    // Process the queue to start animations
+    processNextInQueue();
+  });
   
   if (window.debugLog) {
     window.debugLog('Chat animations initialized');
@@ -171,10 +146,33 @@ function setupScrollObservers() {
             // Queue this header if it's not already visible and not already queued
             if (element.classList.contains('header-hidden') && 
                 !animationQueue.some(item => item.element === element)) {
-              animationQueue.push({
+              
+              // Important: We need to ensure headers are added BEFORE any messages that come after them
+              let insertIndex = 0;
+              const elementRect = element.getBoundingClientRect();
+              
+              // Find the right position in queue
+              for (let i = 0; i < animationQueue.length; i++) {
+                const queuedItem = animationQueue[i];
+                const queuedRect = queuedItem.element.getBoundingClientRect();
+                
+                if (queuedRect.top > elementRect.top) {
+                  // Found a position where this header should be inserted
+                  insertIndex = i;
+                  break;
+                } else {
+                  insertIndex = i + 1;
+                }
+              }
+              
+              // Insert the header at proper position
+              animationQueue.splice(insertIndex, 0, {
                 element: element,
-                type: 'header'
+                type: 'header',
+                top: elementRect.top
               });
+              
+              // Trigger animation if not already running
               processNextInQueue();
             }
           }
@@ -197,16 +195,46 @@ function setupScrollObservers() {
             if (element.classList.contains('hidden') && 
                 !animationQueue.some(item => item.element === element) && 
                 !animationFailedMessages.includes(element)) {
+              
+              // Find any headers that should appear before this message
+              const messageRect = element.getBoundingClientRect();
+              const headersBeforeMessage = [];
+              
+              headers.forEach(header => {
+                if (header.classList.contains('header-hidden') && 
+                    !header.classList.contains('header-visible') &&
+                    !animationQueue.some(item => item.element === header)) {
+                  const headerRect = header.getBoundingClientRect();
+                  if (headerRect.top < messageRect.top) {
+                    headersBeforeMessage.push({
+                      element: header,
+                      type: 'header',
+                      top: headerRect.top
+                    });
+                  }
+                }
+              });
+              
+              // Sort headers by position
+              headersBeforeMessage.sort((a, b) => a.top - b.top);
+              
+              // Add headers before message
+              headersBeforeMessage.forEach(header => {
+                animationQueue.push(header);
+              });
+              
+              // Add message
               animationQueue.push({
                 element: element,
-                type: 'message'
+                type: 'message',
+                top: messageRect.top
               });
+              
               processNextInQueue();
             }
             
-            // Always check if there are more messages to queue
-            const messagesIndex = Array.from(messages).indexOf(element);
-            checkFollowingMessages(messagesIndex);
+            // Check for more messages to queue
+            checkFollowingMessages(index);
           }
           
           // If message is fully visible, stop observing
@@ -221,51 +249,40 @@ function setupScrollObservers() {
     rootMargin: "0px 0px 300px 0px" // Extend bottom margin to detect earlier
   });
   
-  // Start by observing the first few messages and headers
-  const allElements = [...headers, ...messages];
-  allElements.sort((a, b) => {
-    const aRect = a.getBoundingClientRect();
-    const bRect = b.getBoundingClientRect();
-    return aRect.top - bRect.top;
+  // Create a combined sorted array of elements
+  const allElements = [];
+  const headersArray = Array.from(headers);
+  const messagesArray = Array.from(messages);
+  
+  // Add headers with positions
+  headersArray.forEach(header => {
+    const rect = header.getBoundingClientRect();
+    allElements.push({
+      element: header,
+      type: 'header',
+      top: rect.top
+    });
   });
   
+  // Add messages with positions
+  messagesArray.forEach(message => {
+    const rect = message.getBoundingClientRect();
+    allElements.push({
+      element: message,
+      type: 'message',
+      top: rect.top
+    });
+  });
+  
+  // Sort by vertical position
+  allElements.sort((a, b) => a.top - b.top);
+  
+  // Start by observing the first few elements
   const initialVisibleCount = Math.min(8, allElements.length);
   for (let i = 0; i < initialVisibleCount; i++) {
-    const element = allElements[i];
-    const rect = element.getBoundingClientRect();
-    if (rect.top < window.innerHeight + 800) { // Generous initial observation range
-      messageObserver.observe(element);
-      element.setAttribute('data-observed', 'true');
-    }
-  }
-  
-  // Set up first pair (message and header) state
-  if (allElements.length > 0) {
-    // If we have messages, set up the initial state based on the first message
-    for (let i = 0; i < allElements.length; i++) {
-      const element = allElements[i];
-      if (!element.classList.contains('chat-section-header')) {
-        // Found first message
-        if (element.classList.contains('user')) {
-          lastSenderWasUser = true;
-        }
-        break;
-      }
-    }
-    
-    // Pre-queue the second element to be ready after the first
-    if (allElements.length > 1) {
-      const secondElement = allElements[1];
-      if (!secondElement.hasAttribute('data-observed')) {
-        messageObserver.observe(secondElement);
-        secondElement.setAttribute('data-observed', 'true');
-        
-        // Also observe third element if it exists
-        if (allElements.length > 2) {
-          messageObserver.observe(allElements[2]);
-        }
-      }
-    }
+    const element = allElements[i].element;
+    messageObserver.observe(element);
+    element.setAttribute('data-observed', 'true');
   }
 }
 
@@ -289,8 +306,11 @@ function setupScrollHandler() {
     const isNearBottom = (pageHeight - scrollPosition) < 300;
     
     if (isNearBottom) {
-      // Find the last visible message
+      // Find all elements and sort by position
       const messages = document.querySelectorAll('.message');
+      const headers = document.querySelectorAll('.chat-section-header');
+      
+      // Find the last visible message
       const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
       if (visibleMessages.length > 0) {
         const lastVisible = visibleMessages[visibleMessages.length - 1];
@@ -333,12 +353,43 @@ function checkFollowingMessages(currentIndex) {
         if (nextMsg.classList.contains('hidden') && 
             !animationQueue.some(item => item.element === nextMsg) && 
             !animationFailedMessages.includes(nextMsg)) {
+          
+          // First, find any headers that should be shown before this message
+          const messageRect = nextMsg.getBoundingClientRect();
+          const headersBeforeMessage = [];
+          
+          headers.forEach(header => {
+            if (header.classList.contains('header-hidden') && 
+                !animationQueue.some(item => item.element === header)) {
+              const headerRect = header.getBoundingClientRect();
+              if (headerRect.top < messageRect.top) {
+                headersBeforeMessage.push({
+                  element: header,
+                  type: 'header',
+                  top: headerRect.top
+                });
+              }
+            }
+          });
+          
+          // Sort headers by position
+          headersBeforeMessage.sort((a, b) => a.top - b.top);
+          
+          // Add headers before message
+          headersBeforeMessage.forEach(header => {
+            animationQueue.push(header);
+          });
+          
           // Mark message for observation
           nextMsg.setAttribute('data-observed', 'true');
+          
+          // Then add message
           animationQueue.push({
             element: nextMsg,
-            type: 'message'
+            type: 'message',
+            top: messageRect.top
           });
+          
           processNextInQueue();
         }
       }
@@ -346,35 +397,6 @@ function checkFollowingMessages(currentIndex) {
       // Always observe the next message for better tracking
       messageObserver.observe(nextMsg);
     }
-    
-    // Also check for headers between or near messages
-    headers.forEach(header => {
-      if (header.hasAttribute('data-observed') && !header.classList.contains('header-hidden')) {
-        return; // Skip already processed headers
-      }
-      
-      const headerRect = header.getBoundingClientRect();
-      const currentMsgRect = messages[currentIndex].getBoundingClientRect();
-      const nextMsgRect = currentIndex < messages.length - 1 ? 
-                          messages[currentIndex + 1].getBoundingClientRect() : 
-                          { top: Infinity };
-      
-      // If header is between current and next message, or right after current message
-      if ((headerRect.top > currentMsgRect.bottom && headerRect.top < nextMsgRect.top) ||
-          Math.abs(headerRect.top - currentMsgRect.bottom) < 100) {
-        header.setAttribute('data-observed', 'true');
-        if (!animationQueue.some(item => item.element === header)) {
-          animationQueue.push({
-            element: header,
-            type: 'header'
-          });
-          processNextInQueue();
-        }
-      }
-      
-      // Observe this header for later detection
-      messageObserver.observe(header);
-    });
   }
 }
 
@@ -515,46 +537,20 @@ function calculateReadDelay(message) {
 }
 
 /**
- * Animate a header with typewriter effect
+ * Animate a header with simple fade-in animation
  * @param {Element} header - The header element to animate
  * @returns {Promise} A promise that resolves when animation completes
  */
-function animateHeaderTypewriter(header) {
+function animateHeader(header) {
   return new Promise((resolve) => {
-    // Find the header content element
-    const headerContent = header.querySelector('.header-content');
-    
-    if (!headerContent) {
-      // If no header content is found, resolve immediately
-      resolve();
-      return;
-    }
-    
-    // Make the header element visible
+    // Make the header element visible with animation
     header.classList.remove('header-hidden');
     header.classList.add('header-visible');
     
-    // Add typewriter animation class
-    headerContent.classList.add('typewriter-active');
-    
-    // Calculate animation duration based on text length
-    const headerText = headerContent.textContent || '';
-    const charCount = headerText.length;
-    
-    // Base duration of 25ms per character with min/max limits
-    const duration = Math.min(Math.max(charCount * 25, 500), 3000);
-    
-    // Start the animation
-    typewriterAnimationInProgress = true;
-    
-    // Set animation complete timeout
+    // Short animation time for headers
     setTimeout(() => {
-      // Animation complete
-      headerContent.classList.remove('typewriter');
-      headerContent.classList.remove('typewriter-active');
-      typewriterAnimationInProgress = false;
       resolve();
-    }, duration);
+    }, 300); // Just a short delay for the animation to complete
   });
 }
 
@@ -562,7 +558,7 @@ function animateHeaderTypewriter(header) {
  * Process the next message in the animation queue
  */
 function processNextInQueue() {
-  if (animationQueue.length === 0 || animationInProgress || typingIndicatorVisible || typewriterAnimationInProgress) {
+  if (animationQueue.length === 0 || animationInProgress || typingIndicatorVisible || headerAnimationInProgress) {
     return;
   }
   
@@ -583,7 +579,7 @@ function processNextInQueue() {
   
   // Process differently based on type
   if (nextItem.type === 'header') {
-    // Process header animation
+    // Process header animation - simple fade in
     const header = nextItem.element;
     
     // Skip if header is already visible
@@ -596,9 +592,13 @@ function processNextInQueue() {
     // Remove from queue
     animationQueue.shift();
     
-    // Animate the header with typewriter effect
-    animateHeaderTypewriter(header).then(() => {
+    // Set header animation in progress
+    headerAnimationInProgress = true;
+    
+    // Animate the header with simple fade-in
+    animateHeader(header).then(() => {
       // When header animation is complete, process next item in queue
+      headerAnimationInProgress = false;
       processNextInQueue();
     });
   } 
@@ -768,7 +768,7 @@ function updateAnimationState(enabled) {
   animationFailedMessages = [];
   animationInProgress = false;
   typingIndicatorVisible = false;
-  typewriterAnimationInProgress = false;
+  headerAnimationInProgress = false;
   
   // Apply animation state to messages
   const messages = document.querySelectorAll('.message');
@@ -785,40 +785,58 @@ function updateAnimationState(enabled) {
     headers.forEach(header => {
       header.removeAttribute('data-observed');
       header.classList.remove('header-hidden');
-      header.classList.remove('typewriter-active');
       header.classList.add('header-visible');
-      
-      // Make sure header content is fully visible
-      const headerContent = header.querySelector('.header-content');
-      if (headerContent) {
-        headerContent.classList.remove('typewriter');
-        headerContent.classList.remove('typewriter-active');
-      }
     });
   } else {
-    // Reset for animation
-    messages.forEach((msg, index) => {
-      if (index === 0) {
-        // First message stays visible
-        msg.classList.add('visible');
-        msg.classList.remove('hidden');
-      } else {
-        msg.removeAttribute('data-observed');
-        msg.classList.remove('visible');
-        msg.classList.add('hidden');
-      }
+    // Get elements sorted by position
+    const allElements = [];
+    
+    // Add headers with positions
+    headers.forEach(header => {
+      const rect = header.getBoundingClientRect();
+      allElements.push({
+        element: header,
+        type: 'header',
+        top: rect.top
+      });
     });
     
-    // Reset headers for animation
-    headers.forEach((header, index) => {
-      header.removeAttribute('data-observed');
-      header.classList.remove('header-visible');
-      header.classList.add('header-hidden');
+    // Add messages with positions
+    messages.forEach(message => {
+      const rect = message.getBoundingClientRect();
+      allElements.push({
+        element: message,
+        type: 'message',
+        top: rect.top
+      });
+    });
+    
+    // Sort by position
+    allElements.sort((a, b) => a.top - b.top);
+    
+    // Reset all elements to hidden state
+    allElements.forEach((item, index) => {
+      const element = item.element;
+      element.removeAttribute('data-observed');
       
-      // Prepare header content for animation
-      const headerContent = header.querySelector('.header-content');
-      if (headerContent) {
-        headerContent.classList.add('typewriter');
+      if (index === 0) {
+        // First element stays visible
+        if (item.type === 'header') {
+          element.classList.add('header-visible');
+          element.classList.remove('header-hidden');
+        } else {
+          element.classList.add('visible');
+          element.classList.remove('hidden');
+        }
+      } else {
+        // Rest hidden for animation
+        if (item.type === 'header') {
+          element.classList.remove('header-visible');
+          element.classList.add('header-hidden');
+        } else {
+          element.classList.remove('visible');
+          element.classList.add('hidden');
+        }
       }
     });
     
