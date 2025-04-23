@@ -178,7 +178,7 @@
   border-color: var(--user-color);
 }
 
-.assistant {
+.assistant, .agent {
   align-self: flex-start;
   margin-right: auto; /* Add this to keep assistant messages on the left */
   background-color: transparent;
@@ -186,7 +186,7 @@
   border-bottom-left-radius: 2px;
 }
 
-.assistant:hover {
+.assistant:hover, .agent:hover {
   border-color: var(--assistant-color);
 }
 
@@ -513,4 +513,14 @@ pre code::-webkit-scrollbar-thumb {
 
 .typing-indicator.generic-speaker-typing span {
   background-color: var(--generic-color);
-} 
+}
+
+.typing-indicator.agent-typing {
+  align-self: flex-start;
+  border: 2px solid var(--assistant-color-light);
+  transform-origin: left center;
+}
+
+.typing-indicator.agent-typing span {
+  background-color: var(--assistant-color);
+}
