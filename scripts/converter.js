@@ -189,6 +189,15 @@ function processChatContent(options) {
     return `<h${level}>${content}</h${level}>`;
   }
   
+  // Function to extract speaker from marker line
+  function extractSpeaker(line) {
+    const match = line.match(/\[\[\[(.*?)\]\]\]/);
+    if (match && match[1]) {
+      return match[1].trim().toLowerCase();
+    }
+    return null;
+  }
+  
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i]; // Keep the raw line with whitespace
     const line = rawLine.trim(); // Use trimmed version only for conditionals
@@ -240,19 +249,19 @@ function processChatContent(options) {
       currentSpeaker = null;
       currentMessage = '';
     }
-    // Detect speaker change
-    else if (line.includes('[[[USER]]]') || line.includes('[[[user]]]')) {
+    // Detect speaker change using [[[speaker]]] format
+    else if (line.includes('[[[') && line.includes(']]]')) {
+      // Save the previous message if there is one
       if (currentSpeaker && currentMessage) {
         currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }
-      currentSpeaker = 'user';
-      currentMessage = '';
-    } else if (line.includes('[[[ASSISTANT]]]') || line.includes('[[[assistant]]]') || line.includes('[[[agent]]]')) {
-      if (currentSpeaker && currentMessage) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
+      
+      // Extract the new speaker name from between [[[ and ]]]
+      const newSpeaker = extractSpeaker(line);
+      if (newSpeaker) {
+        currentSpeaker = newSpeaker;
+        currentMessage = '';
       }
-      currentSpeaker = 'assistant';
-      currentMessage = '';
     } else if (currentSpeaker) {
       // Skip the comment line itself
       if (!line.includes('<!--') && !line.includes('-->')) {
