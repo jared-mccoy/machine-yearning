@@ -625,9 +625,43 @@ function processNextInQueue() {
     // For the first message, always show the typing animation immediately
     const isFirstMessage = visibleCount === 0;
     
-    // Find the last visible message to calculate read delay
+    // Find the last visible elements (both messages and headers) sorted by position
+    const allVisibleElements = [];
+    
+    // Add visible messages
     const visibleMessages = Array.from(document.querySelectorAll('.message.visible'));
-    const lastVisibleMessage = visibleMessages.length > 0 ? visibleMessages[visibleMessages.length - 1] : null;
+    visibleMessages.forEach(msg => {
+      const rect = msg.getBoundingClientRect();
+      allVisibleElements.push({
+        element: msg,
+        type: 'message',
+        top: rect.top
+      });
+    });
+    
+    // Add visible headers
+    const visibleHeaders = Array.from(document.querySelectorAll('.chat-section-header.header-visible'));
+    visibleHeaders.forEach(header => {
+      const rect = header.getBoundingClientRect();
+      allVisibleElements.push({
+        element: header,
+        type: 'header',
+        top: rect.top
+      });
+    });
+    
+    // Sort all visible elements by position
+    allVisibleElements.sort((a, b) => a.top - b.top);
+    
+    // Find the last visible element (whether message or header)
+    const lastVisibleElement = allVisibleElements.length > 0 ? 
+                             allVisibleElements[allVisibleElements.length - 1].element : 
+                             null;
+    
+    // Find the last visible message for read delay calculation
+    const lastVisibleMessage = visibleMessages.length > 0 ? 
+                             visibleMessages[visibleMessages.length - 1] : 
+                             null;
     
     // Calculate read delay (only if this isn't the first message)
     const readDelay = isFirstMessage ? 0 : calculateReadDelay(lastVisibleMessage);
@@ -671,12 +705,11 @@ function processNextInQueue() {
       // Find the chat container
       const container = document.querySelector('#markdown-content') || currentMsg.parentNode;
       
-      // Position the typing indicator after the last visible message
-      if (visibleMessages.length > 0) {
-        const lastVisible = visibleMessages[visibleMessages.length - 1];
-        lastVisible.after(typingIndicator);
+      // Position the typing indicator after the last visible element (message or header)
+      if (lastVisibleElement) {
+        lastVisibleElement.after(typingIndicator);
       } else {
-        // If no visible messages yet, add to beginning of container
+        // If no visible elements yet, add to beginning of container
         container.prepend(typingIndicator);
       }
       
