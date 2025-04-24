@@ -315,16 +315,16 @@ export function getSpeakerClass(speaker, speakers = []) {
     const newIndex = speakers.length - 1;
     
     // Return appropriate class based on the speaker's position
-    if (newIndex === 0) return 'assistant'; // First speaker
-    if (newIndex === 1) return 'user';      // Second speaker
+    if (newIndex === 0) return 'user';      // First speaker (right side)
+    if (newIndex === 1) return 'assistant'; // Second speaker (left side)
     if (newIndex === 2) return 'speakerC';  // Third speaker
     if (newIndex === 3) return 'speakerD';  // Fourth speaker
     if (newIndex === 4) return 'speakerE';  // Fifth speaker
     return 'generic-speaker';               // Any other speakers
   } else {
     // Return class for existing speaker
-    if (speakerIndex === 0) return 'assistant';
-    if (speakerIndex === 1) return 'user';
+    if (speakerIndex === 0) return 'user';
+    if (speakerIndex === 1) return 'assistant';
     if (speakerIndex === 2) return 'speakerC';
     if (speakerIndex === 3) return 'speakerD';
     if (speakerIndex === 4) return 'speakerE';
