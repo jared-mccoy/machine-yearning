@@ -9,7 +9,7 @@
  * @returns {boolean} Whether the line is a markdown header
  */
 export function isMarkdownHeader(line) {
-  return line.trim().startsWith('#');
+  return /^#{2,4}\s+.+/.test(line.trim());
 }
 
 /**
@@ -18,8 +18,8 @@ export function isMarkdownHeader(line) {
  * @returns {number} The header level (1-6)
  */
 export function getMarkdownHeaderLevel(line) {
-  const matches = line.match(/^#+/);
-  return matches ? matches[0].length : 0;
+  const match = line.match(/^(#{2,4})\s+.+/);
+  return match ? match[1].length : 0;
 }
 
 /**

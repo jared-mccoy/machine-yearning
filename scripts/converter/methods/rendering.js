@@ -133,11 +133,12 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
  * Process a conversation section into DOM elements
  * @param {Array} messages - Array of message objects
  * @param {Object} renderer - Custom marked renderer
+ * @param {Function} getSpeakerClassFn - Function to get proper speaker class
  * @returns {HTMLElement} Container with rendered messages
  */
-export function processConversation(messages, renderer) {
+export function processConversation(messages, renderer, getSpeakerClassFn) {
   const messageContainer = document.createElement('div');
-  messageContainer.className = 'messages';
+  messageContainer.className = 'message-container';
   
   // Track speakers for alternating UI
   let lastSpeaker = null;
@@ -149,7 +150,7 @@ export function processConversation(messages, renderer) {
     messageEl.className = 'message';
     
     // Get the appropriate class for this speaker
-    const speakerClass = getSpeakerClass(msgData.speaker);
+    const speakerClass = getSpeakerClassFn(msgData.speaker);
     messageEl.classList.add(speakerClass);
     
     // Add a data attribute for the speaker
@@ -166,31 +167,6 @@ export function processConversation(messages, renderer) {
     // Create a container for the message content
     const contentContainer = document.createElement('div');
     contentContainer.className = 'content-container';
-    
-    // Add speaker display name if it's a different speaker from the last message
-    if (msgData.speaker !== lastSpeaker) {
-      const speakerNameEl = document.createElement('div');
-      speakerNameEl.className = 'speaker-name';
-      
-      // Use a more user-friendly name based on the speaker class
-      if (speakerClass === 'assistant') {
-        speakerNameEl.textContent = 'Assistant';
-      } else if (speakerClass === 'user') {
-        speakerNameEl.textContent = 'User';
-      } else if (speakerClass === 'speakerC') {
-        speakerNameEl.textContent = 'Speaker C';
-      } else if (speakerClass === 'speakerD') {
-        speakerNameEl.textContent = 'Speaker D';
-      } else if (speakerClass === 'speakerE') {
-        speakerNameEl.textContent = 'Speaker E';
-      } else if (speakerClass === 'random') {
-        speakerNameEl.textContent = 'System';
-      } else {
-        speakerNameEl.textContent = msgData.speaker || 'Anonymous';
-      }
-      
-      contentContainer.appendChild(speakerNameEl);
-    }
     
     // Create the message content
     const contentEl = document.createElement('div');

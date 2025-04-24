@@ -29,11 +29,14 @@ export function processChatContent(options) {
     return;
   }
 
-  // Track all unique speakers in the conversation
+  // Track all unique speakers in the conversation - this is important for proper message styling
   const speakers = [];
   
   // Import custom renderer and functions from rendering module
   const renderer = createCustomRenderer(escapeHtml, restoreSpacePlaceholders);
+  
+  // Helper function to get the class for a speaker
+  const getSpeakerClassLocal = (speaker) => getSpeakerClass(speaker, speakers);
   
   // Configure marked.js
   window.marked.setOptions({
@@ -292,7 +295,7 @@ export function processChatContent(options) {
       sectionDiv.id = msg.id;
       
       // Use the processConversation function to handle the message rendering
-      const messageContainer = processConversation(msg.messages, renderer);
+      const messageContainer = processConversation(msg.messages, renderer, getSpeakerClassLocal);
       sectionDiv.appendChild(messageContainer);
       
       chatContainer.appendChild(sectionDiv);
