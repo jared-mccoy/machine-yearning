@@ -130,15 +130,21 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
   renderer.link = function(href, title, text) {
     let titleAttr = title ? ` title="${title}"` : '';
     
-    // Check if it looks like it could be from a wiki link [[text]]
-    if (href.startsWith('#') || href.includes('wiki')) {
-      // Add special attribute for wiki links to help with styling
-      if (!title) {
-        titleAttr = ` title="wiki: ${text}"`;
-      } else if (!title.includes('wiki')) {
-        titleAttr = ` title="wiki: ${title}"`;
+    // Check if href is a string before using string methods
+    if (typeof href === 'string') {
+      // Check if it looks like it could be from a wiki link [[text]]
+      if (href.startsWith('#') || href.includes('wiki')) {
+        // Add special attribute for wiki links to help with styling
+        if (!title) {
+          titleAttr = ` title="wiki: ${text}"`;
+        } else if (!title.includes('wiki')) {
+          titleAttr = ` title="wiki: ${title}"`;
+        }
       }
     }
+    
+    // Make sure href is converted to string
+    href = (href || '').toString();
     
     return `<a href="${href}"${titleAttr}>${text}</a>`;
   };
