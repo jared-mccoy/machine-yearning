@@ -168,7 +168,13 @@ footer {
   font-weight: 600;
 }
 
-/* Badge containers */
+/* 
+ * LEGACY STYLES - DEPRECATED
+ * Please use directory.css classes for directory styling 
+ * The following styles are kept only for backward compatibility
+ */
+
+/* Badge containers - DEPRECATED */
 .badge-container.outer {
   border: 1px solid var(--accent-color);
   border-radius: 8px;
@@ -183,18 +189,18 @@ footer {
   border-top: none;
 }
 
-/* Posts container */
+/* Posts container - DEPRECATED */
 .posts-container {
   padding: 0.5rem;
 }
 
-/* File and header containers */
+/* File and header containers - DEPRECATED */
 .file-container {
   margin-bottom: 1rem;
   position: relative;
 }
 
-/* True nested container styling */
+/* True nested container styling - DEPRECATED */
 .header-wrapper {
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -215,14 +221,14 @@ footer {
   display: none;
 }
 
-/* Content container for nested items */
+/* Content container for nested items - DEPRECATED */
 .content-container {
   padding: 0.5rem;
   margin-top: 0.5rem;
   background-color: transparent;
 }
 
-/* Header styling by level */
+/* Header styling by level - DEPRECATED */
 .header-wrapper.level-file {
   border-color: var(--accent-color);
   font-weight: 600;
