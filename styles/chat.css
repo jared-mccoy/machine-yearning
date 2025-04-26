@@ -465,6 +465,7 @@ pre {
   border-radius: 6px;
   background-color: var(--code-block-bg) !important;
   border: 1px solid var(--border-color);
+  font-size: 0.9em;
 }
 
 pre > code {
@@ -480,7 +481,8 @@ pre > code {
 }
 
 /* Code controls */
-.code-controls {
+.code-controls,
+.code-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -490,9 +492,11 @@ pre > code {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   margin: -10px -10px 10px -10px;
+  font-size: 0.9em;
 }
 
-.lang-tag {
+.lang-tag,
+.language-tag {
   padding: 2px 6px;
   font-size: 12px;
   text-transform: lowercase;

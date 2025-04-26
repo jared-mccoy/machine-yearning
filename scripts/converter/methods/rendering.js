@@ -265,96 +265,151 @@ export function enhanceCodeBlocks() {
   
   // Function to add enhancements to code blocks
   function addCodeEnhancements() {
-    // Find all code blocks
-    const codeBlocks = document.querySelectorAll('pre[data-language]');
+    // Find all code blocks - check for both data-language and regular pre elements
+    const codeBlocks = document.querySelectorAll('pre');
     
     codeBlocks.forEach(codeBlock => {
-      // Get the language from the data attribute
-      const language = codeBlock.getAttribute('data-language');
+      // Skip if already enhanced
+      if (codeBlock.classList.contains('enhanced')) return;
       
-      // Only proceed if not already enhanced
-      if (!codeBlock.classList.contains('enhanced')) {
-        // Add the enhanced class to prevent double enhancement
-        codeBlock.classList.add('enhanced');
-        
-        // Create a container for the language tag and copy button
-        const toolbarContainer = document.createElement('div');
-        toolbarContainer.className = 'code-toolbar';
-        
-        // Create the language tag
-        const languageTag = document.createElement('span');
-        languageTag.className = 'language-tag';
-        languageTag.textContent = language || 'code';
-        
-        // Create the copy button
-        const copyButton = document.createElement('button');
-        copyButton.className = 'copy-button';
-        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>`;
-        
-        copyButton.addEventListener('click', function() {
-          // Find the code element inside
-          const codeEl = codeBlock.querySelector('code');
-          if (codeEl) {
-            // Get the text content
-            const codeText = codeEl.textContent || '';
-            
-            // Use the Clipboard API if available
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(codeText)
-                .then(() => {
-                  // Show success state
-                  copyButton.classList.add('copied');
-                  setTimeout(() => {
-                    copyButton.classList.remove('copied');
-                  }, 2000);
-                })
-                .catch(err => {
-                  console.error('Failed to copy text: ', err);
-                  fallbackCopy(codeText);
-                });
-            } else {
-              fallbackCopy(codeText);
-            }
+      // Add the enhanced class to prevent double enhancement
+      codeBlock.classList.add('enhanced');
+      
+      // Get the language from data attribute or class
+      let language = codeBlock.getAttribute('data-language') || 'plaintext';
+      const codeElement = codeBlock.querySelector('code');
+      
+      if (codeElement && codeElement.className) {
+        const match = codeElement.className.match(/language-(\w+)/);
+        if (match) language = match[1];
+      }
+      
+      // Apply styling directly to ensure consistency
+      codeBlock.style.padding = "10px";
+      codeBlock.style.paddingTop = "10px";
+      codeBlock.style.borderRadius = "6px";
+      codeBlock.style.backgroundColor = "var(--code-block-bg)";
+      codeBlock.style.border = "1px solid var(--border-color)";
+      
+      // Create a container for the language tag and copy button
+      const toolbarContainer = document.createElement('div');
+      toolbarContainer.className = 'code-controls'; // Use both class names for compatibility
+      toolbarContainer.classList.add('code-toolbar');
+      
+      // Create the language tag
+      const languageTag = document.createElement('div');
+      languageTag.className = 'lang-tag';
+      languageTag.textContent = language || 'plaintext';
+      
+      // Create the copy button
+      const copyButton = document.createElement('button');
+      copyButton.className = 'copy-button';
+      copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>`;
+      
+      copyButton.addEventListener('click', function() {
+        // Find the code element inside
+        const codeEl = codeBlock.querySelector('code');
+        if (codeEl) {
+          // Get the text content
+          const codeText = codeEl.textContent || '';
+          
+          // Use the Clipboard API if available
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(codeText)
+              .then(() => {
+                // Show success state
+                copyButton.classList.add('copied');
+                copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>`;
+                setTimeout(() => {
+                  copyButton.classList.remove('copied');
+                  copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>`;
+                }, 2000);
+              })
+              .catch(err => {
+                console.error('Failed to copy text: ', err);
+                fallbackCopy(codeText);
+              });
+          } else {
+            fallbackCopy(codeText);
           }
-        });
-        
-        // Fallback copy method for older browsers
-        function fallbackCopy(text) {
-          const textArea = document.createElement('textarea');
-          textArea.value = text;
-          textArea.style.position = 'fixed';
-          textArea.style.opacity = '0';
-          document.body.appendChild(textArea);
-          textArea.select();
-          try {
-            document.execCommand('copy');
-            copyButton.classList.add('copied');
-            setTimeout(() => {
-              copyButton.classList.remove('copied');
-            }, 2000);
-          } catch (err) {
-            console.error('Fallback copy failed: ', err);
-          }
-          document.body.removeChild(textArea);
         }
-        
-        // Add a tooltip for the copy button
-        const tooltip = document.createElement('span');
-        tooltip.className = 'tooltip';
-        tooltip.textContent = 'Copy';
-        copyButton.appendChild(tooltip);
-        
-        // Add the language tag and copy button to the toolbar
-        toolbarContainer.appendChild(languageTag);
-        toolbarContainer.appendChild(copyButton);
-        
-        // Add the toolbar to the code block
-        codeBlock.insertBefore(toolbarContainer, codeBlock.firstChild);
+      });
+      
+      // Fallback copy method for older browsers
+      function fallbackCopy(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          copyButton.classList.add('copied');
+          copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>`;
+          setTimeout(() => {
+            copyButton.classList.remove('copied');
+            copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>`;
+          }, 2000);
+        } catch (err) {
+          console.error('Fallback copy failed: ', err);
+        }
+        document.body.removeChild(textArea);
+      }
+      
+      // Add the language tag and copy button to the toolbar
+      toolbarContainer.appendChild(languageTag);
+      toolbarContainer.appendChild(copyButton);
+      
+      // Add the toolbar to the code block
+      codeBlock.insertBefore(toolbarContainer, codeBlock.firstChild);
+      
+      // Ensure consistent code styling
+      if (codeElement) {
+        codeElement.style.padding = "10px";
+        codeElement.style.fontSize = "0.9em";
+        codeElement.style.lineHeight = "1.5";
+        codeElement.style.backgroundColor = "transparent";
+      }
+      
+      // If using Prism for highlighting, ensure theme-appropriate styling
+      if (window.Prism) {
+        // Ensure token backgrounds are transparent
+        codeBlock.querySelectorAll('.token').forEach(token => {
+          token.style.background = 'transparent';
+        });
       }
     });
+    
+    // If there's a theme toggle, monitor for changes to re-apply code block styling
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        // Wait for theme change to complete
+        setTimeout(() => {
+          document.querySelectorAll('pre').forEach(pre => {
+            pre.style.backgroundColor = "var(--code-block-bg)";
+            const controls = pre.querySelector('.code-controls, .code-toolbar');
+            if (controls) {
+              controls.style.backgroundColor = "var(--code-header-bg)";
+            }
+          });
+        }, 50);
+      });
+    }
   }
 }
 
