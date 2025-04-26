@@ -376,157 +376,129 @@ async function initDirectoryView() {
       }
     }
     
-    // Create HTML for each date with nested badge structure
-    debugLog('Creating date sections with nested badges');
+    debugLog('Creating simplified directory structure');
     
-    // Process each date one at a time to prevent overwhelming the browser
+    // Process each date
     for (const date of dates) {
       if (date.files.length === 0) continue; // Skip dates with no files
       
-      // Create the main date section container with nested badge structure
+      // Create date entry
       const dateSection = document.createElement('div');
-      dateSection.className = 'directory-date-section';
+      dateSection.className = 'directory-section';
       
-      // Create outer badge container
-      const dateBadgeOuter = document.createElement('div');
-      dateBadgeOuter.className = 'directory-container-outer';
+      // Create date header
+      const dateHeader = document.createElement('div');
+      dateHeader.className = 'directory-header-wrapper';
+      dateHeader.textContent = date.displayName;
+      dateSection.appendChild(dateHeader);
       
-      // Create date header text directly
-      const dateText = document.createElement('h2');
-      dateText.className = 'directory-date-text';
-      dateText.textContent = date.displayName;
-      dateBadgeOuter.appendChild(dateText);
-      
-      // Create inner content container
-      const dateInnerContent = document.createElement('div');
-      dateInnerContent.className = 'directory-container-inner';
-      
-      // Create post list with nested badge structure
-      const postsContainer = document.createElement('div');
-      postsContainer.className = 'directory-posts-container';
+      // Create date content container
+      const dateContent = document.createElement('div');
+      dateContent.className = 'directory-content-container';
+      dateSection.appendChild(dateContent);
       
       // Process each file in this date
       for (const file of date.files) {
-        // Create file container
-        const fileContainer = document.createElement('div');
-        fileContainer.className = 'directory-file-container';
+        // Create file section
+        const fileSection = document.createElement('div');
+        fileSection.className = 'directory-section';
         
-        // Create the wrapper for the file (top level)
-        const fileWrapper = document.createElement('div');
-        fileWrapper.className = 'directory-header-wrapper level-file';
-        fileWrapper.textContent = file.title;
-        fileWrapper.addEventListener('click', () => {
+        // Create file header
+        const fileHeader = document.createElement('div');
+        fileHeader.className = 'directory-header-wrapper';
+        fileHeader.textContent = file.title;
+        fileHeader.addEventListener('click', () => {
           window.location.href = `index.html?path=${file.path}`;
         });
-        
-        // Add the file wrapper to the file container
-        fileContainer.appendChild(fileWrapper);
+        fileSection.appendChild(fileHeader);
         
         // Fetch headers from the file
         const headers = await getFileHeaders(file.path);
         
-        // If we have headers, organize them in a hierarchical structure
+        // If we have headers, create file content
         if (headers.length > 0) {
-          // Track created wrappers by header level and position
-          const headerWrappers = {};
+          // Create content container for this file's headers
+          const fileContent = document.createElement('div');
+          fileContent.className = 'directory-content-container';
+          fileSection.appendChild(fileContent);
           
-          // First, we need to build a tree structure
-          const headerTree = [];
-          const headerMap = {};
+          // Build a structure to track headers
+          const headerElements = [];
           
-          // Create initial flat map of headers
+          // Process headers based on their level
           headers.forEach((header, index) => {
-            const headerId = `header-${index}`;
-            headerMap[headerId] = {
-              id: headerId,
-              level: header.level,
-              text: header.text,
-              children: [],
-              index: index
-            };
-          });
-          
-          // Build the hierarchy
-          headers.forEach((header, index) => {
-            const headerId = `header-${index}`;
-            const headerInfo = headerMap[headerId];
+            // Create section for this header
+            const headerSection = document.createElement('div');
+            headerSection.className = 'directory-section';
             
-            if (header.level === 2) {
-              // Level 2 headers are direct children of the file
-              headerTree.push(headerInfo);
-            } else {
-              // Find parent (closest preceding header with lower level)
-              let parentFound = false;
-              for (let i = index - 1; i >= 0 && !parentFound; i--) {
-                const potentialParentId = `header-${i}`;
-                const potentialParent = headerMap[potentialParentId];
-                
-                if (potentialParent.level < header.level) {
-                  // Found parent - add this header as child
-                  potentialParent.children.push(headerInfo);
-                  parentFound = true;
-                }
-              }
-              
-              // If no parent found (shouldn't happen with valid markdown), 
-              // add to root level
-              if (!parentFound) {
-                headerTree.push(headerInfo);
-              }
-            }
-          });
-          
-          // Recursive function to create the DOM elements for the header hierarchy
-          function createHeaderDOM(headerInfo, parentContainer) {
-            // Create wrapper for this header
-            const headerWrapper = document.createElement('div');
-            headerWrapper.className = `directory-header-wrapper level-${headerInfo.level}`;
-            headerWrapper.textContent = headerInfo.text;
+            // Create the header element
+            const headerElement = document.createElement('div');
+            headerElement.className = 'directory-header-wrapper';
+            headerElement.textContent = header.text;
             
-            // Make the whole header clickable
-            const headerUrl = `index.html?path=${file.path}#${headerInfo.text.toLowerCase().replace(/\s+/g, '-')}`;
-            headerWrapper.addEventListener('click', (e) => {
-              // Prevent event from bubbling to parent containers
+            // Add click handler
+            const headerUrl = `index.html?path=${file.path}#${header.text.toLowerCase().replace(/\s+/g, '-')}`;
+            headerElement.addEventListener('click', (e) => {
               e.stopPropagation();
               window.location.href = headerUrl;
             });
             
-            // Process children if any
-            if (headerInfo.children.length > 0) {
-              headerInfo.children.forEach(child => {
-                // Directly add child headers to the parent wrapper
-                createHeaderDOM(child, headerWrapper);
-              });
-            }
+            // Create content container for any children
+            const contentElement = document.createElement('div');
+            contentElement.className = 'directory-content-container';
             
-            // Add the complete header structure to parent
-            parentContainer.appendChild(headerWrapper);
-          }
-          
-          // Create DOM for the header tree
-          headerTree.forEach(rootHeader => {
-            createHeaderDOM(rootHeader, fileWrapper);
+            // Store all information about this header
+            headerElements.push({
+              level: header.level,
+              section: headerSection,
+              header: headerElement,
+              content: contentElement
+            });
+            
+            // Add header to section
+            headerSection.appendChild(headerElement);
+            headerSection.appendChild(contentElement);
           });
+          
+          // Build the hierarchy (determine where each header should be placed)
+          for (let i = 0; i < headerElements.length; i++) {
+            const current = headerElements[i];
+            
+            if (i === 0 || current.level === 2) {
+              // First header or level 2 header goes directly in file content
+              fileContent.appendChild(current.section);
+            } else {
+              // Find the appropriate parent for this header
+              let parentFound = false;
+              
+              // Look backward to find the closest header with a lower level
+              for (let j = i - 1; j >= 0 && !parentFound; j--) {
+                const potential = headerElements[j];
+                
+                if (potential.level < current.level) {
+                  // Found a parent - add this header to its content
+                  potential.content.appendChild(current.section);
+                  parentFound = true;
+                }
+              }
+              
+              // If no parent found, add to file content
+              if (!parentFound) {
+                fileContent.appendChild(current.section);
+              }
+            }
+          }
         }
         
-        // Add the complete file container to the posts container
-        postsContainer.appendChild(fileContainer);
+        // Add completed file section to date content
+        dateContent.appendChild(fileSection);
       }
       
-      // Add posts container to inner content
-      dateInnerContent.appendChild(postsContainer);
-      
-      // Add inner content to outer badge container
-      dateBadgeOuter.appendChild(dateInnerContent);
-      
-      // Add outer badge container to date section
-      dateSection.appendChild(dateBadgeOuter);
-      
-      // Add complete date section to post container
+      // Add completed date section to post container
       postContainer.appendChild(dateSection);
     }
     
-    debugLog('Directory view initialization with nested headers completed');
+    debugLog('Directory view initialization completed with simplified structure');
   } catch (error) {
     debugLog(`Error in initDirectoryView: ${error.message}`);
     console.error('Error initializing directory view:', error);
