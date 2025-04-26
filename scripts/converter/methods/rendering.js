@@ -290,6 +290,7 @@ export function enhanceCodeBlocks() {
       codeBlock.style.borderRadius = "6px";
       codeBlock.style.backgroundColor = "var(--code-block-bg)";
       codeBlock.style.border = "1px solid var(--border-color)";
+      codeBlock.style.fontSize = "0.9rem"; // Enforce consistent font size for all code blocks
       
       // Create a container for the language tag and copy button
       const toolbarContainer = document.createElement('div');
@@ -380,9 +381,10 @@ export function enhanceCodeBlocks() {
       // Ensure consistent code styling
       if (codeElement) {
         codeElement.style.padding = "10px";
-        codeElement.style.fontSize = "0.9em";
+        codeElement.style.fontSize = "0.9rem"; // Use rem units for consistency
         codeElement.style.lineHeight = "1.5";
         codeElement.style.backgroundColor = "transparent";
+        codeElement.style.fontFamily = "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace"; // Enforce same font family
       }
       
       // If using Prism for highlighting, ensure theme-appropriate styling

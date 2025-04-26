@@ -465,7 +465,8 @@ pre {
   border-radius: 6px;
   background-color: var(--code-block-bg) !important;
   border: 1px solid var(--border-color);
-  font-size: 0.9em;
+  font-size: 0.9rem;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 }
 
 pre > code {
@@ -474,10 +475,11 @@ pre > code {
   padding: 10px;
   background: transparent !important;
   color: var(--code-color);
-  font-size: 0.9em;
+  font-size: 0.9rem;
   line-height: 1.5;
   border: none;
   border-radius: 0;
+  font-family: inherit;
 }
 
 /* Code controls */
@@ -526,6 +528,8 @@ pre > code {
 /* Remove any token-level background colors */
 .token {
   background: transparent !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
 }
 
 /* Scrollbar styling */
