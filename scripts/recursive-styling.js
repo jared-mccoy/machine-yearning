@@ -7,25 +7,8 @@ function applyRecursiveStyling() {
   // Calculate root font size for relative calculations
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   
-  // Base configuration with different scale factors for different properties
-  const config = {
-    // Base values at level 0 (top level)
-    base: {
-      borderWidth: 0.2,         // rem - relative to root font size
-      borderRadius: 0.5,        // rem
-      verticalPadding: 0.75,    // rem
-      horizontalPadding: 0.9,   // rem
-      marginBottom: 0.75,       // rem
-      fontSize: 1               // rem - this is relative to parent
-    },
-    // Scale factors for each property (closer to 1.0 = more gradual scaling)
-    scale: {
-      borderWidth: 0.8,         // Border width scales more dramatically (smaller number)
-      borderRadius: 0.85,       // Border radius scales moderately
-      spacing: 0.9,             // Padding and margins scale gently
-      fontSize: 0.95            // Font size scales very gently
-    }
-  };
+  // Get styling configuration from app settings
+  const config = getRecursiveStylingConfig();
   
   // Find the top-level directory container
   const container = document.querySelector('.directory-container');
@@ -35,6 +18,7 @@ function applyRecursiveStyling() {
   }
   
   console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
+  console.log('Using config:', config);
   
   // Clear any existing inline styles first
   clearExistingStyles(container);
@@ -124,6 +108,41 @@ function applyRecursiveStyling() {
   }
 }
 
+/**
+ * Get the recursive styling configuration from app settings
+ * Uses defaults if settings are not available
+ */
+function getRecursiveStylingConfig() {
+  // Default config
+  const defaultConfig = {
+    base: {
+      borderWidth: 0.125,         // rem - ~2px at 16px root font size
+      borderRadius: 0.375,        // rem
+      verticalPadding: 0.75,      // rem
+      horizontalPadding: 0.9,     // rem
+      marginBottom: 0.75,         // rem
+      fontSize: 1                 // rem - relative to parent
+    },
+    scale: {
+      borderWidth: 0.8,           // Border width scales more dramatically
+      borderRadius: 0.85,         // Border radius scales moderately
+      spacing: 0.9,               // Padding and margins scale gently
+      fontSize: 0.95              // Font size scales very gently
+    }
+  };
+  
+  // Try to get settings from the app settings
+  if (window.appSettings && typeof window.appSettings.get === 'function') {
+    const settings = window.appSettings.get();
+    
+    if (settings && settings.directory && settings.directory.recursiveStyling) {
+      return settings.directory.recursiveStyling;
+    }
+  }
+  
+  return defaultConfig;
+}
+
 // Simple debounce function to limit excessive function calls
 function debounce(func, wait) {
   let timeout;
@@ -153,6 +172,11 @@ function initRecursiveStyling() {
   });
   
   observer.observe(document.documentElement, { attributes: true });
+  
+  // Reapply when settings change
+  if (window.addEventListener) {
+    window.addEventListener('settingsChanged', applyRecursiveStyling);
+  }
 }
 
 // Make functions globally available

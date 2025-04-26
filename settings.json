@@ -23,5 +23,23 @@
     "accentD": "#2a9d8f",
     "accentE": "#8338ec",
     "genericAccent": "#909090"
+  },
+  "directory": {
+    "recursiveStyling": {
+      "base": {
+        "borderWidth": 0.125,
+        "borderRadius": 0.375,
+        "verticalPadding": 0.75,
+        "horizontalPadding": 0.9,
+        "marginBottom": 0.75,
+        "fontSize": 1
+      },
+      "scale": {
+        "borderWidth": 0.8,
+        "borderRadius": 0.85,
+        "spacing": 0.9,
+        "fontSize": 0.95
+      }
+    }
   }
 } 

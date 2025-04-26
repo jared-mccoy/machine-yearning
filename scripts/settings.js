@@ -25,6 +25,24 @@ const DEFAULT_SETTINGS = {
   theme: {
     accentA: "#192b91",
     accentB: "#ffc400"
+  },
+  directory: {
+    recursiveStyling: {
+      base: {
+        borderWidth: 0.125,      // rem - ~2px at 16px root font size
+        borderRadius: 0.375,     // rem
+        verticalPadding: 0.75,   // rem
+        horizontalPadding: 0.9,  // rem
+        marginBottom: 0.75,      // rem
+        fontSize: 1              // rem - relative to parent
+      },
+      scale: {
+        borderWidth: 0.8,        // Border width scales more dramatically (smaller number)
+        borderRadius: 0.85,      // Border radius scales moderately
+        spacing: 0.9,            // Padding and margins scale gently
+        fontSize: 0.95           // Font size scales very gently
+      }
+    }
   }
 };
 
@@ -95,9 +113,26 @@ function applySettings() {
     if (animationToggle) {
       animationToggle.setAttribute('data-state', animationEnabled ? 'enabled' : 'disabled');
     }
+    
+    // Trigger a settings changed event
+    dispatchSettingsChangedEvent();
   } catch (error) {
     console.error('Error applying settings:', error);
   }
+}
+
+/**
+ * Dispatch a custom event when settings change
+ */
+function dispatchSettingsChangedEvent() {
+  // Create and dispatch a custom event
+  const event = new CustomEvent('settingsChanged', {
+    detail: { settings: appSettings },
+    bubbles: true,
+    cancelable: true
+  });
+  
+  window.dispatchEvent(event);
 }
 
 /**
