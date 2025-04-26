@@ -622,66 +622,40 @@ pre code::-webkit-scrollbar-thumb {
 /* Custom layout positioning */
 .message.custom-left {
   /* Base styles are applied inline, this is for additional styling */
-  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .message.custom-right {
   /* Base styles are applied inline, this is for additional styling */
-  /* Removed border-bottom-right-radius: 2px; for consistent corners */
 }
 
-/* Default message alternating positions have lower specificity than custom layouts */
-.message {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  padding: 12px 16px;
-  max-width: 80%;
-  position: relative;
-  transition: border-color 0.3s ease;
-  display: block; /* Ensure proper display */
-}
-
-/* Add custom layout typing indicator styles */
-
-/* Default typing indicators */
-.typing-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: flex-start;
-  background-color: var(--background-color);
-  border: 2px solid var(--assistant-color-light);
-  border-radius: 12px;
+/* Fix for message content container to ensure consistent padding */
+.message .content-container {
+  margin: 0;
   padding: 0;
-  margin-bottom: 0;
-  position: relative;
-  min-width: 60px;
-  min-height: 0;
-  height: 0;
-  opacity: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  transform-origin: left center;
-  transform: scale(0.8);
 }
 
-/* User typing indicator appears on the right side */
-.typing-indicator.user-typing {
-  align-self: flex-end;
-  border: 2px solid var(--user-color-light);
-  transform-origin: right center;
+.message .content-container .content {
+  margin: 0;
+  padding: 0;
+}
+
+/* Fix paragraph spacing inside content */
+.message .content p {
+  margin: 0;
+  padding: 0;
+}
+
+.message .content p + p {
+  margin-top: 12px;
 }
 
 /* Custom positioned typing indicators */
 .typing-indicator.custom-left {
   /* Style is set by inline styles for positioning */
-  /* Removed border-bottom-left-radius: 2px; for consistent corners */
   transform-origin: left center;
 }
 
 .typing-indicator.custom-right {
   /* Style is set by inline styles for positioning */
-  /* Removed border-bottom-right-radius: 2px; for consistent corners */
   transform-origin: right center;
 }
