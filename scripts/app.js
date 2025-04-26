@@ -317,7 +317,13 @@ async function initDirectoryView() {
       return;
     }
     
+    // Add the directory container class to the post container
+    postContainer.classList.add('directory-container');
+    
     const loadingIndicator = document.getElementById('loading');
+    if (loadingIndicator) {
+      loadingIndicator.className = 'directory-loading-indicator';
+    }
     
     // Initialize the chat scanner and get the dates
     debugLog('Initializing chat scanner');
@@ -326,7 +332,7 @@ async function initDirectoryView() {
     
     if (dates.length === 0) {
       if (loadingIndicator) {
-        loadingIndicator.innerHTML = '<div class="info-message" style="text-align: center; padding: 20px;"><p>No conversations found.</p><p>Add markdown files to the content directory to get started.</p></div>';
+        loadingIndicator.innerHTML = '<div class="directory-info-message"><p>No conversations found.</p><p>Add markdown files to the content directory to get started.</p></div>';
       }
       return;
     }
@@ -379,35 +385,35 @@ async function initDirectoryView() {
       
       // Create the main date section container with nested badge structure
       const dateSection = document.createElement('div');
-      dateSection.className = 'dir-date-section';
+      dateSection.className = 'directory-date-section';
       
       // Create outer badge container
       const dateBadgeOuter = document.createElement('div');
-      dateBadgeOuter.className = 'dir-container outer';
+      dateBadgeOuter.className = 'directory-container-outer';
       
       // Create date header text directly
       const dateText = document.createElement('h2');
-      dateText.className = 'dir-date-text';
+      dateText.className = 'directory-date-text';
       dateText.textContent = date.displayName;
       dateBadgeOuter.appendChild(dateText);
       
       // Create inner content container
       const dateInnerContent = document.createElement('div');
-      dateInnerContent.className = 'dir-container inner';
+      dateInnerContent.className = 'directory-container-inner';
       
       // Create post list with nested badge structure
       const postsContainer = document.createElement('div');
-      postsContainer.className = 'dir-posts-container';
+      postsContainer.className = 'directory-posts-container';
       
       // Process each file in this date
       for (const file of date.files) {
         // Create file container
         const fileContainer = document.createElement('div');
-        fileContainer.className = 'dir-file-container';
+        fileContainer.className = 'directory-file-container';
         
         // Create the wrapper for the file (top level)
         const fileWrapper = document.createElement('div');
-        fileWrapper.className = 'dir-header-wrapper level-file';
+        fileWrapper.className = 'directory-header-wrapper level-file';
         fileWrapper.textContent = file.title;
         fileWrapper.addEventListener('click', () => {
           window.location.href = `index.html?path=${file.path}`;
@@ -415,7 +421,7 @@ async function initDirectoryView() {
         
         // Create the content container for child headers
         const fileContent = document.createElement('div');
-        fileContent.className = 'dir-content-container';
+        fileContent.className = 'directory-content-container';
         fileWrapper.appendChild(fileContent);
         
         // Add the file wrapper to the file container
@@ -479,7 +485,7 @@ async function initDirectoryView() {
           function createHeaderDOM(headerInfo, parentContainer) {
             // Create wrapper for this header
             const headerWrapper = document.createElement('div');
-            headerWrapper.className = `dir-header-wrapper level-${headerInfo.level}`;
+            headerWrapper.className = `directory-header-wrapper level-${headerInfo.level}`;
             headerWrapper.textContent = headerInfo.text;
             
             // Make the whole header clickable
@@ -492,7 +498,7 @@ async function initDirectoryView() {
             
             // Add content container for children
             const contentContainer = document.createElement('div');
-            contentContainer.className = 'dir-content-container';
+            contentContainer.className = 'directory-content-container';
             
             // Process children if any
             if (headerInfo.children.length > 0) {
@@ -540,7 +546,7 @@ async function initDirectoryView() {
     const postContainer = document.getElementById('post-container') || document.querySelector('.content') || document.body;
     if (postContainer) {
       postContainer.innerHTML = `
-        <div class="error-message" style="text-align: center; padding: 20px;">
+        <div class="directory-error-message">
           <p><strong>Error loading chat directory:</strong> ${error.message}</p>
           <p>Please check that the content directory exists and is accessible.</p>
         </div>

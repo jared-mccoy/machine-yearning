@@ -1,0 +1,118 @@
+/* Directory View Specific Styles */
+
+/* Main directory container - separate from chat container */
+.directory-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Directory View Header Styles */
+.directory-header-wrapper {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+  transition: all 0.3s ease;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.directory-header-wrapper:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Directory content container for nested items */
+.directory-content-container {
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  margin-top: 0.25rem;
+  background-color: transparent;
+}
+
+/* Directory header styling by level */
+.directory-header-wrapper.level-file {
+  border-color: var(--border-color);
+  font-weight: 600;
+  color: var(--text-color);
+  background-color: transparent;
+}
+
+.directory-header-wrapper.level-2 {
+  background-color: rgba(var(--accent-color-rgb), 0.2);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.directory-header-wrapper.level-3 {
+  background-color: rgba(var(--accent-color-rgb), 0.1);
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.directory-header-wrapper.level-4 {
+  background-color: rgba(var(--accent-color-rgb), 0.05);
+  font-size: 0.9rem;
+  color: var(--text-color-alt);
+}
+
+/* Directory date section container */
+.directory-date-section {
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+/* Directory date header styling */
+.directory-date-text {
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  color: var(--accent-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Directory badge containers */
+.directory-container-outer {
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.8rem;
+  background-color: transparent;
+}
+
+.directory-container-inner {
+  padding: 0.25rem;
+  background-color: transparent;
+}
+
+/* Directory posts container */
+.directory-posts-container {
+  padding: 0.25rem;
+}
+
+/* Directory file container */
+.directory-file-container {
+  margin-bottom: 0.4rem;
+}
+
+/* Directory loading indicator */
+.directory-loading-indicator {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted-color);
+  font-style: italic;
+}
+
+/* Directory error message */
+.directory-error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #c00;
+}
+
+/* Directory info message */
+.directory-info-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color);
+} 
