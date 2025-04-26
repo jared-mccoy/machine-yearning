@@ -343,37 +343,195 @@ async function initDirectoryView() {
       }
     });
     
-    // Create HTML for each date
-    debugLog('Creating date sections');
-    dates.forEach(date => {
-      if (date.files.length === 0) return; // Skip dates with no files
+    // Function to fetch and parse markdown content for headers
+    async function getFileHeaders(filePath) {
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+          return [];
+        }
+        
+        const markdown = await response.text();
+        const headerRegex = /^(#{2,4})\s+(.+)$/gm;
+        const headers = [];
+        
+        let match;
+        while ((match = headerRegex.exec(markdown)) !== null) {
+          headers.push({
+            level: match[1].length, // Number of # symbols
+            text: match[2].trim()
+          });
+        }
+        
+        return headers;
+      } catch (error) {
+        console.error(`Error fetching headers from ${filePath}:`, error);
+        return [];
+      }
+    }
+    
+    // Create HTML for each date with nested badge structure
+    debugLog('Creating date sections with nested badges');
+    
+    // Process each date one at a time to prevent overwhelming the browser
+    for (const date of dates) {
+      if (date.files.length === 0) continue; // Skip dates with no files
       
+      // Create the main date section container with nested badge structure
       const dateSection = document.createElement('div');
       dateSection.className = 'date-section';
       
+      // Create outer badge container
+      const dateBadgeOuter = document.createElement('div');
+      dateBadgeOuter.className = 'badge-container outer';
+      
+      // Create date header badge
+      const dateHeaderBadge = document.createElement('div');
+      dateHeaderBadge.className = 'date-header-badge';
+      
       const dateHeader = document.createElement('h2');
       dateHeader.textContent = date.displayName;
-      dateSection.appendChild(dateHeader);
+      dateHeaderBadge.appendChild(dateHeader);
       
-      const postList = document.createElement('ul');
-      postList.className = 'post-list';
+      // Add header badge to outer container
+      dateBadgeOuter.appendChild(dateHeaderBadge);
       
-      date.files.forEach(file => {
-        const listItem = document.createElement('li');
+      // Create inner content container
+      const dateInnerContent = document.createElement('div');
+      dateInnerContent.className = 'badge-container inner';
+      
+      // Create post list with nested badge structure
+      const postsContainer = document.createElement('div');
+      postsContainer.className = 'posts-container';
+      
+      // Process each file in this date
+      for (const file of date.files) {
+        // Create file container
+        const fileContainer = document.createElement('div');
+        fileContainer.className = 'file-container';
         
-        const link = document.createElement('a');
-        link.href = `index.html?path=${file.path}`;
-        link.textContent = file.title;
+        // Create main file badge
+        const fileBadge = document.createElement('div');
+        fileBadge.className = 'post-badge main-file';
         
-        listItem.appendChild(link);
-        postList.appendChild(listItem);
-      });
+        const fileLink = document.createElement('a');
+        fileLink.href = `index.html?path=${file.path}`;
+        fileLink.textContent = file.title;
+        fileBadge.appendChild(fileLink);
+        fileContainer.appendChild(fileBadge);
+        
+        // Fetch headers from the file
+        const headers = await getFileHeaders(file.path);
+        
+        if (headers.length > 0) {
+          // Create a nested structure for headers
+          const headersByLevel = {};
+          const headerElements = {};
+          
+          // Top level container for all headers
+          const fileHeadersContainer = document.createElement('div');
+          fileHeadersContainer.className = 'file-headers-container nested-headers-container';
+          
+          // First pass: create header elements and containers
+          headers.forEach((header, index) => {
+            const headerId = `header-${index}`;
+            
+            // Create the container for this header and its children
+            const headerContainer = document.createElement('div');
+            headerContainer.className = 'header-container';
+            headerContainer.dataset.level = header.level;
+            headerContainer.id = `container-${headerId}`;
+            
+            // Create the header badge
+            const headerBadge = document.createElement('div');
+            headerBadge.className = `post-badge nested-header level-${header.level}`;
+            
+            const headerLink = document.createElement('a');
+            headerLink.href = `index.html?path=${file.path}#${header.text.toLowerCase().replace(/\s+/g, '-')}`;
+            headerLink.textContent = header.text;
+            headerBadge.appendChild(headerLink);
+            
+            // Add the badge to the container
+            headerContainer.appendChild(headerBadge);
+            
+            // Create container for children
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'header-children-container';
+            headerContainer.appendChild(childrenContainer);
+            
+            // Save reference to elements
+            headerElements[headerId] = {
+              container: headerContainer,
+              childrenContainer: childrenContainer,
+              level: header.level,
+              text: header.text
+            };
+            
+            // Group by level for hierarchy
+            if (!headersByLevel[header.level]) {
+              headersByLevel[header.level] = [];
+            }
+            headersByLevel[header.level].push(headerId);
+          });
+          
+          // Function to find parent for a header
+          const findParentForHeader = (headerId, currentLevel) => {
+            // Look for nearest header with lower level
+            for (let level = currentLevel - 1; level >= 2; level--) {
+              if (headersByLevel[level]) {
+                for (let i = headersByLevel[level].length - 1; i >= 0; i--) {
+                  const potentialParentId = headersByLevel[level][i];
+                  const potentialParentIndex = parseInt(potentialParentId.split('-')[1]);
+                  const currentIndex = parseInt(headerId.split('-')[1]);
+                  
+                  // If this header comes before our current one, it's a potential parent
+                  if (potentialParentIndex < currentIndex) {
+                    return potentialParentId;
+                  }
+                }
+              }
+            }
+            return null; // No parent found
+          };
+          
+          // Second pass: build the hierarchy
+          headers.forEach((header, index) => {
+            const headerId = `header-${index}`;
+            const headerInfo = headerElements[headerId];
+            
+            // Find parent for this header
+            const parentId = findParentForHeader(headerId, header.level);
+            
+            if (parentId) {
+              // Add to parent's children container
+              headerElements[parentId].childrenContainer.appendChild(headerInfo.container);
+            } else {
+              // Top level header, add to file container
+              fileHeadersContainer.appendChild(headerInfo.container);
+            }
+          });
+          
+          // Add all headers to file container
+          fileContainer.appendChild(fileHeadersContainer);
+        }
+        
+        postsContainer.appendChild(fileContainer);
+      }
       
-      dateSection.appendChild(postList);
+      // Add posts container to inner content
+      dateInnerContent.appendChild(postsContainer);
+      
+      // Add inner content to outer badge container
+      dateBadgeOuter.appendChild(dateInnerContent);
+      
+      // Add outer badge container to date section
+      dateSection.appendChild(dateBadgeOuter);
+      
+      // Add complete date section to post container
       postContainer.appendChild(dateSection);
-    });
+    }
     
-    debugLog('Directory view initialization completed');
+    debugLog('Directory view initialization with nested headers completed');
   } catch (error) {
     debugLog(`Error in initDirectoryView: ${error.message}`);
     console.error('Error initializing directory view:', error);
