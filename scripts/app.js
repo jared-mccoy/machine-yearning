@@ -379,35 +379,35 @@ async function initDirectoryView() {
       
       // Create the main date section container with nested badge structure
       const dateSection = document.createElement('div');
-      dateSection.className = 'date-section';
+      dateSection.className = 'dir-date-section';
       
       // Create outer badge container
       const dateBadgeOuter = document.createElement('div');
-      dateBadgeOuter.className = 'badge-container outer';
+      dateBadgeOuter.className = 'dir-container outer';
       
       // Create date header text directly
       const dateText = document.createElement('h2');
-      dateText.className = 'date-header-text';
+      dateText.className = 'dir-date-text';
       dateText.textContent = date.displayName;
       dateBadgeOuter.appendChild(dateText);
       
       // Create inner content container
       const dateInnerContent = document.createElement('div');
-      dateInnerContent.className = 'badge-container inner';
+      dateInnerContent.className = 'dir-container inner';
       
       // Create post list with nested badge structure
       const postsContainer = document.createElement('div');
-      postsContainer.className = 'posts-container';
+      postsContainer.className = 'dir-posts-container';
       
       // Process each file in this date
       for (const file of date.files) {
         // Create file container
         const fileContainer = document.createElement('div');
-        fileContainer.className = 'file-container';
+        fileContainer.className = 'dir-file-container';
         
         // Create the wrapper for the file (top level)
         const fileWrapper = document.createElement('div');
-        fileWrapper.className = 'header-wrapper level-file';
+        fileWrapper.className = 'dir-header-wrapper level-file';
         fileWrapper.textContent = file.title;
         fileWrapper.addEventListener('click', () => {
           window.location.href = `index.html?path=${file.path}`;
@@ -415,7 +415,7 @@ async function initDirectoryView() {
         
         // Create the content container for child headers
         const fileContent = document.createElement('div');
-        fileContent.className = 'content-container';
+        fileContent.className = 'dir-content-container';
         fileWrapper.appendChild(fileContent);
         
         // Add the file wrapper to the file container
@@ -479,7 +479,7 @@ async function initDirectoryView() {
           function createHeaderDOM(headerInfo, parentContainer) {
             // Create wrapper for this header
             const headerWrapper = document.createElement('div');
-            headerWrapper.className = `header-wrapper level-${headerInfo.level}`;
+            headerWrapper.className = `dir-header-wrapper level-${headerInfo.level}`;
             headerWrapper.textContent = headerInfo.text;
             
             // Make the whole header clickable
@@ -492,15 +492,13 @@ async function initDirectoryView() {
             
             // Add content container for children
             const contentContainer = document.createElement('div');
-            contentContainer.className = 'content-container';
+            contentContainer.className = 'dir-content-container';
             
             // Process children if any
             if (headerInfo.children.length > 0) {
               headerInfo.children.forEach(child => {
                 createHeaderDOM(child, contentContainer);
               });
-            } else {
-              // No empty content needed anymore
             }
             
             // Add content container to wrapper
