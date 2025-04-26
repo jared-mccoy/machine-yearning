@@ -395,15 +395,15 @@
 }
 
 /* Code styling */
-/* Inline code (backticks) - inverted badge style */
+/* Inline code (backticks) - traditional badge style */
 :not(pre) > code {
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   font-size: 0.9em;
-  padding: 0.2em 0.4em;
+  padding: 0.1em 0.3em;
   border-radius: 4px;
-  border: none;
-  background-color: var(--text-color);
-  color: var(--background-color);
+  border: 1px solid var(--text-color);
+  background-color: transparent;
+  color: var(--text-color);
   transition: all 0.25s ease;
   white-space: nowrap;
 }
@@ -411,39 +411,53 @@
 /* Hover effects for inline code based on containing message type */
 .user:not(pre) > code:hover,
 .user *:not(pre) > code:hover {
-  background-color: var(--user-color);
+  background-color: var(--user-color-light);
+  border-color: var(--user-color);
+  color: var(--user-color);
 }
 
 .assistant:not(pre) > code:hover,
 .agent:not(pre) > code:hover,
 .assistant *:not(pre) > code:hover,
 .agent *:not(pre) > code:hover {
-  background-color: var(--assistant-color);
+  background-color: var(--assistant-color-light);
+  border-color: var(--assistant-color);
+  color: var(--assistant-color);
 }
 
 .speakerC:not(pre) > code:hover,
 .speakerC *:not(pre) > code:hover {
-  background-color: var(--accentC-color);
+  background-color: var(--accentC-color-light);
+  border-color: var(--accentC-color);
+  color: var(--accentC-color);
 }
 
 .speakerD:not(pre) > code:hover,
 .speakerD *:not(pre) > code:hover {
-  background-color: var(--accentD-color);
+  background-color: var(--accentD-color-light);
+  border-color: var(--accentD-color);
+  color: var(--accentD-color);
 }
 
 .speakerE:not(pre) > code:hover,
 .speakerE *:not(pre) > code:hover {
-  background-color: var(--accentE-color);
+  background-color: var(--accentE-color-light);
+  border-color: var(--accentE-color);
+  color: var(--accentE-color);
 }
 
 .generic-speaker:not(pre) > code:hover,
 .generic-speaker *:not(pre) > code:hover {
-  background-color: var(--generic-color);
+  background-color: var(--generic-color-light);
+  border-color: var(--generic-color);
+  color: var(--generic-color);
 }
 
 .random:not(pre) > code:hover,
 .random *:not(pre) > code:hover {
-  background-color: var(--accentC-color);
+  background-color: var(--accentC-color-light);
+  border-color: var(--accentC-color);
+  color: var(--accentC-color);
 }
 
 /* Code blocks (triple backticks) */
