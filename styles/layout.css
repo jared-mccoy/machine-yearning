@@ -155,19 +155,14 @@ footer {
   margin-top: 1.5rem;
 }
 
-/* Date header styling */
+/* Date header styling - removing badge approach */
 .date-header-badge {
-  padding: 0.4rem 0.6rem;
-  transition: all 0.3s ease;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid var(--accent-color);
-  border-bottom: none;
-  background-color: transparent;
+  display: none; /* Hide the badge completely */
 }
 
-.date-header-badge h2 {
+.date-header-text {
   margin: 0;
-  padding: 0;
+  padding: 0.4rem 0.6rem;
   color: var(--accent-color);
   font-size: 1.2rem;
   font-weight: 600;
@@ -180,10 +175,12 @@ footer {
   overflow: hidden;
   margin-bottom: 1rem;
   background-color: transparent;
+  padding-top: 0;
 }
 
 .badge-container.inner {
-  background-color: var(--background-color);
+  background-color: transparent;
+  border-top: none;
 }
 
 /* Posts container */

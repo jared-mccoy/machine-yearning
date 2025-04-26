@@ -385,16 +385,11 @@ async function initDirectoryView() {
       const dateBadgeOuter = document.createElement('div');
       dateBadgeOuter.className = 'badge-container outer';
       
-      // Create date header badge
-      const dateHeaderBadge = document.createElement('div');
-      dateHeaderBadge.className = 'date-header-badge';
-      
-      const dateHeader = document.createElement('h2');
-      dateHeader.textContent = date.displayName;
-      dateHeaderBadge.appendChild(dateHeader);
-      
-      // Add header badge to outer container
-      dateBadgeOuter.appendChild(dateHeaderBadge);
+      // Create date header text directly
+      const dateText = document.createElement('h2');
+      dateText.className = 'date-header-text';
+      dateText.textContent = date.displayName;
+      dateBadgeOuter.appendChild(dateText);
       
       // Create inner content container
       const dateInnerContent = document.createElement('div');
