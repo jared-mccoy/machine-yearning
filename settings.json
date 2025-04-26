@@ -29,13 +29,13 @@
       "base": {
         "borderWidth": 0.125,
         "borderRadius": 0.375,
-        "verticalPadding": 0.75,
-        "horizontalPadding": 0.9,
-        "marginBottom": 0.75,
+        "verticalPadding": 0.5,
+        "horizontalPadding": 0.5,
+        "marginBottom": 0.5,
         "fontSize": 1
       },
       "scale": {
-        "borderWidth": 0.8,
+        "borderWidth": 0.9,
         "borderRadius": 0.85,
         "spacing": 0.9,
         "fontSize": 0.95
