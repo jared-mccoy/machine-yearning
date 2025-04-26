@@ -30,7 +30,21 @@ export function getMarkdownHeaderLevel(line) {
 export function extractSpeaker(line) {
   let speakerInfo = null;
   
-  // Check for [[[SPEAKER {LAYOUT}]]] format
+  // Check for << SPEAKER {LAYOUT} >> format (new primary format)
+  const angleTagMatch = line.match(/<<\s*(.*?)(?:\s+\{(.*?)\})?\s*>>/);
+  if (angleTagMatch) {
+    const speaker = angleTagMatch[1].trim().toLowerCase();
+    const layoutTag = angleTagMatch[2] || null;
+    
+    speakerInfo = {
+      name: speaker,
+      layout: parseLayoutTag(layoutTag)
+    };
+    
+    return speakerInfo;
+  }
+  
+  // Check for [[[SPEAKER {LAYOUT}]]] format (legacy format)
   const speakerMatch = line.match(/\[\[\[(.*?)(?:\s+\{(.*?)\})?\]\]\]/);
   if (speakerMatch) {
     const speaker = speakerMatch[1].trim().toLowerCase();

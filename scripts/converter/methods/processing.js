@@ -148,8 +148,8 @@ export function processChatContent(options) {
       currentSpeaker = null;
       currentMessage = '';
     }
-    // Detect speaker change using [[[speaker]]] format
-    else if (line.includes('[[[') && line.includes(']]]')) {
+    // Detect speaker change using << speaker >> or [[[ speaker ]]] format
+    else if ((line.includes('<<') && line.includes('>>')) || (line.includes('[[[') && line.includes(']]]'))) {
       // Save the previous message if there is one
       if (currentSpeaker && currentMessage) {
         currentSectionMessages.push({ 
@@ -159,7 +159,7 @@ export function processChatContent(options) {
         });
       }
       
-      // Extract the new speaker name and layout from between [[[ and ]]]
+      // Extract the new speaker name and layout from between delimiters
       const speakerInfo = extractSpeaker(line);
       if (speakerInfo) {
         currentSpeaker = speakerInfo;
