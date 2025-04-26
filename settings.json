@@ -43,8 +43,9 @@
     },
     "spans": {
       "enabled": true,
-      "maxWikilinks": 10,
-      "maxBackticks": 10,
+      "maxTags": 15,
+      "wikiTagsRatio": 0.6,
+      "codeTagsRatio": 0.4,
       "minCount": 1,
       "showCounts": true
     }

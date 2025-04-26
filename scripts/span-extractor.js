@@ -124,8 +124,9 @@ const spanExtractor = (function() {
    */
   function createSpansContainer(spans, settings) {
     // Parse settings with defaults
-    const maxWikilinks = settings && settings.maxWikilinks !== undefined ? settings.maxWikilinks : 10;
-    const maxBackticks = settings && settings.maxBackticks !== undefined ? settings.maxBackticks : 10;
+    const maxTags = settings && settings.maxTags !== undefined ? settings.maxTags : 15;
+    const wikiTagsRatio = settings && settings.wikiTagsRatio !== undefined ? settings.wikiTagsRatio : 0.6;
+    const codeTagsRatio = settings && settings.codeTagsRatio !== undefined ? settings.codeTagsRatio : 0.4;
     const minCount = settings && settings.minCount !== undefined ? settings.minCount : 1;
     const showCounts = settings && settings.showCounts !== undefined ? settings.showCounts : true;
     
@@ -133,52 +134,81 @@ const spanExtractor = (function() {
     const spansContainer = document.createElement('div');
     spansContainer.className = 'directory-spans-container';
     
-    // Add wikilinks
-    if (spans.wikilinks.length > 0) {
-      const wikiContainer = document.createElement('div');
-      wikiContainer.className = 'directory-wikilinks';
-      
-      spans.wikilinks
-        .filter(([_, count]) => count >= minCount)
-        .slice(0, maxWikilinks)
-        .forEach(([link, count]) => {
-          const span = document.createElement('span');
-          span.className = 'directory-tag wiki-tag';
-          span.textContent = link;
-          if (count > 1 && showCounts) {
-            span.title = `Occurs ${count} times`;
-            span.setAttribute('data-count', count);
-          }
-          wikiContainer.appendChild(span);
-        });
-      
-      if (wikiContainer.children.length > 0) {
-        spansContainer.appendChild(wikiContainer);
-      }
+    // Create a single container for all tags
+    const tagsContainer = document.createElement('div');
+    tagsContainer.className = 'directory-tags';
+    
+    // Filter spans that meet the minimum count requirement
+    const filteredWikilinks = spans.wikilinks.filter(([_, count]) => count >= minCount);
+    const filteredBackticks = spans.backticks.filter(([_, count]) => count >= minCount);
+    
+    // Calculate how many of each type to include based on ratios
+    // If one type has fewer items than its allocation, give the extras to the other type
+    const totalItems = filteredWikilinks.length + filteredBackticks.length;
+    
+    let maxWikiTags = Math.round(maxTags * wikiTagsRatio);
+    let maxCodeTags = Math.round(maxTags * codeTagsRatio);
+    
+    // Adjust if we have fewer items of one type
+    if (filteredWikilinks.length < maxWikiTags) {
+      maxCodeTags += (maxWikiTags - filteredWikilinks.length);
+      maxWikiTags = filteredWikilinks.length;
     }
     
-    // Add backticked spans
-    if (spans.backticks.length > 0) {
-      const codeContainer = document.createElement('div');
-      codeContainer.className = 'directory-backticks';
-      
-      spans.backticks
-        .filter(([_, count]) => count >= minCount)
-        .slice(0, maxBackticks)
-        .forEach(([code, count]) => {
-          const span = document.createElement('span');
-          span.className = 'directory-tag code-tag';
-          span.textContent = code;
-          if (count > 1 && showCounts) {
-            span.title = `Occurs ${count} times`;
-            span.setAttribute('data-count', count);
-          }
-          codeContainer.appendChild(span);
+    if (filteredBackticks.length < maxCodeTags) {
+      maxWikiTags += (maxCodeTags - filteredBackticks.length);
+      maxCodeTags = filteredBackticks.length;
+    }
+    
+    // Ensure we don't exceed the limits
+    maxWikiTags = Math.min(maxWikiTags, filteredWikilinks.length);
+    maxCodeTags = Math.min(maxCodeTags, filteredBackticks.length);
+    
+    // Prepare combined array of all spans with their types
+    const allSpans = [];
+    
+    // Add wikilinks with type indicator
+    filteredWikilinks
+      .slice(0, maxWikiTags)
+      .forEach(([link, count]) => {
+        allSpans.push({
+          text: link,
+          count: count,
+          type: 'wiki'
         });
+      });
+    
+    // Add backticked spans with type indicator
+    filteredBackticks
+      .slice(0, maxCodeTags)
+      .forEach(([code, count]) => {
+        allSpans.push({
+          text: code,
+          count: count,
+          type: 'code'
+        });
+      });
+    
+    // Sort all spans by count (descending)
+    allSpans.sort((a, b) => b.count - a.count);
+    
+    // Create spans in the unified container
+    allSpans.forEach(span => {
+      const spanElement = document.createElement('span');
+      spanElement.className = `directory-tag ${span.type === 'wiki' ? 'wiki-tag' : 'code-tag'}`;
+      spanElement.textContent = span.text;
       
-      if (codeContainer.children.length > 0) {
-        spansContainer.appendChild(codeContainer);
+      if (span.count > 1 && showCounts) {
+        spanElement.title = `Occurs ${span.count} times`;
+        spanElement.setAttribute('data-count', span.count);
       }
+      
+      tagsContainer.appendChild(spanElement);
+    });
+    
+    // Only add the container if it has children
+    if (tagsContainer.children.length > 0) {
+      spansContainer.appendChild(tagsContainer);
     }
     
     return spansContainer;
