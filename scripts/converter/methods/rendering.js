@@ -126,6 +126,66 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
     }
   };
   
+  // Override the link renderer to properly handle wiki links
+  renderer.link = function(href, title, text) {
+    let titleAttr = title ? ` title="${title}"` : '';
+    
+    // Check if it looks like it could be from a wiki link [[text]]
+    if (href.startsWith('#') || href.includes('wiki')) {
+      // Add special attribute for wiki links to help with styling
+      if (!title) {
+        titleAttr = ` title="wiki: ${text}"`;
+      } else if (!title.includes('wiki')) {
+        titleAttr = ` title="wiki: ${title}"`;
+      }
+    }
+    
+    return `<a href="${href}"${titleAttr}>${text}</a>`;
+  };
+  
+  // Process text to convert [[wiki links]] to anchor tags
+  const originalTextRenderer = renderer.text;
+  renderer.text = function(text) {
+    // Handle the object format that marked.js sometimes passes
+    if (typeof text !== 'string') {
+      // If text is an object with a 'text' property, use that
+      if (text && typeof text === 'object' && typeof text.text === 'string') {
+        // Process the text property for wiki links
+        const processedText = text.text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, label) => {
+          // Use label if provided, otherwise use the link as the label
+          const displayText = label || link;
+          // Create a proper link
+          return `<a href="#${encodeURIComponent(link)}" title="wiki: ${link}">${displayText}</a>`;
+        });
+        
+        // If there's a raw property and we've made changes, update it
+        if (text.raw && processedText !== text.text) {
+          // Create a new object to avoid modifying the original
+          const newText = { ...text, text: processedText };
+          return originalTextRenderer ? originalTextRenderer.call(this, newText) : processedText;
+        }
+        
+        // If no changes were made, pass through to original renderer
+        return originalTextRenderer ? originalTextRenderer.call(this, text) : text.text;
+      }
+      
+      // Fallback for other non-string values
+      console.warn('Non-string text in renderer without text property:', text);
+      return originalTextRenderer ? originalTextRenderer.call(this, text) : String(text || '');
+    }
+    
+    // Process normal string text
+    const processedText = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, label) => {
+      // Use label if provided, otherwise use the link as the label
+      const displayText = label || link;
+      // Create a proper link
+      return `<a href="#${encodeURIComponent(link)}" title="wiki: ${link}">${displayText}</a>`;
+    });
+    
+    // Pass to original renderer if available
+    return originalTextRenderer ? originalTextRenderer.call(this, processedText) : processedText;
+  };
+  
   return renderer;
 }
 
