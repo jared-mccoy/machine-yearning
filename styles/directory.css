@@ -11,13 +11,13 @@
 .directory-section {
   border: 1px solid var(--accent-color);
   border-radius: 6px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
   overflow: hidden;
 }
 
 /* Header elements */
 .directory-header-wrapper {
-  padding: 0.5rem;
+  padding: 8px;
   color: var(--accent-color);
   cursor: pointer;
   font-weight: 600;
@@ -31,7 +31,7 @@
 
 /* Content containers - nesting with indentation */
 .directory-content-container {
-  padding: 0 0.5rem 0.5rem 1rem;
+  padding: 0 8px 8px 8px;
   display: block;
 }
 
@@ -40,7 +40,7 @@
 .directory-error-message,
 .directory-info-message {
   text-align: center;
-  padding: 0.5rem;
+  padding: 8px;
 }
 
 .directory-error-message {
