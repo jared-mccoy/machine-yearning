@@ -76,6 +76,21 @@ export function extractSpeaker(line) {
 }
 
 /**
+ * Process wikilinks in text content
+ * @param {string} text - Text containing wikilinks
+ * @returns {string} Text with wikilinks converted to HTML anchors
+ */
+export function processWikilinks(text) {
+  if (!text) return text;
+  
+  // Replace [[link]] or [[link|label]] with HTML
+  return text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, label) => {
+    const displayText = label || link;
+    return `<a href="#${encodeURIComponent(link)}" title="wiki: ${link}">${displayText}</a>`;
+  });
+}
+
+/**
  * Parse layout tag to extract position and offset information
  * @param {string|null} layoutTag - The layout tag, e.g. "L", "R", "L.25"
  * @returns {Object} Layout information object

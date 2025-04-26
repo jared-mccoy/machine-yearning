@@ -150,22 +150,8 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
     if (typeof text !== 'string') {
       // If text is an object with a 'text' property, use that
       if (text && typeof text === 'object' && typeof text.text === 'string') {
-        // Process the text property for wiki links
-        const processedText = text.text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, label) => {
-          // Use label if provided, otherwise use the link as the label
-          const displayText = label || link;
-          // Create a proper link
-          return `<a href="#${encodeURIComponent(link)}" title="wiki: ${link}">${displayText}</a>`;
-        });
-        
-        // If there's a raw property and we've made changes, update it
-        if (text.raw && processedText !== text.text) {
-          // Create a new object to avoid modifying the original
-          const newText = { ...text, text: processedText };
-          return originalTextRenderer ? originalTextRenderer.call(this, newText) : processedText;
-        }
-        
-        // If no changes were made, pass through to original renderer
+        // We no longer need to process wikilinks here since they're processed earlier
+        // Just return the text or pass to original renderer
         return originalTextRenderer ? originalTextRenderer.call(this, text) : text.text;
       }
       
@@ -174,16 +160,9 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
       return originalTextRenderer ? originalTextRenderer.call(this, text) : String(text || '');
     }
     
-    // Process normal string text
-    const processedText = text.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (match, link, label) => {
-      // Use label if provided, otherwise use the link as the label
-      const displayText = label || link;
-      // Create a proper link
-      return `<a href="#${encodeURIComponent(link)}" title="wiki: ${link}">${displayText}</a>`;
-    });
-    
-    // Pass to original renderer if available
-    return originalTextRenderer ? originalTextRenderer.call(this, processedText) : processedText;
+    // For string text, no need to process wikilinks anymore
+    // Just return or pass to original renderer
+    return originalTextRenderer ? originalTextRenderer.call(this, text) : text;
   };
   
   return renderer;

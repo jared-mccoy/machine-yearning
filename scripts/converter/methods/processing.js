@@ -7,7 +7,8 @@ import {
   isMarkdownHeader, 
   getMarkdownHeaderLevel,
   extractSpeaker,
-  createSpacePlaceholder
+  createSpacePlaceholder,
+  processWikilinks
 } from './parsing.js';
 
 import {
@@ -85,24 +86,26 @@ export function processChatContent(options) {
     if (isMarkdownHeader(line)) {
       // Save current message if exists
       if (currentSpeaker && currentMessage) {
+        // Process wikilinks in message content before adding to content items
+        const processedMessage = processWikilinks(currentMessage);
+        
         contentItems.push({
           type: 'message',
           speaker: currentSpeaker.name,
           layout: currentSpeaker.layout,
-          content: currentMessage
+          content: processedMessage
         });
       }
       
-      // Add the header as a content item
-      const level = getMarkdownHeaderLevel(line);
-      const headerId = 'header-' + currentSectionId++;
-      
+      // Add the header
       contentItems.push({
         type: 'header',
+        level: getMarkdownHeaderLevel(line),
         content: markdownHeaderToHtml(line),
-        level: level,
-        id: headerId
+        id: 'header-' + currentSectionId
       });
+      
+      currentSectionId++;
       
       // Reset the current speaker and message
       currentSpeaker = null;
@@ -112,11 +115,14 @@ export function processChatContent(options) {
     else if ((line.includes('<<') && line.includes('>>')) || (line.includes('<<') && line.includes('>>'))) {
       // Save the previous message if there is one
       if (currentSpeaker && currentMessage) {
+        // Process wikilinks in message content before adding to content items
+        const processedMessage = processWikilinks(currentMessage);
+        
         contentItems.push({
           type: 'message',
           speaker: currentSpeaker.name,
           layout: currentSpeaker.layout,
-          content: currentMessage
+          content: processedMessage
         });
       }
       
@@ -129,100 +135,91 @@ export function processChatContent(options) {
     } else if (currentSpeaker) {
       // Skip the comment line itself
       if (!line.includes('<!--') && !line.includes('-->')) {
-        // Process the line (code remains the same)
-        let processedLine = rawLine;
-        
-        // Handle code blocks (code remains the same)
-        if (line.startsWith('```')) {
-          currentMessage += processedLine + '\n';
-        } else {
-          // Check if we're inside a code block (code remains the same)
-          let inCodeBlock = false;
-          let prevLines = currentMessage.split('\n');
-          
-          for (let j = prevLines.length - 1; j >= 0; j--) {
-            if (prevLines[j].trim().startsWith('```')) {
-              const numMarkers = prevLines.slice(0, j + 1)
-                .filter(pl => pl.trim().startsWith('```')).length;
-              
-              inCodeBlock = numMarkers % 2 !== 0;
-              break;
-            }
-          }
-          
-          if (inCodeBlock) {
-            const leadingSpaceMatch = processedLine.match(/^(\s+)/);
-            if (leadingSpaceMatch) {
-              const spaces = leadingSpaceMatch[0].length;
-              processedLine = processedLine.replace(/^(\s+)/, createSpacePlaceholder(spaces));
-            }
-          }
-          
-          currentMessage += processedLine + '\n';
-        }
+        // Add this line to the current message
+        currentMessage += (currentMessage ? '\n' : '') + rawLine;
       }
     }
   }
   
-  // Add the last message if there is one
+  // Add any final message
   if (currentSpeaker && currentMessage) {
+    // Process wikilinks in message content before adding to content items
+    const processedMessage = processWikilinks(currentMessage);
+    
     contentItems.push({
       type: 'message',
       speaker: currentSpeaker.name,
       layout: currentSpeaker.layout,
-      content: currentMessage
+      content: processedMessage
     });
   }
   
-  // Create a hierarchical structure from the flat list of content items
+  // Create hierarchical structure for nested sections
   function createHierarchy(items) {
-    // This will hold our hierarchical structure
-    const rootSection = {
-      type: 'section',
-      level: 0,
+    // Start with a root section
+    const root = {
       id: 'root',
-      children: [],
-      messages: []
+      type: 'section',
+      header: null,
+      messages: [],
+      children: []
     };
     
-    // Stack for keeping track of the current section at each level
-    // Initialize with root section
-    const sectionStack = [rootSection];
+    // Current section being processed
+    let currentSection = root;
     
-    // Process each content item
-    items.forEach(item => {
+    // Stack of sections for hierarchy
+    const sectionStack = [root];
+    
+    // Process each item
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
       if (item.type === 'header') {
-        // Create a new section for this header
+        // Create a new section
         const newSection = {
-          type: 'section',
-          level: item.level,
           id: item.id,
-          header: item,
-          children: [], // Subsections
-          messages: []  // Direct messages in this section
+          type: 'section',
+          header: {
+            level: item.level,
+            content: item.content
+          },
+          messages: [],
+          children: []
         };
         
-        // Find the appropriate parent section for this header based on level
-        // Pop sections from stack until we find one with a lower level
-        while (sectionStack.length > 1 && sectionStack[sectionStack.length - 1].level >= item.level) {
-          sectionStack.pop();
+        // Find the appropriate parent for this section
+        let parentFound = false;
+        
+        // Pop sections from stack until we find a level lower than this header
+        while (sectionStack.length > 1 && !parentFound) {
+          const potentialParent = sectionStack[sectionStack.length - 1];
+          
+          if (potentialParent.header && potentialParent.header.level < item.level) {
+            // This is a valid parent
+            parentFound = true;
+          } else {
+            // Pop this section from the stack
+            sectionStack.pop();
+          }
         }
         
-        // Add this section to its parent's children
-        const parentSection = sectionStack[sectionStack.length - 1];
-        parentSection.children.push(newSection);
+        // Add to parent's children
+        const parent = sectionStack[sectionStack.length - 1];
+        parent.children.push(newSection);
         
-        // Push this section onto the stack
+        // Update current section
+        currentSection = newSection;
+        
+        // Add to stack
         sectionStack.push(newSection);
-      } 
-      else if (item.type === 'message') {
-        // Add this message to the current section's messages
-        const currentSection = sectionStack[sectionStack.length - 1];
+      } else if (item.type === 'message') {
+        // Add message to current section
         currentSection.messages.push(item);
       }
-    });
+    }
     
-    return rootSection;
+    return root;
   }
   
   // Build the DOM based on the hierarchical structure
@@ -441,4 +438,4 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
-} 
+}
