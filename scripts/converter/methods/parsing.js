@@ -23,24 +23,77 @@ export function getMarkdownHeaderLevel(line) {
 }
 
 /**
- * Extract speaker name from a message marker comment
+ * Extract speaker name and layout information from a message marker comment
  * @param {string} line - The line containing the speaker marker
- * @returns {string|null} The speaker name or null if not found
+ * @returns {Object|null} Object with speaker name and layout info, or null if not found
  */
 export function extractSpeaker(line) {
-  // Check for [[[SPEAKER]]] format
-  const speakerMatch = line.match(/\[\[\[(.*?)\]\]\]/);
+  let speakerInfo = null;
+  
+  // Check for [[[SPEAKER {LAYOUT}]]] format
+  const speakerMatch = line.match(/\[\[\[(.*?)(?:\s+\{(.*?)\})?\]\]\]/);
   if (speakerMatch) {
-    return speakerMatch[1].trim().toLowerCase();
+    const speaker = speakerMatch[1].trim().toLowerCase();
+    const layoutTag = speakerMatch[2] || null;
+    
+    speakerInfo = {
+      name: speaker,
+      layout: parseLayoutTag(layoutTag)
+    };
+    
+    return speakerInfo;
   }
   
-  // Check for <!-- SPEAKER --> format (alternate format)
-  const htmlCommentMatch = line.match(/<!--\s*(.*?)\s*-->/);
+  // Check for <!-- SPEAKER {LAYOUT} --> format (alternate format)
+  const htmlCommentMatch = line.match(/<!--\s*(.*?)(?:\s+\{(.*?)\})?\s*-->/);
   if (htmlCommentMatch) {
-    return htmlCommentMatch[1].trim().toLowerCase();
+    const speaker = htmlCommentMatch[1].trim().toLowerCase();
+    const layoutTag = htmlCommentMatch[2] || null;
+    
+    speakerInfo = {
+      name: speaker,
+      layout: parseLayoutTag(layoutTag)
+    };
+    
+    return speakerInfo;
   }
   
   return null;
+}
+
+/**
+ * Parse layout tag to extract position and offset information
+ * @param {string|null} layoutTag - The layout tag, e.g. "L", "R", "L.25"
+ * @returns {Object} Layout information object
+ */
+export function parseLayoutTag(layoutTag) {
+  if (!layoutTag) return null;
+  
+  const layout = {
+    position: null,
+    offset: 0
+  };
+  
+  // Parse position (L or R)
+  if (layoutTag.startsWith('L')) {
+    layout.position = 'left';
+    
+    // Check for offset, e.g. L.25
+    const offsetMatch = layoutTag.match(/L\.(\d+)/);
+    if (offsetMatch) {
+      layout.offset = parseFloat('0.' + offsetMatch[1]);
+    }
+  } else if (layoutTag.startsWith('R')) {
+    layout.position = 'right';
+    
+    // Check for offset, e.g. R.25
+    const offsetMatch = layoutTag.match(/R\.(\d+)/);
+    if (offsetMatch) {
+      layout.offset = parseFloat('0.' + offsetMatch[1]);
+    }
+  }
+  
+  return layout;
 }
 
 /**

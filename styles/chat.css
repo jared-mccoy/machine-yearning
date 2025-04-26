@@ -546,3 +546,25 @@ pre code::-webkit-scrollbar-thumb {
 .typing-indicator.random-typing span {
   background-color: var(--accentC-color);
 }
+
+/* Custom layout positioning */
+.message.custom-left {
+  /* Base styles are applied inline, this is for additional styling */
+  border-bottom-left-radius: 2px;
+}
+
+.message.custom-right {
+  /* Base styles are applied inline, this is for additional styling */
+  border-bottom-right-radius: 2px;
+}
+
+/* Default message alternating positions have lower specificity than custom layouts */
+.message {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 80%;
+  position: relative;
+  transition: border-color 0.3s ease;
+  display: block; /* Ensure proper display */
+}

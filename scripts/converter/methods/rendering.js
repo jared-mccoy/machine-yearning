@@ -156,6 +156,26 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     // Add a data attribute for the speaker
     messageEl.setAttribute('data-speaker', msgData.speaker);
     
+    // Apply custom layout if provided
+    if (msgData.layout) {
+      // Apply custom positioning based on layout
+      if (msgData.layout.position === 'left') {
+        messageEl.style.alignSelf = 'flex-start';
+        messageEl.style.marginRight = 'auto';
+        messageEl.style.marginLeft = msgData.layout.offset ? (msgData.layout.offset * 100) + '%' : '0';
+        messageEl.classList.add('custom-left');
+      } else if (msgData.layout.position === 'right') {
+        messageEl.style.alignSelf = 'flex-end';
+        messageEl.style.marginLeft = 'auto';
+        messageEl.style.marginRight = msgData.layout.offset ? (msgData.layout.offset * 100) + '%' : '0';
+        messageEl.classList.add('custom-right');
+      }
+      
+      // Add layout data attributes for potential CSS styling
+      messageEl.setAttribute('data-layout-position', msgData.layout.position || '');
+      messageEl.setAttribute('data-layout-offset', msgData.layout.offset || 0);
+    }
+    
     // Create a timestamp if it exists
     if (msgData.timestamp) {
       const timestamp = document.createElement('div');

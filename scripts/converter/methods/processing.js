@@ -32,6 +32,9 @@ export function processChatContent(options) {
   // Track all unique speakers in the conversation - this is important for proper message styling
   const speakers = [];
   
+  // Track layouts for each speaker
+  const speakerLayouts = {};
+  
   // Import custom renderer and functions from rendering module
   const renderer = createCustomRenderer(escapeHtml, restoreSpacePlaceholders);
   
@@ -98,7 +101,11 @@ export function processChatContent(options) {
     if (isMarkdownHeader(line)) {
       // Save current message if exists
       if (currentSpeaker && currentMessage) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
+        currentSectionMessages.push({ 
+          speaker: currentSpeaker.name, 
+          layout: currentSpeaker.layout,
+          content: currentMessage 
+        });
       }
       
       // If we have messages in the current section, add them to the overall messages array
@@ -145,13 +152,28 @@ export function processChatContent(options) {
     else if (line.includes('[[[') && line.includes(']]]')) {
       // Save the previous message if there is one
       if (currentSpeaker && currentMessage) {
-        currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
+        currentSectionMessages.push({ 
+          speaker: currentSpeaker.name, 
+          layout: currentSpeaker.layout,
+          content: currentMessage 
+        });
       }
       
-      // Extract the new speaker name from between [[[ and ]]]
-      const newSpeaker = extractSpeaker(line);
-      if (newSpeaker) {
-        currentSpeaker = newSpeaker;
+      // Extract the new speaker name and layout from between [[[ and ]]]
+      const speakerInfo = extractSpeaker(line);
+      if (speakerInfo) {
+        currentSpeaker = speakerInfo;
+        
+        // Update layout for this speaker
+        if (speakerInfo.layout) {
+          speakerLayouts[speakerInfo.name] = speakerInfo.layout;
+        }
+        
+        // If no layout specified but we have a saved one for this speaker, use it
+        if (!speakerInfo.layout && speakerLayouts[speakerInfo.name]) {
+          currentSpeaker.layout = speakerLayouts[speakerInfo.name];
+        }
+        
         currentMessage = '';
       }
     } else if (currentSpeaker) {
@@ -206,7 +228,11 @@ export function processChatContent(options) {
   
   // Add the last message and section
   if (currentSpeaker && currentMessage) {
-    currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
+    currentSectionMessages.push({ 
+      speaker: currentSpeaker.name, 
+      layout: currentSpeaker.layout,
+      content: currentMessage 
+    });
   }
   
   if (currentSectionMessages.length > 0) {
@@ -248,45 +274,20 @@ export function processChatContent(options) {
       headerDiv.appendChild(headerContent);
       chatContainer.appendChild(headerDiv);
       
-      // Set up click handler for toggling
+      // Add click handler to toggle visibility
       toggleButton.addEventListener('click', function() {
-        const isExpanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', !isExpanded);
+        const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
+        toggleButton.setAttribute('aria-expanded', !expanded);
         
-        // Toggle this section
-        const sectionId = msg.id.replace('header', 'section');
-        const section = document.getElementById(sectionId);
+        // Find the section this header controls
+        const section = document.getElementById(msg.id);
         if (section) {
-          if (isExpanded) {
+          if (expanded) {
             section.classList.add('collapsed');
           } else {
             section.classList.remove('collapsed');
           }
         }
-        
-        // Also toggle all child headers and their sections
-        const childHeaderElements = document.querySelectorAll(`[data-parent-id="${msg.id}"]`);
-        childHeaderElements.forEach(childHeader => {
-          // If we're collapsing, collapse children. If expanding, keep children's current state
-          if (isExpanded) {
-            const childToggleButton = childHeader.querySelector('.section-toggle');
-            if (childToggleButton && childToggleButton.getAttribute('aria-expanded') === 'true') {
-              childToggleButton.setAttribute('aria-expanded', 'false');
-              
-              const childSectionId = childHeader.getAttribute('data-section-id').replace('header', 'section');
-              const childSection = document.getElementById(childSectionId);
-              if (childSection) {
-                childSection.classList.add('collapsed');
-              }
-            }
-            
-            // Also hide the child header itself
-            childHeader.classList.add('collapsed');
-          } else {
-            // When expanding, show child headers but keep their sections in current collapse state
-            childHeader.classList.remove('collapsed');
-          }
-        });
       });
     } else if (msg.type === 'section') {
       // Create a section container for messages
@@ -325,6 +326,29 @@ export function processChatContent(options) {
   
   // Add the chat container to the content element
   content.appendChild(chatContainer);
+  
+  // Attach click handlers to all collapsible headers
+  const toggleButtons = content.querySelectorAll('.section-toggle');
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const expanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', !expanded);
+      
+      // Find the section this header controls
+      const sectionId = button.getAttribute('aria-controls');
+      const section = document.getElementById(sectionId);
+      if (section) {
+        if (expanded) {
+          section.classList.add('collapsed');
+        } else {
+          section.classList.remove('collapsed');
+        }
+      }
+    });
+  });
+  
+  // Return the content element for any further processing
+  return content;
 }
 
 /**
@@ -332,28 +356,21 @@ export function processChatContent(options) {
  * (Imported from parsing.js but needed directly here for compatibility)
  */
 function restoreSpacePlaceholders(text) {
-  // Handle case where text is an object (happens with newer marked versions)
   if (typeof text === 'object') {
-    // Directly try the text property
     if (text && typeof text.text === 'string') {
-      const processedText = text.text.replace(/__SPACES_(\d+)__/g, (match, count) => {
+      return text.text.replace(/__SPACES_(\d+)__/g, (match, count) => {
         return ' '.repeat(parseInt(count, 10));
       });
-      return processedText;
     }
-    console.warn('Unable to restore space placeholders on object:', text);
     return text && text.raw ? text.raw : String(text);
   }
   
-  // Handle case where we got a string
   if (typeof text === 'string') {
     return text.replace(/__SPACES_(\d+)__/g, (match, count) => {
       return ' '.repeat(parseInt(count, 10));
     });
   }
   
-  // Last resort - return as is
-  console.warn('Unable to restore spaces on unexpected type:', typeof text);
   return text;
 }
 
@@ -362,6 +379,8 @@ function restoreSpacePlaceholders(text) {
  * (Imported from parsing.js but needed directly here for compatibility)
  */
 function escapeHtml(text) {
+  if (typeof text !== 'string') return text;
+  
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
