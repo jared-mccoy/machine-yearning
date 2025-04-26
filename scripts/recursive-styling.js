@@ -1,17 +1,30 @@
 /**
  * Recursive Styling for Directory Structure
- * Dynamically adjusts styling based on nesting depth
+ * Dynamically adjusts styling based on nesting depth using proportional scaling
  */
 
 function applyRecursiveStyling() {
-  // Base values for level 0 (top level)
-  const baseValues = {
-    borderWidth: 3,      // px - increased initial thickness
-    borderRadius: 8,     // px - increased initial radius
-    padding: 12,         // px - increased initial padding
-    marginBottom: 12,    // px - increased initial margin
-    fontSize: 1,         // rem - using relative units for text
-    scaleFactor: 0.7     // Reduction factor per level - more aggressive scaling
+  // Calculate root font size for relative calculations
+  const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  
+  // Base configuration with different scale factors for different properties
+  const config = {
+    // Base values at level 0 (top level)
+    base: {
+      borderWidth: 0.2,         // rem - relative to root font size
+      borderRadius: 0.5,        // rem
+      verticalPadding: 0.75,    // rem
+      horizontalPadding: 0.9,   // rem
+      marginBottom: 0.75,       // rem
+      fontSize: 1               // rem - this is relative to parent
+    },
+    // Scale factors for each property (closer to 1.0 = more gradual scaling)
+    scale: {
+      borderWidth: 0.8,         // Border width scales more dramatically (smaller number)
+      borderRadius: 0.85,       // Border radius scales moderately
+      spacing: 0.9,             // Padding and margins scale gently
+      fontSize: 0.95            // Font size scales very gently
+    }
   };
   
   // Find the top-level directory container
@@ -21,9 +34,9 @@ function applyRecursiveStyling() {
     return;
   }
   
-  console.log('Applying recursive styling to:', container);
+  console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
   
-  // Clear any existing inline styles first to ensure clean application
+  // Clear any existing inline styles first
   clearExistingStyles(container);
   
   // Process the tree recursively starting at the top level with depth 0
@@ -50,11 +63,18 @@ function applyRecursiveStyling() {
     });
   }
   
+  // Calculate a value based on depth using the appropriate scale factor
+  function calculateValue(baseValue, scaleFactor, depth) {
+    return baseValue * Math.pow(scaleFactor, depth);
+  }
+  
+  // Convert rem to px for exact calculations
+  function remToPx(remValue) {
+    return remValue * rootFontSize;
+  }
+  
   // Recursive function to process each level of nesting
   function processLevel(element, depth) {
-    // Calculate scaling for this depth
-    const scale = Math.pow(baseValues.scaleFactor, depth);
-    
     // Find all direct child sections within this element
     const sections = Array.from(element.children).filter(
       child => child.classList.contains('directory-section')
@@ -64,32 +84,38 @@ function applyRecursiveStyling() {
     
     // Apply styling to each section
     sections.forEach((section, index) => {
-      // Calculate values for this depth
-      const borderWidth = Math.max(1, Math.round(baseValues.borderWidth * scale));
-      const borderRadius = Math.max(2, Math.round(baseValues.borderRadius * scale));
-      const marginBottom = Math.max(2, Math.round(baseValues.marginBottom * scale));
-      const padding = Math.max(2, Math.round(baseValues.padding * scale));
-      const fontSize = baseValues.fontSize * (1 - (0.05 * depth)); // Gradual text size reduction
+      // Calculate values for this depth using appropriate scaling factors
+      const borderWidth = calculateValue(config.base.borderWidth, config.scale.borderWidth, depth);
+      const borderRadius = calculateValue(config.base.borderRadius, config.scale.borderRadius, depth);
+      const marginBottom = calculateValue(config.base.marginBottom, config.scale.spacing, depth);
+      const verticalPadding = calculateValue(config.base.verticalPadding, config.scale.spacing, depth);
+      const horizontalPadding = calculateValue(config.base.horizontalPadding, config.scale.spacing, depth);
+      const fontSize = calculateValue(config.base.fontSize, config.scale.fontSize, depth);
       
-      console.log(`Section ${index} at depth ${depth}: border=${borderWidth}px, radius=${borderRadius}px`);
+      // Log calculated values in pixels for debugging
+      console.log(`Section ${index} at depth ${depth}:`, {
+        borderWidth: remToPx(borderWidth) + 'px',
+        borderRadius: remToPx(borderRadius) + 'px',
+        fontSize: remToPx(fontSize) + 'px'
+      });
       
-      // Apply border and spacing styling with !important to override existing styles
-      section.style.setProperty('border-width', `${borderWidth}px`, 'important');
-      section.style.setProperty('border-style', 'solid', 'important');
-      section.style.setProperty('border-radius', `${borderRadius}px`, 'important');
-      section.style.setProperty('margin-bottom', `${marginBottom}px`, 'important');
+      // Apply border styling
+      section.style.borderWidth = `${borderWidth}rem`;
+      section.style.borderStyle = 'solid';
+      section.style.borderRadius = `${borderRadius}rem`;
+      section.style.marginBottom = `${marginBottom}rem`;
       
       // Style the header elements
       const headerWrapper = section.querySelector('.directory-header-wrapper');
       if (headerWrapper) {
-        headerWrapper.style.setProperty('padding', `${padding}px`, 'important');
-        headerWrapper.style.setProperty('font-size', `${fontSize}rem`, 'important');
+        headerWrapper.style.padding = `${verticalPadding}rem ${horizontalPadding}rem`;
+        headerWrapper.style.fontSize = `${fontSize}rem`;
       }
       
       // Style the content container
       const contentContainer = section.querySelector('.directory-content-container');
       if (contentContainer) {
-        contentContainer.style.setProperty('padding', `0 ${padding}px ${padding}px ${padding}px`, 'important');
+        contentContainer.style.padding = `0 ${horizontalPadding}rem ${verticalPadding}rem`;
         
         // Recursively process the next level
         processLevel(contentContainer, depth + 1);
@@ -112,19 +138,21 @@ function initRecursiveStyling() {
   console.log('Initializing recursive styling');
   
   // Apply initial styling after a short delay to ensure DOM is ready
-  setTimeout(applyRecursiveStyling, 500); // Increased delay to ensure DOM is ready
+  setTimeout(applyRecursiveStyling, 500);
   
   // Also apply styling when window is resized
   window.addEventListener('resize', debounce(applyRecursiveStyling, 200));
   
-  // Force reapply when debug button is clicked
-  const applyButton = document.getElementById('apply-styling');
-  if (applyButton) {
-    applyButton.addEventListener('click', function() {
-      console.log('Manual reapply of recursive styling triggered by button');
-      applyRecursiveStyling();
+  // Observe theme changes and reapply
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.attributeName === 'data-theme') {
+        setTimeout(applyRecursiveStyling, 200);
+      }
     });
-  }
+  });
+  
+  observer.observe(document.documentElement, { attributes: true });
 }
 
 // Make functions globally available
