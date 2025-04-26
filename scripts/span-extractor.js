@@ -199,7 +199,7 @@ const spanExtractor = (function() {
       spanElement.textContent = span.text;
       
       if (span.count > 1 && showCounts) {
-        spanElement.title = `Occurs ${span.count} times`;
+        spanElement.title = `${span.text} (${span.count})`;
         spanElement.setAttribute('data-count', span.count);
       }
       

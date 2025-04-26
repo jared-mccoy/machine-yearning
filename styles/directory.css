@@ -58,19 +58,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #ffffff;
 }
 
-/* Wiki tags styling - using theme accent colors */
+/* Wiki tags styling - using theme accent colors with white text */
 .wiki-tag {
-  background-color: var(--accent-color-light, rgba(25, 43, 145, 0.15));
-  color: var(--accent-color, #192b91);
-  border: 1px solid var(--accent-color, #192b91);
+  background-color: var(--accent-color, #192b91);
+  border: none;
 }
 
-/* Code tags styling - updated to match site's code display */
+/* Code tags styling */
 .code-tag {
-  background-color: var(--code-bg-color, rgba(27, 31, 35, 0.07));
-  color: var(--code-text-color, #24292e);
+  background-color: var(--code-bg-color, rgba(27, 31, 35, 0.9));
   font-family: var(--code-font, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace);
   font-size: 0.85em;
   border-radius: 3px;
@@ -79,26 +78,16 @@
 
 /* Dark mode styles for code tags */
 [data-theme="dark"] .code-tag {
-  background-color: var(--code-bg-color-dark, rgba(220, 224, 228, 0.15));
-  color: var(--code-text-color-dark, #e1e4e8);
+  background-color: var(--code-bg-color-dark, rgba(220, 224, 228, 0.3));
 }
 
-/* Tags with frequency count */
+/* Tags with frequency count - integrated count display */
 .directory-tag[data-count]::after {
-  content: attr(data-count);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  margin-left: 0.3rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-[data-theme="dark"] .directory-tag[data-count]::after {
-  background-color: rgba(255, 255, 255, 0.2);
+  content: " " attr(data-count);
+  display: inline;
+  font-size: 0.8rem;
+  margin-left: 0.15rem;
+  opacity: 0.8;
 }
 
 /* Message styling */
