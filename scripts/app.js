@@ -419,11 +419,6 @@ async function initDirectoryView() {
           window.location.href = `index.html?path=${file.path}`;
         });
         
-        // Create the content container for child headers
-        const fileContent = document.createElement('div');
-        fileContent.className = 'directory-content-container';
-        fileWrapper.appendChild(fileContent);
-        
         // Add the file wrapper to the file container
         fileContainer.appendChild(fileWrapper);
         
@@ -496,19 +491,13 @@ async function initDirectoryView() {
               window.location.href = headerUrl;
             });
             
-            // Add content container for children
-            const contentContainer = document.createElement('div');
-            contentContainer.className = 'directory-content-container';
-            
             // Process children if any
             if (headerInfo.children.length > 0) {
               headerInfo.children.forEach(child => {
-                createHeaderDOM(child, contentContainer);
+                // Directly add child headers to the parent wrapper
+                createHeaderDOM(child, headerWrapper);
               });
             }
-            
-            // Add content container to wrapper
-            headerWrapper.appendChild(contentContainer);
             
             // Add the complete header structure to parent
             parentContainer.appendChild(headerWrapper);
@@ -516,7 +505,7 @@ async function initDirectoryView() {
           
           // Create DOM for the header tree
           headerTree.forEach(rootHeader => {
-            createHeaderDOM(rootHeader, fileContent);
+            createHeaderDOM(rootHeader, fileWrapper);
           });
         }
         
