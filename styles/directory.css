@@ -58,10 +58,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #ffffff;
+  
+  /* Create cut-out text effect */
+  color: transparent;
 }
 
-/* Wiki tags styling - using theme accent colors with white text */
+/* Dark mode text color matches dark theme */
+[data-theme="dark"] .directory-tag {
+  color: #1e1e1e;
+}
+
+/* Light mode text color matches light theme */
+[data-theme="light"] .directory-tag {
+  color: #ffffff;
+  text-shadow: 0 0 0 #ffffff;
+}
+
+/* Wiki tags styling */
 .wiki-tag {
   background-color: var(--accent-color, #192b91);
   border: none;
@@ -88,6 +101,7 @@
   font-size: 0.8rem;
   margin-left: 0.15rem;
   opacity: 0.8;
+  color: #ffffff;
 }
 
 /* Message styling */
