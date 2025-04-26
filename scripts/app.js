@@ -376,6 +376,65 @@ async function initDirectoryView() {
       }
     }
     
+    // Function to extract wikilinks and backticked spans from markdown
+    async function extractSpans(filePath) {
+      try {
+        const response = await fetch(filePath);
+        if (!response.ok) {
+          return { wikilinks: [], backticks: [] };
+        }
+        
+        const markdown = await response.text();
+        
+        // Extract wikilinks (e.g., [[wikilink]])
+        const wikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+        const wikilinks = [];
+        let wikiMatch;
+        
+        while ((wikiMatch = wikiRegex.exec(markdown)) !== null) {
+          wikilinks.push(wikiMatch[1].trim());
+        }
+        
+        // Extract backticked spans (e.g., `code`)
+        const codeRegex = /`([^`]+)`/g;
+        const backticks = [];
+        let codeMatch;
+        
+        while ((codeMatch = codeRegex.exec(markdown)) !== null) {
+          // Filter out single character backticks or those that appear to be part of code blocks
+          if (codeMatch[1].trim().length > 1 && !codeMatch[0].startsWith('```')) {
+            backticks.push(codeMatch[1].trim());
+          }
+        }
+        
+        // Count occurrences and sort by frequency
+        const wikilinksCount = countOccurrences(wikilinks);
+        const backticksCount = countOccurrences(backticks);
+        
+        return { 
+          wikilinks: wikilinksCount,
+          backticks: backticksCount
+        };
+      } catch (error) {
+        console.error(`Error extracting spans from ${filePath}:`, error);
+        return { wikilinks: [], backticks: [] };
+      }
+    }
+    
+    // Helper function to count occurrences and sort by frequency
+    function countOccurrences(items) {
+      const counts = {};
+      
+      // Count occurrences
+      items.forEach(item => {
+        counts[item] = (counts[item] || 0) + 1;
+      });
+      
+      // Convert to array of [item, count] pairs and sort by count (descending)
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1]);
+    }
+    
     debugLog('Creating simplified directory structure');
     
     // Process each date
@@ -414,6 +473,77 @@ async function initDirectoryView() {
         
         // Fetch headers from the file
         const headers = await getFileHeaders(file.path);
+        
+        // Extract wikilinks and backticked spans (do this here so we have them for both cases)
+        const spans = await extractSpans(file.path);
+        
+        // Check if span display is enabled in settings
+        const spanSettings = window.appSettings && window.appSettings.get && 
+                           window.appSettings.get().directory && 
+                           window.appSettings.get().directory.spans;
+        
+        const spanEnabled = spanSettings ? spanSettings.enabled : true;
+        const maxWikilinks = spanSettings ? spanSettings.maxWikilinks : 10;
+        const maxBackticks = spanSettings ? spanSettings.maxBackticks : 10;
+        const minCount = spanSettings ? spanSettings.minCount : 1;
+        const showCounts = spanSettings ? spanSettings.showCounts : true;
+        
+        // Helper function to create spans container
+        const createSpansContainer = () => {
+          // Create spans container
+          const spansContainer = document.createElement('div');
+          spansContainer.className = 'directory-spans-container';
+          
+          // Add wikilinks
+          if (spans.wikilinks.length > 0) {
+            const wikiContainer = document.createElement('div');
+            wikiContainer.className = 'directory-wikilinks';
+            
+            spans.wikilinks
+              .filter(([_, count]) => count >= minCount)
+              .slice(0, maxWikilinks)
+              .forEach(([link, count]) => {
+                const span = document.createElement('span');
+                span.className = 'directory-tag wiki-tag';
+                span.textContent = link;
+                if (count > 1 && showCounts) {
+                  span.title = `Occurs ${count} times`;
+                  span.setAttribute('data-count', count);
+                }
+                wikiContainer.appendChild(span);
+              });
+            
+            if (wikiContainer.children.length > 0) {
+              spansContainer.appendChild(wikiContainer);
+            }
+          }
+          
+          // Add backticked spans
+          if (spans.backticks.length > 0) {
+            const codeContainer = document.createElement('div');
+            codeContainer.className = 'directory-backticks';
+            
+            spans.backticks
+              .filter(([_, count]) => count >= minCount)
+              .slice(0, maxBackticks)
+              .forEach(([code, count]) => {
+                const span = document.createElement('span');
+                span.className = 'directory-tag code-tag';
+                span.textContent = code;
+                if (count > 1 && showCounts) {
+                  span.title = `Occurs ${count} times`;
+                  span.setAttribute('data-count', count);
+                }
+                codeContainer.appendChild(span);
+              });
+            
+            if (codeContainer.children.length > 0) {
+              spansContainer.appendChild(codeContainer);
+            }
+          }
+          
+          return spansContainer;
+        };
         
         // If we have headers, create file content
         if (headers.length > 0) {
@@ -460,6 +590,16 @@ async function initDirectoryView() {
             headerSection.appendChild(contentElement);
           });
           
+          // Add spans to the first header if there are headers
+          if (spanEnabled && (spans.wikilinks.length > 0 || spans.backticks.length > 0) && headerElements.length > 0) {
+            const firstHeaderContent = headerElements[0].content;
+            const spansContainer = createSpansContainer();
+            
+            if (spansContainer.children.length > 0) {
+              firstHeaderContent.appendChild(spansContainer);
+            }
+          }
+          
           // Build the hierarchy (determine where each header should be placed)
           for (let i = 0; i < headerElements.length; i++) {
             const current = headerElements[i];
@@ -486,6 +626,20 @@ async function initDirectoryView() {
               if (!parentFound) {
                 fileContent.appendChild(current.section);
               }
+            }
+          }
+        } else {
+          // No headers, but we might still want to show tags if they exist
+          if (spanEnabled && (spans.wikilinks.length > 0 || spans.backticks.length > 0)) {
+            // Create a simple content container for the file to hold the spans
+            const fileContent = document.createElement('div');
+            fileContent.className = 'directory-content-container';
+            
+            const spansContainer = createSpansContainer();
+            
+            if (spansContainer.children.length > 0) {
+              fileContent.appendChild(spansContainer);
+              fileSection.appendChild(fileContent);
             }
           }
         }

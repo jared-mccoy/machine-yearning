@@ -40,6 +40,13 @@
         "spacing": 0.9,
         "fontSize": 0.95
       }
+    },
+    "spans": {
+      "enabled": true,
+      "maxWikilinks": 10,
+      "maxBackticks": 10,
+      "minCount": 1,
+      "showCounts": true
     }
   }
 } 
