@@ -196,11 +196,13 @@ const spanExtractor = (function() {
     allSpans.forEach(span => {
       const spanElement = document.createElement('span');
       spanElement.className = `directory-tag ${span.type === 'wiki' ? 'wiki-tag' : 'code-tag'}`;
-      spanElement.textContent = span.text;
       
+      // Include the count in the text content with a delimiter
       if (span.count > 1 && showCounts) {
+        spanElement.textContent = `${span.text} | ${span.count}`;
         spanElement.title = `${span.text} (${span.count})`;
-        spanElement.setAttribute('data-count', span.count);
+      } else {
+        spanElement.textContent = span.text;
       }
       
       tagsContainer.appendChild(spanElement);

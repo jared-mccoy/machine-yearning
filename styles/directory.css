@@ -86,24 +86,6 @@
   color: var(--accent-color, #192b91);
 }
 
-/* Tags with frequency count - integrated with delimiter */
-.directory-tag[data-count]::after {
-  content: " | " attr(data-count);
-  display: inline;
-  font-size: 0.8rem;
-  margin-left: 0.05rem;
-}
-
-/* Wiki tag counter needs to be white regardless of theme */
-.wiki-tag[data-count]::after {
-  color: #ffffff !important;
-}
-
-/* Code tag counter matches border color */
-.code-tag[data-count]::after {
-  color: var(--accent-color, #192b91);
-}
-
 /* Message styling */
 .directory-loading-indicator,
 .directory-error-message,
