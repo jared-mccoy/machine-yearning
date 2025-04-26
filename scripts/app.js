@@ -503,7 +503,9 @@ async function initDirectoryView() {
     // Apply recursive styling after the directory structure is built
     if (window.recursiveStyling && typeof window.recursiveStyling.apply === 'function') {
       debugLog('Applying recursive styling to directory');
-      setTimeout(window.recursiveStyling.apply, 100);
+      // Call twice with a delay to ensure proper application
+      window.recursiveStyling.apply();
+      setTimeout(window.recursiveStyling.apply, 300);
     } else {
       debugLog('Recursive styling not available');
     }
