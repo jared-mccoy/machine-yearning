@@ -181,13 +181,32 @@ export function processNextInQueue(animator) {
         }
       }
       
-      // Position indicator appropriately based on type
+      // Position indicator appropriately based on type and layout
       if (isUser) {
         typingIndicator.style.alignSelf = 'flex-end'; // Align user typing to the right
         typingIndicator.style.marginLeft = 'auto';    // Push to the right side
       } else {
         typingIndicator.style.alignSelf = 'flex-start'; // Align all other speakers to the left
         typingIndicator.style.marginRight = 'auto';     // Keep on the left side
+      }
+      
+      // Check if the message has custom layout positioning and apply the same to the indicator
+      const layoutPosition = currentMsg.getAttribute('data-layout-position');
+      const layoutOffset = currentMsg.getAttribute('data-layout-offset');
+      
+      if (layoutPosition && layoutOffset) {
+        // Apply the same custom positioning as the message will have
+        if (layoutPosition === 'left') {
+          typingIndicator.style.alignSelf = 'flex-start';
+          typingIndicator.style.marginRight = 'auto';
+          typingIndicator.style.marginLeft = (layoutOffset * 100) + '%';
+          typingIndicator.classList.add('custom-left');
+        } else if (layoutPosition === 'right') {
+          typingIndicator.style.alignSelf = 'flex-end';
+          typingIndicator.style.marginLeft = 'auto';
+          typingIndicator.style.marginRight = (layoutOffset * 100) + '%';
+          typingIndicator.classList.add('custom-right');
+        }
       }
       
       // Store reference to current message

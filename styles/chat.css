@@ -568,3 +568,48 @@ pre code::-webkit-scrollbar-thumb {
   transition: border-color 0.3s ease;
   display: block; /* Ensure proper display */
 }
+
+/* Add custom layout typing indicator styles */
+
+/* Default typing indicators */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  background-color: var(--background-color);
+  border: 2px solid var(--assistant-color-light);
+  border-radius: 12px;
+  padding: 0;
+  margin-bottom: 0;
+  position: relative;
+  min-width: 60px;
+  min-height: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  transform-origin: left center;
+  transform: scale(0.8);
+}
+
+/* User typing indicator appears on the right side */
+.typing-indicator.user-typing {
+  align-self: flex-end;
+  border: 2px solid var(--user-color-light);
+  transform-origin: right center;
+}
+
+/* Custom positioned typing indicators */
+.typing-indicator.custom-left {
+  /* Style is set by inline styles for positioning */
+  border-bottom-left-radius: 2px;
+  transform-origin: left center;
+}
+
+.typing-indicator.custom-right {
+  /* Style is set by inline styles for positioning */
+  border-bottom-right-radius: 2px;
+  transform-origin: right center;
+}
