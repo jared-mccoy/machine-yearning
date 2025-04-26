@@ -58,50 +58,41 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  
-  /* Create cut-out text effect */
-  color: transparent;
 }
 
-/* Dark mode text color matches dark theme */
-[data-theme="dark"] .directory-tag {
-  color: #1e1e1e;
-}
-
-/* Light mode text color matches light theme */
-[data-theme="light"] .directory-tag {
-  color: #ffffff;
-  text-shadow: 0 0 0 #ffffff;
-}
-
-/* Wiki tags styling */
+/* Wiki tags styling - with cut-out text effect */
 .wiki-tag {
   background-color: var(--accent-color, #192b91);
   border: none;
+  color: transparent;
 }
 
-/* Code tags styling */
+/* Code tags styling - outlined with no fill */
 .code-tag {
-  background-color: var(--code-bg-color, rgba(27, 31, 35, 0.9));
+  background-color: transparent;
+  border: 1px solid var(--accent-color, #192b91);
   font-family: var(--code-font, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace);
   font-size: 0.85em;
   border-radius: 3px;
-  border: none;
+  color: var(--accent-color, #192b91);
 }
 
-/* Dark mode styles for code tags */
-[data-theme="dark"] .code-tag {
-  background-color: var(--code-bg-color-dark, rgba(220, 224, 228, 0.3));
-}
-
-/* Tags with frequency count - integrated count display */
+/* Tags with frequency count - integrated with delimiter */
 .directory-tag[data-count]::after {
-  content: " " attr(data-count);
+  content: " | " attr(data-count);
   display: inline;
   font-size: 0.8rem;
-  margin-left: 0.15rem;
-  opacity: 0.8;
+  margin-left: 0.05rem;
+}
+
+/* Wiki tag counter needs to be white */
+.wiki-tag[data-count]::after {
   color: #ffffff;
+}
+
+/* Code tag counter matches border color */
+.code-tag[data-count]::after {
+  color: var(--accent-color, #192b91);
 }
 
 /* Message styling */
