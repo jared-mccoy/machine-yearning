@@ -410,111 +410,118 @@ async function initDirectoryView() {
         const fileContainer = document.createElement('div');
         fileContainer.className = 'file-container';
         
-        // Create main file badge
-        const fileBadge = document.createElement('div');
-        fileBadge.className = 'post-badge main-file';
+        // Create the wrapper for the file (top level)
+        const fileWrapper = document.createElement('div');
+        fileWrapper.className = 'header-wrapper level-file';
+        fileWrapper.textContent = file.title;
+        fileWrapper.addEventListener('click', () => {
+          window.location.href = `index.html?path=${file.path}`;
+        });
         
-        const fileLink = document.createElement('a');
-        fileLink.href = `index.html?path=${file.path}`;
-        fileLink.textContent = file.title;
-        fileBadge.appendChild(fileLink);
-        fileContainer.appendChild(fileBadge);
+        // Create the content container for child headers
+        const fileContent = document.createElement('div');
+        fileContent.className = 'content-container';
+        fileWrapper.appendChild(fileContent);
+        
+        // Add the file wrapper to the file container
+        fileContainer.appendChild(fileWrapper);
         
         // Fetch headers from the file
         const headers = await getFileHeaders(file.path);
         
+        // If we have headers, organize them in a hierarchical structure
         if (headers.length > 0) {
-          // Create a nested structure for headers
-          const headersByLevel = {};
-          const headerElements = {};
+          // Track created wrappers by header level and position
+          const headerWrappers = {};
           
-          // Top level container for all headers
-          const fileHeadersContainer = document.createElement('div');
-          fileHeadersContainer.className = 'file-headers-container nested-headers-container';
+          // First, we need to build a tree structure
+          const headerTree = [];
+          const headerMap = {};
           
-          // First pass: create header elements and containers
+          // Create initial flat map of headers
           headers.forEach((header, index) => {
             const headerId = `header-${index}`;
-            
-            // Create the container for this header and its children
-            const headerContainer = document.createElement('div');
-            headerContainer.className = 'header-container';
-            headerContainer.dataset.level = header.level;
-            headerContainer.id = `container-${headerId}`;
-            
-            // Create the header badge
-            const headerBadge = document.createElement('div');
-            headerBadge.className = `post-badge nested-header level-${header.level}`;
-            
-            const headerLink = document.createElement('a');
-            headerLink.href = `index.html?path=${file.path}#${header.text.toLowerCase().replace(/\s+/g, '-')}`;
-            headerLink.textContent = header.text;
-            headerBadge.appendChild(headerLink);
-            
-            // Add the badge to the container
-            headerContainer.appendChild(headerBadge);
-            
-            // Create container for children
-            const childrenContainer = document.createElement('div');
-            childrenContainer.className = 'header-children-container';
-            headerContainer.appendChild(childrenContainer);
-            
-            // Save reference to elements
-            headerElements[headerId] = {
-              container: headerContainer,
-              childrenContainer: childrenContainer,
+            headerMap[headerId] = {
+              id: headerId,
               level: header.level,
-              text: header.text
+              text: header.text,
+              children: [],
+              index: index
             };
-            
-            // Group by level for hierarchy
-            if (!headersByLevel[header.level]) {
-              headersByLevel[header.level] = [];
-            }
-            headersByLevel[header.level].push(headerId);
           });
           
-          // Function to find parent for a header
-          const findParentForHeader = (headerId, currentLevel) => {
-            // Look for nearest header with lower level
-            for (let level = currentLevel - 1; level >= 2; level--) {
-              if (headersByLevel[level]) {
-                for (let i = headersByLevel[level].length - 1; i >= 0; i--) {
-                  const potentialParentId = headersByLevel[level][i];
-                  const potentialParentIndex = parseInt(potentialParentId.split('-')[1]);
-                  const currentIndex = parseInt(headerId.split('-')[1]);
-                  
-                  // If this header comes before our current one, it's a potential parent
-                  if (potentialParentIndex < currentIndex) {
-                    return potentialParentId;
-                  }
+          // Build the hierarchy
+          headers.forEach((header, index) => {
+            const headerId = `header-${index}`;
+            const headerInfo = headerMap[headerId];
+            
+            if (header.level === 2) {
+              // Level 2 headers are direct children of the file
+              headerTree.push(headerInfo);
+            } else {
+              // Find parent (closest preceding header with lower level)
+              let parentFound = false;
+              for (let i = index - 1; i >= 0 && !parentFound; i--) {
+                const potentialParentId = `header-${i}`;
+                const potentialParent = headerMap[potentialParentId];
+                
+                if (potentialParent.level < header.level) {
+                  // Found parent - add this header as child
+                  potentialParent.children.push(headerInfo);
+                  parentFound = true;
                 }
               }
-            }
-            return null; // No parent found
-          };
-          
-          // Second pass: build the hierarchy
-          headers.forEach((header, index) => {
-            const headerId = `header-${index}`;
-            const headerInfo = headerElements[headerId];
-            
-            // Find parent for this header
-            const parentId = findParentForHeader(headerId, header.level);
-            
-            if (parentId) {
-              // Add to parent's children container
-              headerElements[parentId].childrenContainer.appendChild(headerInfo.container);
-            } else {
-              // Top level header, add to file container
-              fileHeadersContainer.appendChild(headerInfo.container);
+              
+              // If no parent found (shouldn't happen with valid markdown), 
+              // add to root level
+              if (!parentFound) {
+                headerTree.push(headerInfo);
+              }
             }
           });
           
-          // Add all headers to file container
-          fileContainer.appendChild(fileHeadersContainer);
+          // Recursive function to create the DOM elements for the header hierarchy
+          function createHeaderDOM(headerInfo, parentContainer) {
+            // Create wrapper for this header
+            const headerWrapper = document.createElement('div');
+            headerWrapper.className = `header-wrapper level-${headerInfo.level}`;
+            headerWrapper.textContent = headerInfo.text;
+            
+            // Make the whole header clickable
+            const headerUrl = `index.html?path=${file.path}#${headerInfo.text.toLowerCase().replace(/\s+/g, '-')}`;
+            headerWrapper.addEventListener('click', (e) => {
+              // Prevent event from bubbling to parent containers
+              e.stopPropagation();
+              window.location.href = headerUrl;
+            });
+            
+            // Add content container for children
+            const contentContainer = document.createElement('div');
+            contentContainer.className = 'content-container';
+            
+            // Process children if any
+            if (headerInfo.children.length > 0) {
+              headerInfo.children.forEach(child => {
+                createHeaderDOM(child, contentContainer);
+              });
+            } else {
+              // No empty content needed anymore
+            }
+            
+            // Add content container to wrapper
+            headerWrapper.appendChild(contentContainer);
+            
+            // Add the complete header structure to parent
+            parentContainer.appendChild(headerWrapper);
+          }
+          
+          // Create DOM for the header tree
+          headerTree.forEach(rootHeader => {
+            createHeaderDOM(rootHeader, fileContent);
+          });
         }
         
+        // Add the complete file container to the posts container
         postsContainer.appendChild(fileContainer);
       }
       

@@ -139,18 +139,6 @@ a:hover {
   padding: 0 20px;
 }
 
-/* Footer navigation */
-.footer-nav {
-  margin-top: 50px;
-  margin-bottom: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
-}
-
-.footer-nav .chat-title {
-  cursor: pointer;
-}
-
 /* Footer styling */
 footer {
   margin-top: 20px;
@@ -161,36 +149,20 @@ footer {
   padding-bottom: 20px;
 }
 
-/* Post listings with nested badge structure */
+/* Date section container */
 .date-section {
   margin-bottom: 2rem;
   margin-top: 2rem;
 }
 
-/* Nested badge containers */
-.badge-container {
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.badge-container.outer {
-  border: 2px solid var(--accent-color);
-  padding: 0;
-  margin-bottom: 1.5rem;
-}
-
-.badge-container.inner {
-  margin: 0;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--background-color);
-}
-
-/* Date header badge */
+/* Date header styling */
 .date-header-badge {
   background-color: var(--accent-color-light);
   padding: 0.5rem 1rem;
   transition: all 0.3s ease;
+  border-radius: 8px 8px 0 0;
+  border: 2px solid var(--accent-color);
+  border-bottom: none;
 }
 
 .date-header-badge h2 {
@@ -201,132 +173,87 @@ footer {
   font-weight: 600;
 }
 
-.date-header-badge:hover {
-  background-color: var(--accent-color-light);
+/* Badge containers */
+.badge-container.outer {
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.badge-container.inner {
+  background-color: var(--background-color);
 }
 
 /* Posts container */
 .posts-container {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
-/* File containers */
+/* File and header containers */
 .file-container {
-  margin-bottom: 0.75rem;
-  border-radius: 4px;
-  overflow: visible;
+  margin-bottom: 1rem;
+  position: relative;
 }
 
-/* Individual post badges */
-.post-badge {
-  transition: all 0.3s ease;
-  border-radius: 4px;
-  margin: 0;
-}
-
-.post-badge a {
-  display: block;
-  padding: 0.5rem 1rem;
-  color: var(--text-color);
-  transition: all 0.3s ease;
-  border-radius: 4px 4px 0 0;
-}
-
-.post-badge:hover {
-  transform: translateY(-2px);
-}
-
-.post-badge a:hover {
-  background-color: var(--accent-color-light);
-  color: var(--accent-color);
-  text-decoration: none;
-}
-
-/* Main file badge styling */
-.post-badge.main-file {
-  margin-bottom: 0;
-}
-
-.post-badge.main-file a {
-  font-weight: 600;
-  background-color: var(--background-color-alt);
-  border: 1px solid var(--accent-color);
-}
-
-/* Header container styles */
-.header-container {
+/* True nested container styling */
+.header-wrapper {
   border: 1px solid var(--border-color);
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
+  border-radius: 8px;
   overflow: hidden;
-}
-
-/* Nested headers container */
-.nested-headers-container {
-  padding: 0.5rem;
-  background-color: var(--background-color);
-}
-
-/* Top level file headers container */
-.file-headers-container {
-  margin-top: 0;
-  padding: 0;
-}
-
-/* Nested header badges */
-.post-badge.nested-header {
-  margin-bottom: 0;
-  display: block;
-  width: 100%;
-}
-
-.post-badge.nested-header a {
-  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
   background-color: var(--background-color-alt);
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  position: relative;
 }
 
-/* Style different header levels */
-.post-badge.nested-header.level-2 a {
-  font-weight: 600;
-  color: var(--text-color);
-  background-color: var(--accent-color-light);
-}
-
-.post-badge.nested-header.level-3 a {
-  font-size: 0.85rem;
-  color: var(--text-color-alt);
-  padding-left: 1rem;
-  background-color: rgba(var(--accent-color-rgb), 0.05);
-}
-
-.post-badge.nested-header.level-4 a {
-  font-size: 0.8rem;
-  color: var(--muted-color);
-  padding-left: 1.5rem;
-}
-
-.header-children-container {
-  padding: 0 0.5rem 0.5rem 0.5rem;
-  background-color: var(--background-color);
-}
-
-/* Hover effects */
-.header-container:hover {
+.header-wrapper:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.post-badge.nested-header:hover {
-  transform: none;
+/* Remove the header link styling */
+.header-link {
+  display: none;
 }
 
-.post-badge.nested-header a:hover {
-  background-color: var(--accent-color-light);
-  color: var(--accent-color);
+/* Content container for nested items */
+.content-container {
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  border-radius: 6px;
+  background-color: var(--background-color);
+}
+
+/* Header styling by level */
+.header-wrapper.level-file {
   border-color: var(--accent-color);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.header-wrapper.level-2 {
+  background-color: rgba(var(--accent-color-rgb), 0.2);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.header-wrapper.level-3 {
+  background-color: rgba(var(--accent-color-rgb), 0.1);
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.header-wrapper.level-4 {
+  background-color: rgba(var(--accent-color-rgb), 0.05);
+  font-size: 0.9rem;
+  color: var(--text-color-alt);
+}
+
+/* Empty content placeholder to maintain spacing */
+.empty-content {
+  min-height: 0.25rem;
 }
 
 /* Keep the legacy styles for backward compatibility */
