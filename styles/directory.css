@@ -1,112 +1,57 @@
-/* Directory View Specific Styles */
+/* Directory View Styles */
 
-/* Main directory container - separate from chat container */
-.directory-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-/* Directory View Header Styles - Consistent for all levels */
-.directory-header-wrapper {
-  border: 1px solid var(--accent-color);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 0.4rem;
-  transition: all 0.3s ease;
-  padding: 0.35rem 0.5rem;
-  cursor: pointer;
-  position: relative;
-  color: var(--accent-color);
+/* All containers use the same basic styling */
+.directory-container,
+.directory-content-container,
+.directory-container-inner,
+.directory-container-outer,
+.directory-posts-container {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
   background-color: transparent;
 }
 
-.directory-header-wrapper:hover {
+/* All headers and clickable elements look identical */
+.directory-header-wrapper,
+.directory-date-text {
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-weight: 600;
+  background-color: transparent;
+}
+
+/* Clickable elements have a hover effect */
+.directory-header-wrapper:hover,
+.directory-date-text:hover {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Directory content container for nested items - consistent padding */
+/* Nested content indentation */
 .directory-content-container {
-  padding: 0.35rem;
-  margin-top: 0.25rem;
   margin-left: 0.5rem;
-  background-color: transparent;
 }
 
-/* Directory header styling by level - keeping only font size differences */
-.directory-header-wrapper.level-file {
-  font-weight: 600;
-}
-
-.directory-header-wrapper.level-2 {
-  font-weight: 600;
-}
-
-.directory-header-wrapper.level-3 {
-  font-size: 0.95rem;
-}
-
-.directory-header-wrapper.level-4 {
-  font-size: 0.9rem;
-}
-
-/* Directory date section container */
-.directory-date-section {
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-}
-
-/* Directory date header styling */
-.directory-date-text {
-  margin: 0;
-  padding: 0.35rem 0.5rem;
-  color: var(--accent-color);
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Directory container - unified styling */
-.directory-container-outer {
-  border: 1px solid var(--accent-color);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 0.8rem;
-  background-color: transparent;
-}
-
-.directory-container-inner {
-  padding: 0.35rem;
-  background-color: transparent;
-}
-
-/* Directory posts container */
-.directory-posts-container {
-  padding: 0.35rem;
-}
-
-/* Directory file container */
-.directory-file-container {
-  margin-bottom: 0.4rem;
-}
-
-/* Directory loading indicator */
-.directory-loading-indicator {
+/* Message styling */
+.directory-loading-indicator,
+.directory-error-message,
+.directory-info-message {
   text-align: center;
-  padding: 2rem;
+  padding: 0.5rem;
+}
+
+.directory-error-message {
+  color: #c00;
+}
+
+.directory-loading-indicator {
   color: var(--muted-color);
   font-style: italic;
 }
 
-/* Directory error message */
-.directory-error-message {
-  text-align: center;
-  padding: 2rem;
-  color: #c00;
-}
-
-/* Directory info message */
 .directory-info-message {
-  text-align: center;
-  padding: 2rem;
   color: var(--text-color);
 } 
