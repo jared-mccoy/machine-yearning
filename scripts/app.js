@@ -499,6 +499,15 @@ async function initDirectoryView() {
     }
     
     debugLog('Directory view initialization completed with simplified structure');
+    
+    // Apply recursive styling after the directory structure is built
+    if (window.recursiveStyling && typeof window.recursiveStyling.apply === 'function') {
+      debugLog('Applying recursive styling to directory');
+      setTimeout(window.recursiveStyling.apply, 100);
+    } else {
+      debugLog('Recursive styling not available');
+    }
+    
   } catch (error) {
     debugLog(`Error in initDirectoryView: ${error.message}`);
     console.error('Error initializing directory view:', error);
