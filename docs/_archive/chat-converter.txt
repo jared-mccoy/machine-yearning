@@ -240,13 +240,13 @@ function processChatContent(options) {
       currentMessage = '';
     }
     // Detect speaker change
-    else if (line.includes('[[[USER]]]') || line.includes('[[[user]]]')) {
+    else if (line.includes('<<USER>>') || line.includes('<<user>>')) {
       if (currentSpeaker && currentMessage) {
         currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }
       currentSpeaker = 'user';
       currentMessage = '';
-    } else if (line.includes('[[[ASSISTANT]]]') || line.includes('[[[assistant]]]') || line.includes('[[[agent]]]')) {
+    } else if (line.includes('<<ASSISTANT>>') || line.includes('<<assistant>>') || line.includes('<<agent>>')) {
       if (currentSpeaker && currentMessage) {
         currentSectionMessages.push({ speaker: currentSpeaker, content: currentMessage });
       }

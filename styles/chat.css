@@ -158,7 +158,7 @@
 /* Message styling */
 .message {
   margin-bottom: 20px;
-  border-radius: 8px;
+  border-radius: 8px; /* Consistent rounded corners for all messages */
   padding: 12px 16px;
   max-width: 80%;
   position: relative;
@@ -171,7 +171,7 @@
   margin-left: auto; /* Add this to push user messages to the right */
   background-color: transparent;
   border: 2px solid var(--user-color-light);
-  border-bottom-right-radius: 2px;
+  /* Removed border-bottom-right-radius: 2px; for consistent corners */
 }
 
 .user:hover {
@@ -183,7 +183,7 @@
   margin-right: auto; /* Add this to keep assistant messages on the left */
   background-color: transparent;
   border: 2px solid var(--assistant-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .assistant:hover, .agent:hover {
@@ -196,7 +196,7 @@
   margin-right: auto; 
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .speakerC:hover {
@@ -208,7 +208,7 @@
   margin-right: auto;
   background-color: transparent;
   border: 2px solid var(--accentD-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .speakerD:hover {
@@ -220,7 +220,7 @@
   margin-right: auto;
   background-color: transparent;
   border: 2px solid var(--accentE-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .speakerE:hover {
@@ -232,7 +232,7 @@
   margin-right: auto;
   background-color: transparent;
   border: 2px solid var(--generic-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .generic-speaker:hover {
@@ -244,7 +244,7 @@
   margin-right: auto;
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .random:hover {
@@ -259,7 +259,7 @@
   align-self: flex-start;
   background-color: var(--background-color);
   border: 2px solid var(--assistant-color-light);
-  border-radius: 12px;
+  border-radius: 12px; /* Fully rounded corners for typing indicators */
   padding: 0;
   margin-bottom: 0;
   position: relative;
@@ -395,11 +395,72 @@
 }
 
 /* Code styling */
-code {
+/* Inline code (backticks) - badge style */
+:not(pre) > code {
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-  color: var(--code-color);
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--text-color);
+  background-color: transparent;
+  color: var(--text-color);
+  transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
+/* Hover effects for inline code based on containing message type */
+.user:not(pre) > code:hover,
+.user *:not(pre) > code:hover {
+  background-color: var(--user-color-light);
+  border-color: var(--user-color);
+  color: var(--user-color);
+}
+
+.assistant:not(pre) > code:hover,
+.agent:not(pre) > code:hover,
+.assistant *:not(pre) > code:hover,
+.agent *:not(pre) > code:hover {
+  background-color: var(--assistant-color-light);
+  border-color: var(--assistant-color);
+  color: var(--assistant-color);
+}
+
+.speakerC:not(pre) > code:hover,
+.speakerC *:not(pre) > code:hover {
+  background-color: var(--accentC-color-light);
+  border-color: var(--accentC-color);
+  color: var(--accentC-color);
+}
+
+.speakerD:not(pre) > code:hover,
+.speakerD *:not(pre) > code:hover {
+  background-color: var(--accentD-color-light);
+  border-color: var(--accentD-color);
+  color: var(--accentD-color);
+}
+
+.speakerE:not(pre) > code:hover,
+.speakerE *:not(pre) > code:hover {
+  background-color: var(--accentE-color-light);
+  border-color: var(--accentE-color);
+  color: var(--accentE-color);
+}
+
+.generic-speaker:not(pre) > code:hover,
+.generic-speaker *:not(pre) > code:hover {
+  background-color: var(--generic-color-light);
+  border-color: var(--generic-color);
+  color: var(--generic-color);
+}
+
+.random:not(pre) > code:hover,
+.random *:not(pre) > code:hover {
+  background-color: var(--accentC-color-light);
+  border-color: var(--accentC-color);
+  color: var(--accentC-color);
+}
+
+/* Code blocks (triple backticks) */
 pre {
   position: relative;
   margin: 1.2em 0;
@@ -412,8 +473,13 @@ pre {
 pre > code {
   display: block;
   overflow-x: auto;
-  padding: 0;
+  padding: 10px;
   background: transparent !important;
+  color: var(--code-color);
+  font-size: 0.9em;
+  line-height: 1.5;
+  border: none;
+  border-radius: 0;
 }
 
 /* Code controls */
@@ -491,6 +557,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--accentC-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.speakerC-typing span {
@@ -501,6 +568,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--accentD-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.speakerD-typing span {
@@ -511,6 +579,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--accentE-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.speakerE-typing span {
@@ -521,6 +590,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--generic-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.generic-speaker-typing span {
@@ -531,6 +601,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--assistant-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.agent-typing span {
@@ -541,6 +612,7 @@ pre code::-webkit-scrollbar-thumb {
   align-self: flex-start;
   border: 2px solid var(--accentC-color-light);
   transform-origin: left center;
+  /* Fully rounded corners for all typing indicators */
 }
 
 .typing-indicator.random-typing span {
@@ -550,12 +622,12 @@ pre code::-webkit-scrollbar-thumb {
 /* Custom layout positioning */
 .message.custom-left {
   /* Base styles are applied inline, this is for additional styling */
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
 }
 
 .message.custom-right {
   /* Base styles are applied inline, this is for additional styling */
-  border-bottom-right-radius: 2px;
+  /* Removed border-bottom-right-radius: 2px; for consistent corners */
 }
 
 /* Default message alternating positions have lower specificity than custom layouts */
@@ -604,12 +676,12 @@ pre code::-webkit-scrollbar-thumb {
 /* Custom positioned typing indicators */
 .typing-indicator.custom-left {
   /* Style is set by inline styles for positioning */
-  border-bottom-left-radius: 2px;
+  /* Removed border-bottom-left-radius: 2px; for consistent corners */
   transform-origin: left center;
 }
 
 .typing-indicator.custom-right {
   /* Style is set by inline styles for positioning */
-  border-bottom-right-radius: 2px;
+  /* Removed border-bottom-right-radius: 2px; for consistent corners */
   transform-origin: right center;
 }

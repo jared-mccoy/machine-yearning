@@ -115,10 +115,10 @@ If your site shows nested HTML or doesn't render correctly:
 The system also supports the older format for backward compatibility:
 
 ```markdown
-[[[USER]]]
+<<USER>>
 User's message goes here
 
-[[[ASSISTANT]]]
+<<ASSISTANT>>
 Assistant's response goes here
 ```
 

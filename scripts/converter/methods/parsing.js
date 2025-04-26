@@ -44,7 +44,7 @@ export function extractSpeaker(line) {
     return speakerInfo;
   }
   
-  // Check for [[[SPEAKER {LAYOUT}]]] format (legacy format)
+  // Check for <<SPEAKER {LAYOUT}>> format (legacy format)
   const speakerMatch = line.match(/\[\[\[(.*?)(?:\s+\{(.*?)\})?\]\]\]/);
   if (speakerMatch) {
     const speaker = speakerMatch[1].trim().toLowerCase();
