@@ -67,30 +67,14 @@ export function processChatContent(options) {
     rawContent = content.innerHTML;
   }
   
-  // Create chat container
-  const chatContainer = document.createElement('div');
-  chatContainer.className = 'chat-container';
-  
-  // Add navigation header if navConfig is provided and showTitle is true
-  if (options.navConfig && options.showTitle) {
-    const headerNav = createNavigationUI('header-nav', options.navConfig);
-    chatContainer.appendChild(headerNav);
-  }
-  
   // Parse the markdown content into sections and messages
   const lines = rawContent.split('\n');
-  const messages = []; // This will hold all messages and headers
+  const contentItems = []; // Will hold all items (headers and messages) in sequence
   
   // Track the current speaker and accumulated message
   let currentSpeaker = null;
   let currentMessage = '';
-  
-  // Track sections for organization
-  let currentSectionMessages = [];
   let currentSectionId = 0;
-  
-  // Track header hierarchy for collapsible sections
-  let headerHierarchy = [];
   
   // Process each line of the content
   for (let i = 0; i < lines.length; i++) {
@@ -101,47 +85,23 @@ export function processChatContent(options) {
     if (isMarkdownHeader(line)) {
       // Save current message if exists
       if (currentSpeaker && currentMessage) {
-        currentSectionMessages.push({ 
-          speaker: currentSpeaker.name, 
+        contentItems.push({
+          type: 'message',
+          speaker: currentSpeaker.name,
           layout: currentSpeaker.layout,
-          content: currentMessage 
+          content: currentMessage
         });
       }
       
-      // If we have messages in the current section, add them to the overall messages array
-      if (currentSectionMessages.length > 0) {
-        messages.push({
-          type: 'section',
-          id: 'section-' + currentSectionId,
-          messages: currentSectionMessages
-        });
-        currentSectionId++;
-        currentSectionMessages = [];
-      }
-      
-      // Add the header as a special message type
+      // Add the header as a content item
       const level = getMarkdownHeaderLevel(line);
+      const headerId = 'header-' + currentSectionId++;
       
-      // Update the header hierarchy tracking
-      while (headerHierarchy.length > 0 && headerHierarchy[headerHierarchy.length - 1].level >= level) {
-        headerHierarchy.pop();
-      }
-      
-      const headerId = 'header-' + currentSectionId;
-      const headerEntry = {
-        id: headerId,
-        level: level,
-        parentId: headerHierarchy.length > 0 ? headerHierarchy[headerHierarchy.length - 1].id : null
-      };
-      
-      headerHierarchy.push(headerEntry);
-      
-      messages.push({
+      contentItems.push({
         type: 'header',
         content: markdownHeaderToHtml(line),
         level: level,
-        id: headerId,
-        parentId: headerEntry.parentId
+        id: headerId
       });
       
       // Reset the current speaker and message
@@ -152,10 +112,11 @@ export function processChatContent(options) {
     else if ((line.includes('<<') && line.includes('>>')) || (line.includes('<<') && line.includes('>>'))) {
       // Save the previous message if there is one
       if (currentSpeaker && currentMessage) {
-        currentSectionMessages.push({ 
-          speaker: currentSpeaker.name, 
+        contentItems.push({
+          type: 'message',
+          speaker: currentSpeaker.name,
           layout: currentSpeaker.layout,
-          content: currentMessage 
+          content: currentMessage
         });
       }
       
@@ -163,60 +124,37 @@ export function processChatContent(options) {
       const speakerInfo = extractSpeaker(line);
       if (speakerInfo) {
         currentSpeaker = speakerInfo;
-        
-        // Update layout for this speaker
-        if (speakerInfo.layout) {
-          speakerLayouts[speakerInfo.name] = speakerInfo.layout;
-        }
-        
-        // If no layout specified but we have a saved one for this speaker, use it
-        if (!speakerInfo.layout && speakerLayouts[speakerInfo.name]) {
-          currentSpeaker.layout = speakerLayouts[speakerInfo.name];
-        }
-        
         currentMessage = '';
       }
     } else if (currentSpeaker) {
       // Skip the comment line itself
       if (!line.includes('<!--') && !line.includes('-->')) {
-        // We need to track whether we're in a code block
+        // Process the line (code remains the same)
         let processedLine = rawLine;
         
-        // Check if this line contains a code block marker
+        // Handle code blocks (code remains the same)
         if (line.startsWith('```')) {
-          // This is a code block marker
-          // We just use it as-is
           currentMessage += processedLine + '\n';
-          
-          // Print debugging info
-          console.log("Code block marker:", line);
         } else {
-          // Check if we're inside a code block by looking at the previous lines
+          // Check if we're inside a code block (code remains the same)
           let inCodeBlock = false;
           let prevLines = currentMessage.split('\n');
           
-          // Start from the end and work backwards
           for (let j = prevLines.length - 1; j >= 0; j--) {
             if (prevLines[j].trim().startsWith('```')) {
-              // Found a code block marker
-              // Count how many we've seen to determine if we're in a block
               const numMarkers = prevLines.slice(0, j + 1)
                 .filter(pl => pl.trim().startsWith('```')).length;
               
-              inCodeBlock = numMarkers % 2 !== 0; // Odd number means we're in a block
+              inCodeBlock = numMarkers % 2 !== 0;
               break;
             }
           }
           
-          // If we're in a code block, process indentation
           if (inCodeBlock) {
-            // Check for leading whitespace
             const leadingSpaceMatch = processedLine.match(/^(\s+)/);
             if (leadingSpaceMatch) {
               const spaces = leadingSpaceMatch[0].length;
-              // Replace leading spaces with our placeholder
               processedLine = processedLine.replace(/^(\s+)/, createSpacePlaceholder(spaces));
-              console.log(`Code line with ${spaces} spaces:`, processedLine);
             }
           }
           
@@ -226,82 +164,218 @@ export function processChatContent(options) {
     }
   }
   
-  // Add the last message and section
+  // Add the last message if there is one
   if (currentSpeaker && currentMessage) {
-    currentSectionMessages.push({ 
-      speaker: currentSpeaker.name, 
+    contentItems.push({
+      type: 'message',
+      speaker: currentSpeaker.name,
       layout: currentSpeaker.layout,
-      content: currentMessage 
+      content: currentMessage
     });
   }
   
-  if (currentSectionMessages.length > 0) {
-    messages.push({
+  // Create a hierarchical structure from the flat list of content items
+  function createHierarchy(items) {
+    // This will hold our hierarchical structure
+    const rootSection = {
       type: 'section',
-      id: 'section-' + currentSectionId,
-      messages: currentSectionMessages
+      level: 0,
+      id: 'root',
+      children: [],
+      messages: []
+    };
+    
+    // Stack for keeping track of the current section at each level
+    // Initialize with root section
+    const sectionStack = [rootSection];
+    
+    // Process each content item
+    items.forEach(item => {
+      if (item.type === 'header') {
+        // Create a new section for this header
+        const newSection = {
+          type: 'section',
+          level: item.level,
+          id: item.id,
+          header: item,
+          children: [], // Subsections
+          messages: []  // Direct messages in this section
+        };
+        
+        // Find the appropriate parent section for this header based on level
+        // Pop sections from stack until we find one with a lower level
+        while (sectionStack.length > 1 && sectionStack[sectionStack.length - 1].level >= item.level) {
+          sectionStack.pop();
+        }
+        
+        // Add this section to its parent's children
+        const parentSection = sectionStack[sectionStack.length - 1];
+        parentSection.children.push(newSection);
+        
+        // Push this section onto the stack
+        sectionStack.push(newSection);
+      } 
+      else if (item.type === 'message') {
+        // Add this message to the current section's messages
+        const currentSection = sectionStack[sectionStack.length - 1];
+        currentSection.messages.push(item);
+      }
     });
+    
+    return rootSection;
   }
   
-  // Create message elements
-  messages.forEach(msg => {
-    if (msg.type === 'header') {
-      // Create a collapsible header
+  // Build the DOM based on the hierarchical structure
+  function buildDOMFromHierarchy(section, container) {
+    // If this is not the root section, create a header and content container
+    if (section.id !== 'root') {
+      // Create the header element
+      const headerData = section.header;
       const headerDiv = document.createElement('div');
       headerDiv.className = 'chat-section-header';
-      headerDiv.setAttribute('data-level', msg.level);
-      headerDiv.setAttribute('data-section-id', msg.id);
-      if (msg.parentId) {
-        headerDiv.setAttribute('data-parent-id', msg.parentId);
-      }
+      headerDiv.setAttribute('data-level', headerData.level);
       
-      // Create the toggle button
+      // Create toggle button
       const toggleButton = document.createElement('button');
       toggleButton.className = 'section-toggle';
       toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="toggle-icon">
         <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
       </svg>`;
       toggleButton.setAttribute('aria-expanded', 'true');
-      toggleButton.setAttribute('aria-controls', msg.id);
       
-      // Add the header content
+      // Create header content
       const headerContent = document.createElement('div');
       headerContent.className = 'header-content';
-      headerContent.innerHTML = msg.content;
+      headerContent.innerHTML = headerData.content;
       
-      // Append elements
+      // Assemble header
       headerDiv.appendChild(toggleButton);
       headerDiv.appendChild(headerContent);
-      chatContainer.appendChild(headerDiv);
+      container.appendChild(headerDiv);
       
-      // Add click handler to toggle visibility
-      toggleButton.addEventListener('click', function() {
-        const expanded = toggleButton.getAttribute('aria-expanded') === 'true';
-        toggleButton.setAttribute('aria-expanded', !expanded);
+      // Create content container for this section
+      const sectionDiv = document.createElement('div');
+      sectionDiv.className = 'chat-section';
+      sectionDiv.id = section.id;
+      container.appendChild(sectionDiv);
+      
+      // Set up container for building the rest of this section
+      container = sectionDiv;
+      
+      // Set up click handlers for this header
+      toggleButton.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent bubbling to the header
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !expanded);
         
-        // Find the section this header controls
-        const section = document.getElementById(msg.id);
-        if (section) {
+        if (expanded) {
+          sectionDiv.classList.add('collapsed');
+        } else {
+          sectionDiv.classList.remove('collapsed');
+        }
+      });
+      
+      headerDiv.addEventListener('click', function() {
+        const button = this.querySelector('.section-toggle');
+        if (button) {
+          const expanded = button.getAttribute('aria-expanded') === 'true';
+          button.setAttribute('aria-expanded', !expanded);
+          
           if (expanded) {
-            section.classList.add('collapsed');
+            sectionDiv.classList.add('collapsed');
           } else {
-            section.classList.remove('collapsed');
+            sectionDiv.classList.remove('collapsed');
           }
         }
       });
-    } else if (msg.type === 'section') {
-      // Create a section container for messages
-      const sectionDiv = document.createElement('div');
-      sectionDiv.className = 'chat-section';
-      sectionDiv.id = msg.id;
-      
-      // Use the processConversation function to handle the message rendering
-      const messageContainer = processConversation(msg.messages, renderer, getSpeakerClassLocal);
-      sectionDiv.appendChild(messageContainer);
-      
-      chatContainer.appendChild(sectionDiv);
     }
-  });
+    
+    // Process messages directly in this section
+    if (section.messages.length > 0) {
+      // Group messages by speaker for rendering
+      const messageGroups = [];
+      let currentGroup = null;
+      
+      section.messages.forEach(msg => {
+        if (!currentGroup || currentGroup.speaker !== msg.speaker) {
+          currentGroup = {
+            speaker: msg.speaker,
+            layout: msg.layout,
+            messages: []
+          };
+          messageGroups.push(currentGroup);
+        }
+        currentGroup.messages.push(msg.content);
+      });
+      
+      // Render message groups
+      messageGroups.forEach(group => {
+        const msgContent = group.messages.join('\n');
+        const messageEl = document.createElement('div');
+        messageEl.className = 'message';
+        
+        // Get speaker class
+        const speakerClass = getSpeakerClassLocal(group.speaker);
+        messageEl.classList.add(speakerClass);
+        messageEl.setAttribute('data-speaker', group.speaker);
+        
+        // Apply custom layout if provided
+        if (group.layout) {
+          if (group.layout.position === 'left') {
+            messageEl.style.alignSelf = 'flex-start';
+            messageEl.style.marginRight = 'auto';
+            messageEl.style.marginLeft = group.layout.offset ? (group.layout.offset * 100) + '%' : '0';
+            messageEl.classList.add('custom-left');
+          } else if (group.layout.position === 'right') {
+            messageEl.style.alignSelf = 'flex-end';
+            messageEl.style.marginLeft = 'auto';
+            messageEl.style.marginRight = group.layout.offset ? (group.layout.offset * 100) + '%' : '0';
+            messageEl.classList.add('custom-right');
+          }
+          
+          messageEl.setAttribute('data-layout-position', group.layout.position || '');
+          messageEl.setAttribute('data-layout-offset', group.layout.offset || 0);
+        }
+        
+        // Create content container
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'content-container';
+        
+        // Create content element
+        const contentEl = document.createElement('div');
+        contentEl.className = 'content';
+        contentEl.innerHTML = window.marked.parse(msgContent, { renderer });
+        
+        // Assemble message
+        contentContainer.appendChild(contentEl);
+        messageEl.appendChild(contentContainer);
+        container.appendChild(messageEl);
+      });
+    }
+    
+    // Process child sections recursively
+    section.children.forEach(childSection => {
+      buildDOMFromHierarchy(childSection, container);
+    });
+    
+    return container;
+  }
+  
+  // Create chat container
+  const chatContainer = document.createElement('div');
+  chatContainer.className = 'chat-container';
+  
+  // Add navigation header if navConfig is provided and showTitle is true
+  if (options.navConfig && options.showTitle) {
+    const headerNav = createNavigationUI('header-nav', options.navConfig);
+    chatContainer.appendChild(headerNav);
+  }
+  
+  // Create the hierarchy from content items
+  const hierarchy = createHierarchy(contentItems);
+  
+  // Build the DOM from the hierarchy
+  buildDOMFromHierarchy(hierarchy, chatContainer);
   
   // Replace the content with our chat UI
   content.innerHTML = '';
@@ -326,26 +400,6 @@ export function processChatContent(options) {
   
   // Add the chat container to the content element
   content.appendChild(chatContainer);
-  
-  // Attach click handlers to all collapsible headers
-  const toggleButtons = content.querySelectorAll('.section-toggle');
-  toggleButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const expanded = button.getAttribute('aria-expanded') === 'true';
-      button.setAttribute('aria-expanded', !expanded);
-      
-      // Find the section this header controls
-      const sectionId = button.getAttribute('aria-controls');
-      const section = document.getElementById(sectionId);
-      if (section) {
-        if (expanded) {
-          section.classList.add('collapsed');
-        } else {
-          section.classList.remove('collapsed');
-        }
-      }
-    });
-  });
   
   // Return the content element for any further processing
   return content;
