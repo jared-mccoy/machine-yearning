@@ -47,7 +47,7 @@
   gap: 0.35rem;
 }
 
-/* Individual tags */
+/* Individual tags base style */
 .directory-tag {
   font-size: 0.85rem;
   padding: 0.15rem 0.4rem;
@@ -60,11 +60,20 @@
   white-space: nowrap;
 }
 
-/* Wiki tags styling - with cut-out text effect */
+/* Wiki tags styling - text color matches page background */
 .wiki-tag {
   background-color: var(--accent-color, #192b91);
   border: none;
-  color: transparent;
+}
+
+/* Light theme - wiki tag text matches light background */
+[data-theme="light"] .wiki-tag {
+  color: #ffffff;
+}
+
+/* Dark theme - wiki tag text matches dark background */
+[data-theme="dark"] .wiki-tag {
+  color: #1e1e1e;
 }
 
 /* Code tags styling - outlined with no fill */
@@ -85,9 +94,9 @@
   margin-left: 0.05rem;
 }
 
-/* Wiki tag counter needs to be white */
+/* Wiki tag counter needs to be white regardless of theme */
 .wiki-tag[data-count]::after {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 /* Code tag counter matches border color */
