@@ -61,22 +61,25 @@ function setupThemeToggle() {
     // Update theme in settings if available
     if (window.appSettings && window.appSettings.get) {
       const settings = window.appSettings.get();
-      if (newTheme === 'light') {
-        document.documentElement.style.setProperty('--assistant-color', settings.theme.accentA);
-        document.documentElement.style.setProperty('--user-color', settings.theme.accentB);
-        document.documentElement.style.setProperty('--accentC-color', settings.theme.accentC || '#e63946');
-        document.documentElement.style.setProperty('--accentD-color', settings.theme.accentD || '#2a9d8f');
-        document.documentElement.style.setProperty('--accentE-color', settings.theme.accentE || '#8338ec');
-        document.documentElement.style.setProperty('--generic-color', settings.theme.genericAccent || '#909090');
-      } else {
-        // In dark mode, we swap some accents for better visibility
+      
+      // Swap assistant and user colors for dark mode
+      if (newTheme === 'dark') {
         document.documentElement.style.setProperty('--assistant-color', settings.theme.accentB);
         document.documentElement.style.setProperty('--user-color', settings.theme.accentA);
-        document.documentElement.style.setProperty('--accentC-color', settings.theme.accentC || '#e63946');
-        document.documentElement.style.setProperty('--accentD-color', settings.theme.accentD || '#2a9d8f');
-        document.documentElement.style.setProperty('--accentE-color', settings.theme.accentE || '#8338ec');
-        document.documentElement.style.setProperty('--generic-color', settings.theme.genericAccent || '#909090');
+      } else {
+        document.documentElement.style.setProperty('--assistant-color', settings.theme.accentA);
+        document.documentElement.style.setProperty('--user-color', settings.theme.accentB);
       }
+      
+      // Update semi-transparent versions
+      document.documentElement.style.setProperty('--assistant-color-light', document.documentElement.style.getPropertyValue('--assistant-color') + '71');
+      document.documentElement.style.setProperty('--user-color-light', document.documentElement.style.getPropertyValue('--user-color') + '78');
+      
+      // Other accent colors that don't change with theme
+      document.documentElement.style.setProperty('--accentC-color', settings.theme.accentC || '#e63946');
+      document.documentElement.style.setProperty('--accentD-color', settings.theme.accentD || '#2a9d8f');
+      document.documentElement.style.setProperty('--accentE-color', settings.theme.accentE || '#8338ec');
+      document.documentElement.style.setProperty('--generic-color', settings.theme.genericAccent || '#909090');
     }
   });
 }

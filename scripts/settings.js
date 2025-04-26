@@ -88,17 +88,27 @@ async function loadSettings() {
  */
 function applySettings() {
   try {
-    // Apply theme settings
-    document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
-    document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
+    // Get current theme
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    
+    // Apply theme settings depending on current theme
+    if (currentTheme === 'dark') {
+      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentB);
+      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentA);
+    } else {
+      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
+      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
+    }
+    
+    // Set other accent colors
     document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#e63946');
     document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#2a9d8f');
     document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#8338ec');
     document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#909090');
     
     // Set semi-transparent versions
-    document.documentElement.style.setProperty('--assistant-color-light', appSettings.theme.accentA + '71');
-    document.documentElement.style.setProperty('--user-color-light', appSettings.theme.accentB + '78');
+    document.documentElement.style.setProperty('--assistant-color-light', document.documentElement.style.getPropertyValue('--assistant-color') + '71');
+    document.documentElement.style.setProperty('--user-color-light', document.documentElement.style.getPropertyValue('--user-color') + '78');
     document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#e63946') + '71');
     document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#2a9d8f') + '71');
     document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#8338ec') + '71');
