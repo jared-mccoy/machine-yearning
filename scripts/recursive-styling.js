@@ -189,6 +189,12 @@ window.recursiveStyling = {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Setting up recursive styling initialization');
   
+  // Skip on chat pages - only run on directory pages
+  if (window.location.search.includes('path=')) {
+    console.log('On chat page - skipping recursive styling');
+    return;
+  }
+  
   // Check if we can find the directory container
   const checkAndInit = () => {
     const container = document.querySelector('.directory-container');
