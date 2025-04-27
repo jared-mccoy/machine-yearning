@@ -157,7 +157,7 @@ footer {
 
 /* Date header styling - removing badge approach */
 .date-header-badge {
-  display: none; /* Hide the badge completely */
+  display: none;
 }
 
 .date-header-text {
@@ -166,124 +166,6 @@ footer {
   color: var(--accent-color);
   font-size: 1.2rem;
   font-weight: 600;
-}
-
-/* 
- * LEGACY STYLES - DEPRECATED
- * Please use directory.css classes for directory styling 
- * The following styles are kept only for backward compatibility
- */
-
-/* Badge containers - DEPRECATED */
-.badge-container.outer {
-  border: 1px solid var(--accent-color);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-  background-color: transparent;
-  padding-top: 0;
-}
-
-.badge-container.inner {
-  background-color: transparent;
-  border-top: none;
-}
-
-/* Posts container - DEPRECATED */
-.posts-container {
-  padding: 0.5rem;
-}
-
-/* File and header containers - DEPRECATED */
-.file-container {
-  margin-bottom: 1rem;
-  position: relative;
-}
-
-/* True nested container styling - DEPRECATED */
-.header-wrapper {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 0.75rem;
-  transition: all 0.3s ease;
-  padding: 0.4rem 0.6rem;
-  cursor: pointer;
-  position: relative;
-}
-
-.header-wrapper:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Remove the header link styling */
-.header-link {
-  display: none;
-}
-
-/* Content container for nested items - DEPRECATED */
-.content-container {
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-  background-color: transparent;
-}
-
-/* Header styling by level - DEPRECATED */
-.header-wrapper.level-file {
-  border-color: var(--accent-color);
-  font-weight: 600;
-  color: var(--text-color);
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-}
-
-.header-wrapper.level-2 {
-  background-color: rgba(var(--accent-color-rgb), 0.2);
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.header-wrapper.level-3 {
-  background-color: rgba(var(--accent-color-rgb), 0.1);
-  font-size: 0.95rem;
-  color: var(--text-color);
-}
-
-.header-wrapper.level-4 {
-  background-color: rgba(var(--accent-color-rgb), 0.05);
-  font-size: 0.9rem;
-  color: var(--text-color-alt);
-}
-
-/* Empty content placeholder to maintain spacing */
-.empty-content {
-  min-height: 0.25rem;
-}
-
-/* Keep the legacy styles for backward compatibility */
-.post-list {
-  list-style: none;
-  padding: 0;
-  display: none; /* Hide the old structure */
-}
-
-.post-list li {
-  margin-bottom: 1rem;
-}
-
-.post-list a {
-  display: inline-block;
-  padding: 5px 15px;
-  border: 2px solid var(--accent-color);
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.post-list a:hover {
-  background-color: var(--accent-color-light);
-  border-color: var(--accent-color);
-  color: var(--text-color);
-  text-decoration: none;
 }
 
 /* Loading indicator */
@@ -297,6 +179,4 @@ footer {
 .header-controls {
   display: flex;
   align-items: center;
-}
-
-/* Directory View styles have been moved to directory.css */ 
+} 
