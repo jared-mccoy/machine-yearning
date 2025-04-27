@@ -104,4 +104,14 @@
 
 .directory-info-message {
   color: var(--text-color);
-} 
+}
+
+/* Root spans container */
+.directory-root-spans {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+}
+
+/* Spans container */ 

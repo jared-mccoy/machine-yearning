@@ -291,10 +291,21 @@ const spanExtractor = (function() {
       for (let i = startLine; i <= endLine; i++) {
         const line = lines[i];
         
-        // Skip speaker marker lines
+        // Special handling for speaker marker lines
         if ((line.includes('<<') && line.includes('>>')) || 
             (line.includes('[[') && line.includes(']]')) ||
             (line.includes('<!--') && line.includes('-->'))) {
+          debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
+          
+          // Before skipping, extract any wikilinks in this line
+          const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+          let speakerWikiMatch;
+          while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+            const link = speakerWikiMatch[1].trim();
+            debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+            node.wikilinks.push(link);
+          }
+          
           continue;
         }
         
@@ -318,10 +329,21 @@ const spanExtractor = (function() {
     for (let i = startLine; i <= endLine; i++) {
       const line = lines[i];
       
-      // Skip speaker marker lines
+      // Special handling for speaker marker lines
       if ((line.includes('<<') && line.includes('>>')) || 
           (line.includes('[[') && line.includes(']]')) ||
           (line.includes('<!--') && line.includes('-->'))) {
+        debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
+        
+        // Before skipping, extract any wikilinks in this line
+        const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+        let speakerWikiMatch;
+        while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+          const link = speakerWikiMatch[1].trim();
+          debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+          node.wikilinks.push(link);
+        }
+        
         continue;
       }
       
@@ -351,11 +373,22 @@ const spanExtractor = (function() {
     for (let i = startLine; i <= endLine; i++) {
       const line = lines[i];
       
-      // Skip speaker marker lines (<<speaker>>, etc.)
+      // Special handling for speaker marker lines
       if ((line.includes('<<') && line.includes('>>')) || 
           (line.includes('[[') && line.includes(']]')) ||
           (line.includes('<!--') && line.includes('-->'))) {
-        debug(`Skipping speaker marker line ${i}: ${line.substring(0, 30)}...`);
+        debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
+        
+        // Before skipping, extract any wikilinks in this line
+        const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+        let speakerWikiMatch;
+        while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+          const link = speakerWikiMatch[1].trim();
+          debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+          node.wikilinks.push(link);
+          spanCount++;
+        }
+        
         continue;
       }
       
@@ -368,7 +401,8 @@ const spanExtractor = (function() {
       // Skip extracting spans inside code blocks
       if (inCodeBlock) continue;
       
-      // Extract wikilinks from this line
+      // Extract wikilinks from this line - more comprehensive regex to catch all formats
+      // This handles [[term]] and also catches terms within speaker lines like <<user>> Does electron have its own [[interface]]
       const wikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
       let wikiMatch;
       while ((wikiMatch = wikiRegex.exec(line)) !== null) {

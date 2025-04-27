@@ -569,12 +569,20 @@ async function initDirectoryView() {
                   console.log('[TagDebug] No matching header found for:', node.text);
                 }
               } else if (node.text === 'Root' && headerElements.length > 0 && node.wikilinks.length + node.backticks.length > 0) {
-                // For root node (content before first header), add to first header
+                // For root node (content before first header), add above all headers in a separate container
                 console.log('[TagDebug] Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                 const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                 if (spansContainer) {
-                  console.log('[TagDebug] Adding Root spans to first header:', headerElements[0].text);
-                  headerElements[0].content.appendChild(spansContainer);
+                  console.log('[TagDebug] Adding Root spans before first header in a separate container');
+                  // Create a separate container for root spans
+                  const rootContainer = document.createElement('div');
+                  rootContainer.className = 'directory-root-spans';
+                  rootContainer.appendChild(spansContainer);
+                  
+                  // Insert before the first header's section
+                  if (headerElements[0] && headerElements[0].section && headerElements[0].section.parentNode) {
+                    headerElements[0].section.parentNode.insertBefore(rootContainer, headerElements[0].section);
+                  }
                 }
               }
               
