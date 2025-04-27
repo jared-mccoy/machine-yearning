@@ -26,7 +26,7 @@ function applyRecursiveStyling() {
   // Process the tree recursively starting at the top level with depth 0
   processLevel(container, 0);
   
-  // Helper function to clear existing inline styles
+  // Helper function to clear existing styles
   function clearExistingStyles(element) {
     const sections = element.querySelectorAll('.directory-section');
     sections.forEach(section => {
@@ -87,7 +87,13 @@ function applyRecursiveStyling() {
       section.style.borderWidth = `${borderWidth}rem`;
       section.style.borderStyle = 'solid';
       section.style.borderRadius = `${borderRadius}rem`;
-      section.style.marginBottom = `${marginBottom}rem`;
+      
+      // Only apply margin-bottom if this is NOT the last section
+      if (index < sections.length - 1) {
+        section.style.marginBottom = `${marginBottom}rem`;
+      } else {
+        section.style.marginBottom = '0'; // Explicitly set to 0 for the last section
+      }
       
       // Style the header elements
       const headerWrapper = section.querySelector('.directory-header-wrapper');
@@ -96,10 +102,17 @@ function applyRecursiveStyling() {
         headerWrapper.style.fontSize = `${fontSize}rem`;
       }
       
-      // Style the content container
+      // Style the content container, adjusting padding based on content
       const contentContainer = section.querySelector('.directory-content-container');
       if (contentContainer) {
-        contentContainer.style.padding = `0 ${horizontalPadding}rem ${verticalPadding}rem`;
+        // Only apply bottom padding if the container has elements
+        const hasContent = contentContainer.children.length > 0;
+        
+        if (hasContent) {
+          contentContainer.style.padding = `0 ${horizontalPadding}rem ${verticalPadding}rem`;
+        } else {
+          contentContainer.style.padding = `0 ${horizontalPadding}rem 0`;
+        }
         
         // Recursively process the next level
         processLevel(contentContainer, depth + 1);
