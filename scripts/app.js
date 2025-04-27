@@ -490,12 +490,22 @@ async function initDirectoryView() {
         
         const spanEnabled = spanSettings ? spanSettings.enabled : true;
         
-        // If we have headers, create file content
+        // Check if we have headers, create file content structure
         if (headers.length > 0) {
           // Create content container for this file's headers
           const fileContent = document.createElement('div');
           fileContent.className = 'directory-content-container';
           fileSection.appendChild(fileContent);
+          
+          // Create a preliminary implicit section for any root tags
+          const preliminarySection = document.createElement('div');
+          preliminarySection.className = 'directory-section preliminary-section';
+          fileContent.appendChild(preliminarySection);
+          
+          // Create the preliminary content element
+          const preliminaryContent = document.createElement('div');
+          preliminaryContent.className = 'directory-content-container';
+          preliminarySection.appendChild(preliminaryContent);
           
           // Build a structure to track headers
           const headerElements = [];
@@ -543,7 +553,7 @@ async function initDirectoryView() {
             console.log('[TagDebug] Processing spans for file:', file.title);
             
             // Function to recursively add spans from the tree
-            function addSpansFromTree(node, headerElements) {
+            function addSpansFromTree(node, headerElements, preliminaryContent) {
               // For each node in the tree
               if (node.text !== 'Root') {
                 // Normalize node text for comparison (lowercase, trim whitespace)
@@ -568,21 +578,13 @@ async function initDirectoryView() {
                 } else {
                   console.log('[TagDebug] No matching header found for:', node.text);
                 }
-              } else if (node.text === 'Root' && headerElements.length > 0 && node.wikilinks.length + node.backticks.length > 0) {
-                // For root node (content before first header), add above all headers in a separate container
+              } else if (node.text === 'Root' && node.wikilinks.length + node.backticks.length > 0) {
+                // For root node (content before first header), add to the preliminary section
                 console.log('[TagDebug] Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                 const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                 if (spansContainer) {
-                  console.log('[TagDebug] Adding Root spans before first header in a separate container');
-                  // Create a separate container for root spans
-                  const rootContainer = document.createElement('div');
-                  rootContainer.className = 'directory-root-spans';
-                  rootContainer.appendChild(spansContainer);
-                  
-                  // Insert before the first header's section
-                  if (headerElements[0] && headerElements[0].section && headerElements[0].section.parentNode) {
-                    headerElements[0].section.parentNode.insertBefore(rootContainer, headerElements[0].section);
-                  }
+                  console.log('[TagDebug] Adding Root spans to preliminary section');
+                  preliminaryContent.appendChild(spansContainer);
                 }
               }
               
@@ -590,7 +592,7 @@ async function initDirectoryView() {
               if (node.children && node.children.length) {
                 console.log('[TagDebug] Processing', node.children.length, 'children of', node.text || 'Root');
                 node.children.forEach(child => {
-                  addSpansFromTree(child, headerElements);
+                  addSpansFromTree(child, headerElements, preliminaryContent);
                 });
               }
             }
@@ -609,7 +611,7 @@ async function initDirectoryView() {
             })));
             
             // Start from the root of the span tree
-            addSpansFromTree(spans.tree, headerElements);
+            addSpansFromTree(spans.tree, headerElements, preliminaryContent);
           }
           
           // Build the hierarchy (determine where each header should be placed)
@@ -652,15 +654,25 @@ async function initDirectoryView() {
               rootNode.wikilinks?.length || 0, 'backticks:', rootNode.backticks?.length || 0);
             
             if (rootNode && (rootNode.wikilinks.length > 0 || rootNode.backticks.length > 0)) {
-              // Create a simple content container for the file to hold the spans
+              // Create a content container structure similar to the headers case
               const fileContent = document.createElement('div');
               fileContent.className = 'directory-content-container';
+              
+              // Create a preliminary section for the root tags
+              const preliminarySection = document.createElement('div');
+              preliminarySection.className = 'directory-section preliminary-section';
+              fileContent.appendChild(preliminarySection);
+              
+              // Create content container
+              const preliminaryContent = document.createElement('div');
+              preliminaryContent.className = 'directory-content-container';
+              preliminarySection.appendChild(preliminaryContent);
               
               const spansContainer = window.spanExtractor.createNodeSpansContainer(rootNode, spanSettings);
               
               if (spansContainer) {
                 console.log('[TagDebug] Adding spans container in no-headers case');
-                fileContent.appendChild(spansContainer);
+                preliminaryContent.appendChild(spansContainer);
                 fileSection.appendChild(fileContent);
               } else {
                 console.log('[TagDebug] No spans container created in no-headers case');

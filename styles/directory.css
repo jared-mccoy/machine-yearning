@@ -114,4 +114,17 @@
   padding: 6px 10px;
 }
 
+/* Preliminary section styling */
+.preliminary-section {
+  margin-bottom: 12px;
+  border-style: dashed;
+  border-width: 1px;
+  background-color: rgba(var(--accent-color-rgb), 0.03);
+}
+
+/* Hide the preliminary section when it's empty */
+.preliminary-section:empty {
+  display: none;
+}
+
 /* Spans container */ 
