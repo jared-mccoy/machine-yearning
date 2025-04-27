@@ -546,9 +546,12 @@ async function initDirectoryView() {
             function addSpansFromTree(node, headerElements) {
               // For each node in the tree
               if (node.text !== 'Root') {
-                // Find matching header in UI
+                // Normalize node text for comparison (lowercase, trim whitespace)
+                const normalizedNodeText = node.text.toLowerCase().trim();
+                
+                // Find matching header in UI, using normalized comparison
                 const matchingHeader = headerElements.find(h => 
-                  h.text.toLowerCase() === node.text.toLowerCase());
+                  h.text.toLowerCase().trim() === normalizedNodeText);
                 
                 if (matchingHeader) {
                   console.log('[TagDebug] Found matching header for:', node.text);

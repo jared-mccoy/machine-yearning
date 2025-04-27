@@ -1,5 +1,5 @@
 /**
- * Span Extractor
+ * Fixed Span Extractor
  * Extracts wikilinks and backticked spans from markdown content
  * with hierarchical section awareness
  */
@@ -485,17 +485,51 @@ const spanExtractor = (function() {
     const minCount = settings && settings.minCount !== undefined ? settings.minCount : 1; // Always show tags with at least 1 occurrence
     const showCounts = settings && settings.showCounts !== undefined ? settings.showCounts : true;
     
-    // Filter spans that meet the minimum count requirement - ensure we consider all spans
-    const filteredWikilinks = node.wikilinks.filter(([_, count]) => count >= minCount);
-    const filteredBackticks = node.backticks.filter(([_, count]) => count >= minCount);
+    // Handle different formats for wikilinks and backticks
+    // They might be arrays of strings or arrays of [string, count] pairs
+    let processedWikilinks = [];
+    let processedBackticks = [];
+    
+    // Process wikilinks
+    if (node.wikilinks && node.wikilinks.length > 0) {
+      // Check if wikilinks is already in [string, count] format
+      if (Array.isArray(node.wikilinks[0])) {
+        processedWikilinks = node.wikilinks.filter(([_, count]) => count >= minCount);
+      } else {
+        // Convert from string array to [string, 1] pairs
+        const tempWikilinks = {};
+        node.wikilinks.forEach(link => {
+          tempWikilinks[link] = 1; // Each one has a count of 1
+        });
+        processedWikilinks = Object.entries(tempWikilinks);
+      }
+    }
+    
+    // Process backticks
+    if (node.backticks && node.backticks.length > 0) {
+      // Check if backticks is already in [string, count] format
+      if (Array.isArray(node.backticks[0])) {
+        processedBackticks = node.backticks.filter(([_, count]) => count >= minCount);
+      } else {
+        // Convert from string array to [string, 1] pairs or count occurrences
+        const tempBackticks = {};
+        node.backticks.forEach(code => {
+          tempBackticks[code] = (tempBackticks[code] || 0) + 1;
+        });
+        processedBackticks = Object.entries(tempBackticks);
+      }
+    }
+    
+    // Debug information about what we found
+    debug(`Processed wikilinks: ${processedWikilinks.length}, backticks: ${processedBackticks.length}`);
     
     // If no tags meet requirements, return null
-    if (filteredWikilinks.length === 0 && filteredBackticks.length === 0) {
+    if (processedWikilinks.length === 0 && processedBackticks.length === 0) {
       debug(`No spans meet minimum count requirement for node "${node.text || 'root'}"`);
       return null;
     }
     
-    debug(`Creating container with ${filteredWikilinks.length} wikilinks and ${filteredBackticks.length} code spans`);
+    debug(`Creating container with ${processedWikilinks.length} wikilinks and ${processedBackticks.length} code spans`);
     
     // Create spans container
     const spansContainer = document.createElement('div');
@@ -510,25 +544,25 @@ const spanExtractor = (function() {
     let maxCodeTags = Math.round(maxTags * codeTagsRatio);
     
     // Adjust if we have fewer items of one type
-    if (filteredWikilinks.length < maxWikiTags) {
-      maxCodeTags += (maxWikiTags - filteredWikilinks.length);
-      maxWikiTags = filteredWikilinks.length;
+    if (processedWikilinks.length < maxWikiTags) {
+      maxCodeTags += (maxWikiTags - processedWikilinks.length);
+      maxWikiTags = processedWikilinks.length;
     }
     
-    if (filteredBackticks.length < maxCodeTags) {
-      maxWikiTags += (maxCodeTags - filteredBackticks.length);
-      maxCodeTags = filteredBackticks.length;
+    if (processedBackticks.length < maxCodeTags) {
+      maxWikiTags += (maxCodeTags - processedBackticks.length);
+      maxCodeTags = processedBackticks.length;
     }
     
     // Ensure we don't exceed the limits
-    maxWikiTags = Math.min(maxWikiTags, filteredWikilinks.length);
-    maxCodeTags = Math.min(maxCodeTags, filteredBackticks.length);
+    maxWikiTags = Math.min(maxWikiTags, processedWikilinks.length);
+    maxCodeTags = Math.min(maxCodeTags, processedBackticks.length);
     
     // Prepare combined array of all spans with their types
     const allSpans = [];
     
     // Add wikilinks with type indicator
-    filteredWikilinks
+    processedWikilinks
       .slice(0, maxWikiTags)
       .forEach(([link, count]) => {
         allSpans.push({
@@ -539,7 +573,7 @@ const spanExtractor = (function() {
       });
     
     // Add backticked spans with type indicator
-    filteredBackticks
+    processedBackticks
       .slice(0, maxCodeTags)
       .forEach(([code, count]) => {
         allSpans.push({
