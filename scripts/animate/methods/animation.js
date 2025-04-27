@@ -143,8 +143,8 @@ export function processNextInQueue(animator) {
     // Calculate read delay (only if this isn't the first message)
     const readDelay = isFirstMessage ? 0 : animator.calculateReadDelay(lastVisibleMessage);
     
-    if (window.debugLog && readDelay > 0) {
-      window.debugLog(`Read delay for message: ${readDelay}ms`);
+    if (window.debugLog) {
+      window.debugLog(`Read delay for message: ${readDelay}ms`, 'animation');
     }
     
     // Wait for read delay before showing typing indicator
@@ -177,7 +177,7 @@ export function processNextInQueue(animator) {
         typingIndicator.setAttribute('data-size', messageSize);
         
         if (window.debugLog) {
-          window.debugLog(`Message size category: ${messageSize}`);
+          window.debugLog(`Message size category: ${messageSize}`, 'animation');
         }
       }
       
@@ -242,7 +242,7 @@ export function processNextInQueue(animator) {
                          isSpeakerE ? 'speakerE' : 
                          isGenericSpeaker ? 'generic' : 
                          isRandom ? 'random' : 'assistant';
-        window.debugLog(`Showing first message typing indicator - ${speakerType} message`);
+        window.debugLog(`Showing first message typing indicator - ${speakerType} message`, 'system');
       }
       
       // Calculate dynamic typing time based on message content
@@ -255,7 +255,7 @@ export function processNextInQueue(animator) {
                          isSpeakerE ? 'speakerE' : 
                          isGenericSpeaker ? 'generic' : 
                          isRandom ? 'random' : 'assistant';
-        window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`);
+        window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`, 'animation');
       }
       
       // After typing animation completes, show the message
@@ -272,6 +272,14 @@ export function processNextInQueue(animator) {
         
         // If it's anywhere close to view, show the message
         if (isInView) {
+          // Update the viewport state tracking
+          if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'in-view') {
+            animator.lastViewportState = 'in-view';
+            if (window.debugLog) {
+              window.debugLog("Messages now in viewport, resuming animation", 'viewport');
+            }
+          }
+          
           // Update the last sender type
           animator.lastSenderWasUser = isUser;
           
@@ -289,8 +297,12 @@ export function processNextInQueue(animator) {
           }, 600);
         } else {
           // Message is really far from viewport, don't show it yet
-          if (window.debugLog) {
-            window.debugLog("Message far from viewport, will retry later");
+          // Only log once per session until the state changes
+          if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'out-of-view') {
+            animator.lastViewportState = 'out-of-view';
+            if (window.debugLog) {
+              window.debugLog("Messages far from viewport, waiting for user to scroll into view", 'viewport');
+            }
           }
           
           // Remove the indicator immediately since we're not showing the message

@@ -8,7 +8,7 @@ import { calculateTypingTime, getMessageSize, calculateReadDelay } from './metho
 import { animateHeader, processNextInQueue } from './methods/animation.js';
 
 class ChatAnimator {
-  constructor() {
+  constructor(options = {}) {
     // Animation state
     this.animationQueue = [];
     this.animationInProgress = false;
@@ -17,6 +17,14 @@ class ChatAnimator {
     this.lastSenderWasUser = false;
     this.messageObserver = null;
     this.headerAnimationInProgress = false;
+    
+    // Set up initial state
+    this.isProcessing = false;
+    this.messageQueue = [];
+
+    if (window.debugLog) {
+      window.debugLog(`First message is from ${this.lastSenderWasUser ? 'user' : 'assistant'}`, 'system');
+    }
     
     // Bind methods to maintain proper this context
     this.initChatAnimations = this.initChatAnimations.bind(this);
@@ -74,7 +82,7 @@ class ChatAnimator {
       const firstMessage = messages[0];
       this.lastSenderWasUser = firstMessage.classList.contains('user');
       if (window.debugLog) {
-        window.debugLog(`First message is from ${this.lastSenderWasUser ? 'user' : 'assistant'}`);
+        window.debugLog(`First message is from ${this.lastSenderWasUser ? 'user' : 'assistant'}`, 'system');
       }
     }
     
@@ -136,7 +144,7 @@ class ChatAnimator {
     });
     
     if (window.debugLog) {
-      window.debugLog('Chat animations initialized');
+      window.debugLog('Chat animations initialized', 'system');
     }
   }
 
@@ -231,6 +239,17 @@ class ChatAnimator {
       // Setup animations from scratch
       this.initChatAnimations(true);
     }
+  }
+
+  init() {
+    // ... existing code ...
+    
+    // If we made it here, initialization was successful
+    if (window.debugLog) {
+      window.debugLog('Chat animations initialized', 'system');
+    }
+    
+    // ... existing code ...
   }
 }
 

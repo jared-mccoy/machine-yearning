@@ -6,8 +6,70 @@
 // Track initialization state
 let isInitialized = false;
 
-// Debug function to log to console only, not the page
-function debugLog(message) {
+// Track last log messages to avoid repetition
+const lastLogMessages = {
+  messages: {},
+  timestamps: {}
+};
+
+// Log settings for different message types
+const logSettings = {
+  animation: {
+    enabled: false,         // Disable most animation logging by default
+    cooldownPeriod: 5000    // 5 seconds cooldown for animation messages
+  },
+  system: {
+    enabled: true,          // Always log system messages
+    cooldownPeriod: 2000    // 2 seconds cooldown for system messages
+  },
+  viewport: {
+    enabled: true,          // Always log viewport state changes
+    cooldownPeriod: 1000    // 1 second cooldown for viewport messages
+  }
+};
+
+/**
+ * Debug function to log to console only, not the page
+ * @param {string} message - The message to log
+ * @param {string} category - Optional category for the message (animation, system, viewport)
+ */
+function debugLog(message, category = 'system') {
+  // Skip if category is disabled
+  if (logSettings[category] && !logSettings[category].enabled) {
+    return;
+  }
+  
+  // Skip repetitive messages within a short time period
+  const now = Date.now();
+  const cooldownPeriod = logSettings[category] ? 
+    logSettings[category].cooldownPeriod : 5000; // Default 5 seconds
+  
+  const messageKey = `${category}:${message}`;
+  
+  if (lastLogMessages.messages[messageKey] === true && 
+      now - lastLogMessages.timestamps[messageKey] < cooldownPeriod) {
+    // Skip this repetitive message
+    return;
+  }
+  
+  // Update tracking
+  lastLogMessages.messages[messageKey] = true;
+  lastLogMessages.timestamps[messageKey] = now;
+  
+  // Skip certain verbose animation messages completely
+  if (category === 'animation') {
+    // Skip logging read delays and typing times which are very common
+    if (message.includes('Read delay for message:') || 
+        message.includes('Typing time for message:') ||
+        message.includes('Message size category:')) {
+      // Only log these once every 20 seconds at most
+      if (now - (lastLogMessages.timestamps['animation_verbose'] || 0) < 20000) {
+        return;
+      }
+      lastLogMessages.timestamps['animation_verbose'] = now;
+    }
+  }
+  
   // Only log to console, never to the page
   console.log(message);
 }
