@@ -44,6 +44,16 @@ function applyRecursiveStyling() {
       if (content) {
         content.style.padding = '';
       }
+
+      // Clear tag styles too
+      const tags = section.querySelectorAll('.directory-tag');
+      tags.forEach(tag => {
+        tag.style.fontSize = '';
+        tag.style.padding = '';
+        tag.style.borderRadius = '';
+        tag.style.borderWidth = '';
+        tag.style.margin = '';
+      });
     });
   }
   
@@ -113,6 +123,48 @@ function applyRecursiveStyling() {
         } else {
           contentContainer.style.padding = `0 ${horizontalPadding}rem 0`;
         }
+
+        // ---- TAG STYLING BY DEPTH ----
+        // Find all tags within this content container
+        const tags = contentContainer.querySelectorAll('.directory-tag');
+        if (tags.length > 0) {
+          // Tag config (can be customized in getRecursiveStylingConfig)
+          const tagBase = config.tag && config.tag.base ? config.tag.base : {
+            fontSize: 0.85,    // rem - start smaller than section text
+            paddingV: 0.15,    // rem
+            paddingH: 0.4,     // rem
+            borderRadius: 0.25, // rem
+            borderWidth: 0.08,  // rem
+            margin: 0.15       // rem
+          };
+          const tagScale = config.tag && config.tag.scale ? config.tag.scale : {
+            fontSize: 0.9,    // scale down slightly faster than sections
+            padding: 0.9,
+            borderRadius: 0.9,
+            borderWidth: 0.9,
+            margin: 0.9
+          };
+
+          // Calculate tag values for this depth
+          const tagFontSize = calculateValue(tagBase.fontSize, tagScale.fontSize, depth);
+          const tagPaddingV = calculateValue(tagBase.paddingV, tagScale.padding, depth);
+          const tagPaddingH = calculateValue(tagBase.paddingH, tagScale.padding, depth);
+          const tagBorderRadius = calculateValue(tagBase.borderRadius, tagScale.borderRadius, depth);
+          const tagBorderWidth = calculateValue(tagBase.borderWidth, tagScale.borderWidth, depth);
+          const tagMargin = calculateValue(tagBase.margin, tagScale.margin, depth);
+
+          console.log(`Styling ${tags.length} tags at depth ${depth} with fontSize: ${tagFontSize}rem`);
+
+          // Apply styles to each tag
+          tags.forEach(tag => {
+            tag.style.fontSize = `${tagFontSize}rem`;
+            tag.style.padding = `${tagPaddingV}rem ${tagPaddingH}rem`;
+            tag.style.borderRadius = `${tagBorderRadius}rem`;
+            tag.style.borderWidth = `${tagBorderWidth}rem`;
+            tag.style.borderStyle = 'solid';
+            tag.style.margin = `${tagMargin}rem`;
+          });
+        }
         
         // Recursively process the next level
         processLevel(contentContainer, depth + 1);
@@ -141,6 +193,23 @@ function getRecursiveStylingConfig() {
       borderRadius: 0.85,         // Border radius scales moderately
       spacing: 0.9,               // Padding and margins scale gently
       fontSize: 0.95              // Font size scales very gently
+    },
+    tag: {
+      base: {
+        fontSize: 0.85,           // rem - start smaller than section text
+        paddingV: 0.15,           // rem
+        paddingH: 0.4,            // rem
+        borderRadius: 0.25,       // rem
+        borderWidth: 0.08,        // rem
+        margin: 0.15              // rem
+      },
+      scale: {
+        fontSize: 0.9,            // scale down slightly faster than sections
+        padding: 0.9,
+        borderRadius: 0.9,
+        borderWidth: 0.9,
+        margin: 0.9
+      }
     }
   };
   
