@@ -20,14 +20,21 @@ function applyRecursiveStyling() {
   console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
   console.log('Using config:', config);
   
-  // Clear any existing inline styles first
+  // Clear any existing inline styles first and remove any existing buffer elements
   clearExistingStyles(container);
   
   // Process the tree recursively starting at the top level with depth 0
   processLevel(container, 0);
   
-  // Helper function to clear existing styles
+  // Add buffer elements where needed
+  addBufferElements(container);
+  
+  // Helper function to clear existing styles and buffer elements
   function clearExistingStyles(element) {
+    // Remove any existing buffer elements
+    const buffers = element.querySelectorAll('.spans-buffer');
+    buffers.forEach(buffer => buffer.remove());
+    
     const sections = element.querySelectorAll('.directory-section');
     sections.forEach(section => {
       section.style.borderWidth = '';
@@ -54,6 +61,53 @@ function applyRecursiveStyling() {
         tag.style.borderWidth = '';
         tag.style.margin = '';
       });
+    });
+  }
+  
+  // Helper function to add buffer elements between spans containers and directory sections
+  function addBufferElements(rootElement) {
+    // Process all content containers to find spans containers
+    const contentContainers = rootElement.querySelectorAll('.directory-content-container');
+    
+    contentContainers.forEach(container => {
+      const children = Array.from(container.children);
+      
+      // Find spans containers that are followed by directory sections
+      for (let i = 0; i < children.length - 1; i++) {
+        const current = children[i];
+        const next = children[i + 1];
+        
+        if (current.classList.contains('directory-spans-container') && 
+            next.classList.contains('directory-section')) {
+          console.log('Found spans container followed by directory section - adding buffer');
+          
+          // Find the depth of this content container
+          let depth = 0;
+          let parent = container;
+          while (parent && !parent.classList.contains('directory-container')) {
+            if (parent.classList.contains('directory-content-container')) {
+              depth++;
+            }
+            parent = parent.parentElement;
+          }
+          depth = Math.max(0, depth - 1); // Adjust depth to be 0-based
+          
+          // Calculate the appropriate buffer size based on depth
+          const verticalPadding = calculateValue(config.base.verticalPadding, config.scale.spacing, depth);
+          
+          // Create buffer element
+          const buffer = document.createElement('div');
+          buffer.className = 'spans-buffer';
+          buffer.style.height = `${verticalPadding}rem`;
+          buffer.style.width = '100%';
+          
+          // Insert buffer after the spans container
+          current.after(buffer);
+          
+          // Skip the next element as we've already processed it
+          i++;
+        }
+      }
     });
   }
   
