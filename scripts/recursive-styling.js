@@ -52,15 +52,32 @@ function applyRecursiveStyling() {
         content.style.padding = '';
       }
 
-      // Clear tag styles too
+      // Clear tag styles thoroughly
       const tags = section.querySelectorAll('.directory-tag');
       tags.forEach(tag => {
+        // Reset all possible style properties
         tag.style.fontSize = '';
         tag.style.padding = '';
         tag.style.borderRadius = '';
         tag.style.borderWidth = '';
+        tag.style.borderStyle = '';
         tag.style.margin = '';
+        tag.style.height = '';
+        tag.style.width = '';
       });
+    });
+    
+    // Also look for any tags in spans containers that might be outside sections
+    const extraTags = element.querySelectorAll('.directory-spans-container .directory-tag');
+    extraTags.forEach(tag => {
+      tag.style.fontSize = '';
+      tag.style.padding = '';
+      tag.style.borderRadius = '';
+      tag.style.borderWidth = '';
+      tag.style.borderStyle = '';
+      tag.style.margin = '';
+      tag.style.height = '';
+      tag.style.width = '';
     });
   }
   
@@ -188,14 +205,14 @@ function applyRecursiveStyling() {
             paddingV: 0.15,    // rem
             paddingH: 0.4,     // rem
             borderRadius: 0.25, // rem
-            borderWidth: 0.08,  // rem
-            margin: 0.15       // rem
+            borderWidth: 0.08,  // rem - thin border for tags
+            margin: 0           // rem - no margin as we're using buffers
           };
           const tagScale = config.tag && config.tag.scale ? config.tag.scale : {
             fontSize: 0.9,    // scale down slightly faster than sections
             padding: 0.9,
             borderRadius: 0.9,
-            borderWidth: 0.9,
+            borderWidth: 0.8,  // scale border width more dramatically like sections
             margin: 0.9
           };
 
@@ -205,9 +222,8 @@ function applyRecursiveStyling() {
           const tagPaddingH = calculateValue(tagBase.paddingH, tagScale.padding, depth);
           const tagBorderRadius = calculateValue(tagBase.borderRadius, tagScale.borderRadius, depth);
           const tagBorderWidth = calculateValue(tagBase.borderWidth, tagScale.borderWidth, depth);
-          const tagMargin = calculateValue(tagBase.margin, tagScale.margin, depth);
-
-          console.log(`Styling ${tags.length} tags at depth ${depth} with fontSize: ${tagFontSize}rem`);
+          
+          console.log(`Styling ${tags.length} tags at depth ${depth} with fontSize: ${tagFontSize}rem, borderWidth: ${tagBorderWidth}rem`);
 
           // Apply styles to each tag
           tags.forEach(tag => {
@@ -216,7 +232,14 @@ function applyRecursiveStyling() {
             tag.style.borderRadius = `${tagBorderRadius}rem`;
             tag.style.borderWidth = `${tagBorderWidth}rem`;
             tag.style.borderStyle = 'solid';
-            tag.style.margin = `${tagMargin}rem`;
+            tag.style.margin = '0'; // Remove margin from tags
+            
+            // For wiki tags that don't have a visual border, add border offset as padding to maintain consistent sizing
+            if (tag.classList.contains('wiki-tag')) {
+              const totalPaddingV = tagPaddingV;
+              const totalPaddingH = tagPaddingH;
+              tag.style.padding = `${totalPaddingV}rem ${totalPaddingH}rem`;
+            }
           });
         }
         
@@ -254,14 +277,14 @@ function getRecursiveStylingConfig() {
         paddingV: 0.15,           // rem
         paddingH: 0.4,            // rem
         borderRadius: 0.25,       // rem
-        borderWidth: 0.08,        // rem
-        margin: 0.15              // rem
+        borderWidth: 0.08,        // rem - thin border for tags
+        margin: 0                 // rem - no margin as we're using buffers
       },
       scale: {
         fontSize: 0.9,            // scale down slightly faster than sections
         padding: 0.9,
         borderRadius: 0.9,
-        borderWidth: 0.9,
+        borderWidth: 0.8,         // scale border width more dramatically like sections
         margin: 0.9
       }
     }
