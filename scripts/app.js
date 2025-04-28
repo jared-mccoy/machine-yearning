@@ -320,6 +320,9 @@ async function initChatViewer(chatPath) {
         if (window.chatAnimations) {
           debugLog('Initializing chat animations');
           window.chatAnimations.initChatAnimations();
+          
+          // After initializing animations, scroll to the hash fragment
+          setTimeout(scrollToHashFragment, 500);
         } else {
           debugLog('Chat animations not available');
           
@@ -329,6 +332,9 @@ async function initChatViewer(chatPath) {
             msg.classList.remove('hidden');
             msg.classList.add('visible');
           });
+          
+          // Still need to scroll to hash fragment
+          setTimeout(scrollToHashFragment, 100);
         }
         
         // Enhance code blocks after messages are shown
@@ -694,6 +700,43 @@ async function initDirectoryView() {
           <p>Please check that the content directory exists and is accessible.</p>
         </div>
       `;
+    }
+  }
+}
+
+// Function to scroll to the hash fragment after page load
+function scrollToHashFragment() {
+  if (window.location.hash) {
+    debugLog(`Scrolling to hash fragment: ${window.location.hash}`);
+    const hashFragment = window.location.hash.substring(1); // Remove the # character
+    
+    // Try to find element by ID or by header text
+    let targetElement = document.getElementById(hashFragment);
+    
+    // If not found by ID, try to find by header text (for section headers)
+    if (!targetElement) {
+      // Normalize the hash fragment (this matches how header IDs are generated in many systems)
+      const normalizedHash = hashFragment.toLowerCase().replace(/-/g, ' ');
+      
+      // Look for chat section headers that match
+      const headers = document.querySelectorAll('.chat-section-header .header-content');
+      for (const header of headers) {
+        const headerText = header.textContent.toLowerCase().trim();
+        if (headerText === normalizedHash || headerText.replace(/\s+/g, '-') === hashFragment) {
+          targetElement = header.closest('.chat-section-header');
+          break;
+        }
+      }
+    }
+    
+    if (targetElement) {
+      // Add a slight delay to ensure animations have completed
+      setTimeout(() => {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        debugLog(`Scrolled to element: ${targetElement.id || targetElement.className}`);
+      }, 300);
+    } else {
+      debugLog(`Element not found for hash fragment: ${hashFragment}`);
     }
   }
 }
