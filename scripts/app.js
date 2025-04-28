@@ -497,15 +497,10 @@ async function initDirectoryView() {
           fileContent.className = 'directory-content-container';
           fileSection.appendChild(fileContent);
           
-          // Create a preliminary implicit section for any root tags
-          const preliminarySection = document.createElement('div');
-          preliminarySection.className = 'directory-section preliminary-section';
-          fileContent.appendChild(preliminarySection);
-          
-          // Create the preliminary content element
+          // Create a content container for any root tags (without preliminary section wrapper)
           const preliminaryContent = document.createElement('div');
           preliminaryContent.className = 'directory-content-container';
-          preliminarySection.appendChild(preliminaryContent);
+          fileContent.appendChild(preliminaryContent);
           
           // Build a structure to track headers
           const headerElements = [];
@@ -579,11 +574,11 @@ async function initDirectoryView() {
                   console.log('[TagDebug] No matching header found for:', node.text);
                 }
               } else if (node.text === 'Root' && node.wikilinks.length + node.backticks.length > 0) {
-                // For root node (content before first header), add to the preliminary section
+                // For root node (content before first header), add directly to the content container
                 console.log('[TagDebug] Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                 const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                 if (spansContainer) {
-                  console.log('[TagDebug] Adding Root spans to preliminary section');
+                  console.log('[TagDebug] Adding Root spans to content container');
                   preliminaryContent.appendChild(spansContainer);
                 }
               }
@@ -654,19 +649,14 @@ async function initDirectoryView() {
               rootNode.wikilinks?.length || 0, 'backticks:', rootNode.backticks?.length || 0);
             
             if (rootNode && (rootNode.wikilinks.length > 0 || rootNode.backticks.length > 0)) {
-              // Create a content container structure similar to the headers case
+              // Create a content container structure
               const fileContent = document.createElement('div');
               fileContent.className = 'directory-content-container';
               
-              // Create a preliminary section for the root tags
-              const preliminarySection = document.createElement('div');
-              preliminarySection.className = 'directory-section preliminary-section';
-              fileContent.appendChild(preliminarySection);
-              
-              // Create content container
+              // Create content container for the root tags (without preliminary section wrapper)
               const preliminaryContent = document.createElement('div');
               preliminaryContent.className = 'directory-content-container';
-              preliminarySection.appendChild(preliminaryContent);
+              fileContent.appendChild(preliminaryContent);
               
               const spansContainer = window.spanExtractor.createNodeSpansContainer(rootNode, spanSettings);
               
