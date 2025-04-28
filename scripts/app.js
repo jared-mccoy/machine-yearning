@@ -3,6 +3,11 @@
  * Main application logic and routing
  */
 
+// Add base URL config to handle both local and GitHub Pages environments
+const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? '' 
+  : '/machine-yearning';
+
 // Track initialization state
 let isInitialized = false;
 

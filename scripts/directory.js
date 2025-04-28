@@ -3,6 +3,11 @@
  * Dynamically discovers all chat files in the content directory
  */
 
+// Add base URL config to handle both local and GitHub Pages environments
+const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? '' 
+  : '/machine-yearning';
+
 class ChatDirectoryScanner {
   constructor() {
     this.chats = [];
@@ -164,7 +169,8 @@ class ChatDirectoryScanner {
       // Try to use the API first
       try {
         logMsg('Fetching chat list from API');
-        const apiResponse = await fetch('/api.json');
+        // Use relative path that works on both GitHub Pages and locally
+        const apiResponse = await fetch(`${baseUrl}/api.json`);
         
         if (apiResponse.ok) {
           const apiData = await apiResponse.json();
@@ -183,7 +189,8 @@ class ChatDirectoryScanner {
       
       // Fallback: Fetch the content directory
       logMsg('Fetching content directory listing');
-      const response = await fetch('/content/');
+      // Use relative path that works on both GitHub Pages and locally
+      const response = await fetch(`${baseUrl}/content/`);
       if (!response.ok) {
         throw new Error(`Failed to fetch content directory: ${response.status}`);
       }
@@ -202,7 +209,7 @@ class ChatDirectoryScanner {
         };
 
         // Fetch the date directory
-        const dateResponse = await fetch(`/content/${dateDir}/`);
+        const dateResponse = await fetch(`${baseUrl}/content/${dateDir}/`);
         if (!dateResponse.ok) {
           return dateObj;
         }
@@ -220,7 +227,7 @@ class ChatDirectoryScanner {
 
           // Try to extract the title from the file
           try {
-            const fileResponse = await fetch(file.path);
+            const fileResponse = await fetch(`${baseUrl}/${file.path}`);
             if (fileResponse.ok) {
               const markdown = await fileResponse.text();
               const titleMatch = markdown.match(/^#\s+(.+)$/m);
@@ -292,7 +299,7 @@ class ChatDirectoryScanner {
         
         // Try to extract title from the file content
         try {
-          const fileResponse = await fetch(file.path);
+          const fileResponse = await fetch(`${baseUrl}/${file.path}`);
           if (fileResponse.ok) {
             const markdown = await fileResponse.text();
             const titleMatch = markdown.match(/^#\s+(.+)$/m);
