@@ -203,12 +203,15 @@ const spanExtractor = (function() {
     // Now extract content and spans from each node
     debug('Extracting content and spans from each node');
     
+    // NEW: Track which lines have already been processed to avoid double-counting
+    const processedLines = new Set();
+    
     // Start with leaf nodes (bottom-up)
     const leafNodes = nodes.filter(node => node.children.length === 0);
     debug(`Processing ${leafNodes.length} leaf nodes`);
     
     leafNodes.forEach(node => {
-      processContent(node, lines, node.lineStart + 1, node.lineEnd);
+      processContent(node, lines, node.lineStart + 1, node.lineEnd, processedLines);
       debug(`Processed leaf node: "${node.text}" - found ${node.wikilinks.length} wikilinks, ${node.backticks.length} code spans`);
     });
     
@@ -230,7 +233,7 @@ const spanExtractor = (function() {
       for (const child of sortedChildren) {
         if (currentLine < child.lineStart) {
           debug(`Node "${node.text}" - Processing content from line ${currentLine} to ${child.lineStart - 1}`);
-          processContentRange(node, lines, currentLine, child.lineStart - 1);
+          processContentRange(node, lines, currentLine, child.lineStart - 1, processedLines);
         }
         currentLine = child.lineEnd + 1;
       }
@@ -238,7 +241,7 @@ const spanExtractor = (function() {
       // Process content after the last child
       if (currentLine <= node.lineEnd) {
         debug(`Node "${node.text}" - Processing content from line ${currentLine} to ${node.lineEnd}`);
-        processContentRange(node, lines, currentLine, node.lineEnd);
+        processContentRange(node, lines, currentLine, node.lineEnd, processedLines);
       }
       
       debug(`Processed non-leaf node: "${node.text}" - found ${node.wikilinks.length} wikilinks, ${node.backticks.length} code spans`);
@@ -250,7 +253,7 @@ const spanExtractor = (function() {
       if (firstHeaderLine > 0) {
         debug(`Processing root content from line 0 to ${firstHeaderLine - 1}`);
         root.lineEnd = firstHeaderLine - 1;
-        processContent(root, lines, 0, firstHeaderLine - 1);
+        processContent(root, lines, 0, firstHeaderLine - 1, processedLines);
       }
     }
     
@@ -284,8 +287,9 @@ const spanExtractor = (function() {
    * @param {Array} lines - All lines in document
    * @param {number} startLine - Start line for this section
    * @param {number} endLine - End line for this section
+   * @param {Set} processedLines - Set of line numbers that have already been processed
    */
-  function processContentRange(node, lines, startLine, endLine) {
+  function processContentRange(node, lines, startLine, endLine, processedLines = new Set()) {
     if (startLine <= endLine) {
       // Add these lines to the node's content, excluding speaker marker lines
       for (let i = startLine; i <= endLine; i++) {
@@ -298,12 +302,18 @@ const spanExtractor = (function() {
           debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
           
           // Before skipping, extract any wikilinks in this line
-          const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
-          let speakerWikiMatch;
-          while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
-            const link = speakerWikiMatch[1].trim();
-            debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
-            node.wikilinks.push(link);
+          // But only if this line hasn't been processed yet
+          if (!processedLines.has(i)) {
+            const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+            let speakerWikiMatch;
+            while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+              const link = speakerWikiMatch[1].trim();
+              debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+              node.wikilinks.push(link);
+            }
+            
+            // Mark this line as processed
+            processedLines.add(i);
           }
           
           continue;
@@ -313,7 +323,7 @@ const spanExtractor = (function() {
       }
       
       // Extract spans from these lines
-      extractSpansFromLines(node, lines, startLine, endLine);
+      extractSpansFromLines(node, lines, startLine, endLine, processedLines);
     }
   }
   
@@ -323,8 +333,9 @@ const spanExtractor = (function() {
    * @param {Array} lines - All lines in document
    * @param {number} startLine - Start line for this section
    * @param {number} endLine - End line for this section
+   * @param {Set} processedLines - Set of line numbers that have already been processed
    */
-  function processContent(node, lines, startLine, endLine) {
+  function processContent(node, lines, startLine, endLine, processedLines = new Set()) {
     // Add these lines to the node's content, excluding speaker marker lines
     for (let i = startLine; i <= endLine; i++) {
       const line = lines[i];
@@ -336,12 +347,18 @@ const spanExtractor = (function() {
         debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
         
         // Before skipping, extract any wikilinks in this line
-        const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
-        let speakerWikiMatch;
-        while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
-          const link = speakerWikiMatch[1].trim();
-          debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
-          node.wikilinks.push(link);
+        // But only if this line hasn't been processed yet
+        if (!processedLines.has(i)) {
+          const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+          let speakerWikiMatch;
+          while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+            const link = speakerWikiMatch[1].trim();
+            debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+            node.wikilinks.push(link);
+          }
+          
+          // Mark this line as processed
+          processedLines.add(i);
         }
         
         continue;
@@ -351,7 +368,7 @@ const spanExtractor = (function() {
     }
     
     // Extract spans from these lines
-    extractSpansFromLines(node, lines, startLine, endLine);
+    extractSpansFromLines(node, lines, startLine, endLine, processedLines);
     
     // Count and sort spans
     node.wikilinks = countOccurrences(node.wikilinks);
@@ -364,8 +381,9 @@ const spanExtractor = (function() {
    * @param {Array} lines - All lines in document
    * @param {number} startLine - Start line for this range
    * @param {number} endLine - End line for this range
+   * @param {Set} processedLines - Set of line numbers that have already been processed
    */
-  function extractSpansFromLines(node, lines, startLine, endLine) {
+  function extractSpansFromLines(node, lines, startLine, endLine, processedLines = new Set()) {
     let inCodeBlock = false;
     let spanCount = 0;
     
@@ -380,13 +398,19 @@ const spanExtractor = (function() {
         debug(`Speaker marker line ${i}: ${line.substring(0, 30)}...`);
         
         // Before skipping, extract any wikilinks in this line
-        const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
-        let speakerWikiMatch;
-        while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
-          const link = speakerWikiMatch[1].trim();
-          debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
-          node.wikilinks.push(link);
-          spanCount++;
+        // But only if this line hasn't been processed yet
+        if (!processedLines.has(i)) {
+          const speakerWikiRegex = /\[\[([^\]\|]+)(?:\|[^\]]+)?\]\]/g;
+          let speakerWikiMatch;
+          while ((speakerWikiMatch = speakerWikiRegex.exec(line)) !== null) {
+            const link = speakerWikiMatch[1].trim();
+            debug(`Found wikilink in speaker line "${node.text || 'root'}": [[${link}]] at line ${i}`);
+            node.wikilinks.push(link);
+            spanCount++;
+          }
+          
+          // Mark this line as processed
+          processedLines.add(i);
         }
         
         continue;
