@@ -37,6 +37,88 @@ class ChatAnimator {
     this.calculateReadDelay = calculateReadDelay;
     this.animateHeader = animateHeader;
     this.processNextInQueue = processNextInQueue.bind(null, this);
+    this.makeElementsVisibleUpTo = this.makeElementsVisibleUpTo.bind(this);
+  }
+
+  /**
+   * Make all elements up to (and including) a target element immediately visible
+   * @param {Element} targetElement - The target element to scroll to
+   * @returns {number} - The number of elements made visible
+   */
+  makeElementsVisibleUpTo(targetElement) {
+    if (!targetElement) return 0;
+
+    // Get all messages and headers
+    const messages = document.querySelectorAll('.message');
+    const headers = document.querySelectorAll('.chat-section-header');
+    
+    // Create a combined sorted array of elements
+    const allElements = [];
+    
+    // Add headers with positions
+    headers.forEach(header => {
+      const rect = header.getBoundingClientRect();
+      allElements.push({
+        element: header,
+        type: 'header',
+        top: rect.top
+      });
+    });
+    
+    // Add messages with positions
+    messages.forEach(message => {
+      const rect = message.getBoundingClientRect();
+      allElements.push({
+        element: message,
+        type: 'message',
+        top: rect.top
+      });
+    });
+    
+    // Sort by vertical position
+    allElements.sort((a, b) => a.top - b.top);
+    
+    // Find target element's position in the array
+    const targetPos = allElements.findIndex(item => item.element === targetElement);
+    
+    if (targetPos !== -1) {
+      // Make all elements up to and including the target immediately visible
+      for (let i = 0; i <= targetPos; i++) {
+        const item = allElements[i];
+        // Mark as already processed
+        item.element.setAttribute('data-observed', 'processed');
+        
+        if (item.type === 'header') {
+          item.element.classList.remove('header-hidden');
+          item.element.classList.add('header-visible');
+        } else {
+          item.element.classList.remove('hidden');
+          item.element.classList.add('visible');
+        }
+      }
+      
+      // Remove these elements from the animation queue
+      this.animationQueue = this.animationQueue.filter(queueItem => {
+        return !allElements.slice(0, targetPos + 1).some(
+          item => item.element === queueItem.element
+        );
+      });
+      
+      // Also remove from failed messages if present
+      this.animationFailedMessages = this.animationFailedMessages.filter(element => {
+        return !allElements.slice(0, targetPos + 1).some(
+          item => item.element === element
+        );
+      });
+      
+      if (window.debugLog) {
+        window.debugLog(`Made ${targetPos + 1} elements visible immediately for hash navigation`, 'system');
+      }
+      
+      return targetPos + 1;
+    }
+    
+    return 0;
   }
 
   /**

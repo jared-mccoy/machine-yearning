@@ -730,6 +730,13 @@ function scrollToHashFragment() {
     }
     
     if (targetElement) {
+      // Make all elements up to this target visible immediately
+      if (window.chatAnimations && window.chatAnimations.makeElementsVisibleUpTo) {
+        // Use the new method to make all elements up to and including the target visible
+        const elementsShown = window.chatAnimations.makeElementsVisibleUpTo(targetElement);
+        debugLog(`Made ${elementsShown} elements visible immediately to reveal target section`);
+      }
+      
       // Add a slight delay to ensure animations have completed
       setTimeout(() => {
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
