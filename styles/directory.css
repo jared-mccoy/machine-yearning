@@ -13,6 +13,7 @@
   border-radius: 6px;
   margin-bottom: 8px;
   overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Header elements */
@@ -28,7 +29,6 @@
 .directory-section:hover {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
-  
 }
 
 /* Content containers - nesting with indentation */
