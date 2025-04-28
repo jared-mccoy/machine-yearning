@@ -230,7 +230,7 @@ function applyRecursiveStyling() {
             tag.style.fontSize = `${tagFontSize}rem`;
             tag.style.padding = `${tagPaddingV}rem ${tagPaddingH}rem`;
             tag.style.borderRadius = `${tagBorderRadius}rem`;
-            tag.style.borderWidth = `${tagBorderWidth}rem`;
+            tag.style.setProperty('border-width', `${tagBorderWidth}rem`, 'important');
             tag.style.borderStyle = 'solid';
             tag.style.margin = '0'; // Remove margin from tags
             
