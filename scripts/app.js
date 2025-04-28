@@ -739,7 +739,19 @@ function scrollToHashFragment() {
       
       // Add a slight delay to ensure animations have completed
       setTimeout(() => {
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Get the position of the element
+        const rect = targetElement.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Calculate exact position to scroll to, with a small offset to ensure the header is visible
+        const scrollToY = scrollTop + rect.top - 50; // 50px from the top of viewport
+        
+        // Scroll to position
+        window.scrollTo({
+          top: scrollToY,
+          behavior: 'smooth'
+        });
+        
         debugLog(`Scrolled to element: ${targetElement.id || targetElement.className}`);
       }, 300);
     } else {
