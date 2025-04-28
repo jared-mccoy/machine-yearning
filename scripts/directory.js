@@ -8,6 +8,10 @@ const baseUrl = window.location.hostname === 'localhost' || window.location.host
   ? '' 
   : '/machine-yearning';
 
+// Add more detailed logging
+console.log(`Running on ${window.location.hostname} with baseUrl set to: "${baseUrl}"`);
+console.log(`Full current URL: ${window.location.href}`);
+
 class ChatDirectoryScanner {
   constructor() {
     this.chats = [];
@@ -168,9 +172,14 @@ class ChatDirectoryScanner {
       
       // Try to use the API first
       try {
-        logMsg('Fetching chat list from API');
+        const apiUrl = `${baseUrl}/api.json`;
+        logMsg(`Fetching chat list from API: ${apiUrl}`);
+        console.log(`Full API URL being fetched: ${apiUrl}`);
+        console.log(`Document location: ${document.location.href}`);
+        
         // Use relative path that works on both GitHub Pages and locally
-        const apiResponse = await fetch(`${baseUrl}/api.json`);
+        const apiResponse = await fetch(apiUrl);
+        console.log(`API response status: ${apiResponse.status}`);
         
         if (apiResponse.ok) {
           const apiData = await apiResponse.json();
@@ -181,16 +190,22 @@ class ChatDirectoryScanner {
           this.isLoading = false;
           return this.dates;
         } else {
-          logMsg('API not available, falling back to directory scanning');
+          logMsg(`API not available (status ${apiResponse.status}), falling back to directory scanning`);
         }
       } catch (apiError) {
+        console.error('API error details:', apiError);
         logMsg(`API error: ${apiError.message}, falling back to directory scanning`);
       }
       
       // Fallback: Fetch the content directory
-      logMsg('Fetching content directory listing');
+      const contentUrl = `${baseUrl}/content/`;
+      logMsg(`Fetching content directory listing: ${contentUrl}`);
+      console.log(`Full content URL being fetched: ${contentUrl}`);
+      
       // Use relative path that works on both GitHub Pages and locally
-      const response = await fetch(`${baseUrl}/content/`);
+      const response = await fetch(contentUrl);
+      console.log(`Content directory response status: ${response.status}`);
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch content directory: ${response.status}`);
       }

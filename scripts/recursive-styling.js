@@ -350,6 +350,8 @@ window.recursiveStyling = {
 // Auto-initialize after directory view is ready
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Setting up recursive styling initialization');
+  console.log(`Current URL path: ${window.location.pathname}`);
+  console.log(`Current search params: ${window.location.search}`);
   
   // Skip on chat pages - only run on directory pages
   if (window.location.search.includes('path=')) {
@@ -360,6 +362,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check if we can find the directory container
   const checkAndInit = () => {
     const container = document.querySelector('.directory-container');
+    console.log(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
+    
+    // Let's log all elements on the page to see what's there
+    console.log('Current DOM elements:', {
+      'body children': document.body.children.length,
+      'post-container': document.getElementById('post-container'),
+      'post-container content': document.getElementById('post-container')?.innerHTML
+    });
+    
     if (container) {
       console.log('Directory container found, initializing styling');
       initRecursiveStyling();
