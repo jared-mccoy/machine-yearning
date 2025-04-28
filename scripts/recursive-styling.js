@@ -236,9 +236,12 @@ function applyRecursiveStyling() {
             
             // For wiki tags that don't have a visual border, add border offset as padding to maintain consistent sizing
             if (tag.classList.contains('wiki-tag')) {
-              const totalPaddingV = tagPaddingV;
-              const totalPaddingH = tagPaddingH;
-              tag.style.padding = `${totalPaddingV}rem ${totalPaddingH}rem`;
+              // Set border width to 0 to override the important setting above
+              tag.style.setProperty('border-width', '0', 'important');
+              // Add the border width to padding on all sides to maintain consistent sizing
+              const adjustedPaddingV = tagPaddingV + tagBorderWidth;
+              const adjustedPaddingH = tagPaddingH + tagBorderWidth;
+              tag.style.padding = `${adjustedPaddingV}rem ${adjustedPaddingH}rem`;
             }
           });
         }

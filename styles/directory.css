@@ -63,7 +63,7 @@
 /* Wiki tags styling - text color matches page background */
 .wiki-tag {
   background-color: var(--accent-color, #192b91);
-  border: none;
+  border: 0 solid transparent; /* Use solid with 0 width instead of none to maintain consistent box model */
 }
 
 /* Light theme - wiki tag text matches light background */
