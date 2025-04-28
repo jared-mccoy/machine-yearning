@@ -27,6 +27,7 @@
 /* Hover effect */
 .directory-section:hover {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: var(--accent-color-light, rgba(25, 43, 145, 0));
 }
 
 /* Content containers - nesting with indentation */
