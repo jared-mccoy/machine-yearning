@@ -1,0 +1,53 @@
+{
+  "chat": {
+    "typingAnimation": {
+      "enabled": true,
+      "wordsPerMinute": 1500,
+      "minTypingTime": 800,
+      "maxTypingTime": 15000,
+      "variancePercentage": 15,
+      "typingAppliesTo": "both"
+    },
+    "readDelay": {
+      "enabled": true,
+      "wordsPerMinute": 3000,
+      "minReadTime": 300,
+      "maxReadTime": 15000,
+      "variancePercentage": 20
+    }
+  },
+  "theme": {
+    "accentA": "#192b91",
+    "accentB": "#ffc400",
+    "accentC": "#e63946",
+    "accentD": "#2a9d8f",
+    "accentE": "#8338ec",
+    "genericAccent": "#909090"
+  },
+  "directory": {
+    "recursiveStyling": {
+      "base": {
+        "borderWidth": 0.125,
+        "borderRadius": 0.375,
+        "verticalPadding": 0.5,
+        "horizontalPadding": 0.5,
+        "marginBottom": 0.5,
+        "fontSize": 1
+      },
+      "scale": {
+        "borderWidth": 0.9,
+        "borderRadius": 0.85,
+        "spacing": 0.9,
+        "fontSize": 0.95
+      }
+    },
+    "spans": {
+      "enabled": true,
+      "maxTags": 15,
+      "wikiTagsRatio": 0.6,
+      "codeTagsRatio": 0.4,
+      "minCount": 1,
+      "showCounts": true
+    }
+  }
+} 

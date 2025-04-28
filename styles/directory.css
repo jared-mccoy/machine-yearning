@@ -1,0 +1,132 @@
+/* Directory View Styles */
+
+/* Base container */
+.directory-container {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* Section - contains a header and its content */
+.directory-section {
+  border: 1px solid var(--accent-color);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Header elements */
+.directory-header-wrapper {
+  padding: 8px;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-weight: 600;
+  background-color: transparent;
+}
+
+/* Hover effect */
+.directory-section:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
+}
+
+/* Content containers - nesting with indentation */
+.directory-content-container {
+  padding: 0 8px 8px 8px;
+  display: block;
+}
+
+/* Spans container for tags */
+.directory-spans-container {
+  margin: 0;
+}
+
+/* Combined tags container */
+.directory-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* Individual tags base style */
+.directory-tag {
+  font-size: 0.85rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Wiki tags styling - text color matches page background */
+.wiki-tag {
+  background-color: var(--accent-color, #192b91);
+  border: 0 solid transparent; /* Use solid with 0 width instead of none to maintain consistent box model */
+}
+
+/* Light theme - wiki tag text matches light background */
+[data-theme="light"] .wiki-tag {
+  color: #ffffff;
+}
+
+/* Dark theme - wiki tag text matches dark background */
+[data-theme="dark"] .wiki-tag {
+  color: #1e1e1e;
+}
+
+/* Code tags styling - outlined with no fill */
+.code-tag {
+  background-color: transparent;
+  border: 1px solid var(--accent-color, #192b91);
+  font-family: var(--code-font, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace);
+  font-size: 0.85em;
+  border-radius: 3px;
+  color: var(--accent-color, #192b91);
+}
+
+/* Message styling */
+.directory-loading-indicator,
+.directory-error-message,
+.directory-info-message {
+  text-align: center;
+  padding: 8px;
+}
+
+.directory-error-message {
+  color: #c00;
+}
+
+.directory-loading-indicator {
+  color: var(--muted-color);
+}
+
+.directory-info-message {
+  color: var(--text-color);
+}
+
+/* Root spans container */
+.directory-root-spans {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+}
+
+/* Preliminary section styling - keep for now, may be removed in future if not needed elsewhere */
+.preliminary-section {
+  margin-bottom: 12px;
+  border-style: dashed;
+  border-width: 1px;
+  background-color: rgba(var(--accent-color-rgb), 0.03);
+}
+
+/* Hide the preliminary section when it's empty */
+.preliminary-section:empty {
+  display: none;
+}
+
+/* Spans container */ 
