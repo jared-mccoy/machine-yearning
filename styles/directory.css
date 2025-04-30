@@ -14,6 +14,7 @@
   margin-bottom: 8px;
   overflow: hidden;
   transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
 }
 
 /* Apply transform AND tinting to the specifically hovered element and its children */

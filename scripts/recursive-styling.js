@@ -28,6 +28,9 @@ function applyRecursiveStyling() {
     delete section._mouseEnterHandler;
     delete section._mouseLeaveHandler;
     section.classList.remove('hover-active');
+    
+    // Preserve any click handlers that were attached
+    // (We don't need to do anything here, just making sure we don't remove them)
   });
   
   // Clear existing styles
@@ -80,6 +83,9 @@ function applyRecursiveStyling() {
       section.style.marginBottom = '';
       section.style.transition = '';
       section.style.transform = '';
+      
+      // Preserve cursor pointer style, which is now handled in CSS
+      // section.style.cursor = 'pointer';
       
       // Reset header styles
       const header = section.querySelector('.directory-header-wrapper');

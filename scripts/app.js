@@ -475,9 +475,18 @@ async function initDirectoryView() {
         const fileHeader = document.createElement('div');
         fileHeader.className = 'directory-header-wrapper';
         fileHeader.textContent = file.title;
-        fileHeader.addEventListener('click', () => {
-          window.location.href = `index.html?path=${file.path}`;
+        
+        // Add click handler to section as well as header
+        const fileUrl = `index.html?path=${file.path}`;
+        fileSection.addEventListener('click', () => {
+          window.location.href = fileUrl;
         });
+        
+        fileHeader.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent triggering the parent's click event
+          window.location.href = fileUrl;
+        });
+        
         fileSection.appendChild(fileHeader);
         
         // Fetch headers from the file
@@ -517,10 +526,15 @@ async function initDirectoryView() {
             headerElement.className = 'directory-header-wrapper';
             headerElement.textContent = header.text;
             
-            // Add click handler
+            // Add click handler to both section and header
             const headerUrl = `index.html?path=${file.path}#${header.text.toLowerCase().replace(/\s+/g, '-')}`;
+            
+            headerSection.addEventListener('click', (e) => {
+              window.location.href = headerUrl;
+            });
+            
             headerElement.addEventListener('click', (e) => {
-              e.stopPropagation();
+              e.stopPropagation(); // Prevent triggering the parent's click event
               window.location.href = headerUrl;
             });
             
