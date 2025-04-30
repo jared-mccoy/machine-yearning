@@ -1,0 +1,116 @@
+/* Chat bubble styles */
+
+/* Base message styling */
+.message {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 80%;
+  position: relative;
+  transition: border-color 0.3s ease;
+  display: block;
+}
+
+/* User message styling */
+.user {
+  align-self: flex-end;
+  margin-left: auto;
+  background-color: transparent;
+  border: 2px solid var(--user-color-light);
+}
+
+.user:hover {
+  border-color: var(--user-color);
+}
+
+/* Assistant/agent message styling */
+.assistant, .agent {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--assistant-color-light);
+}
+
+.assistant:hover, .agent:hover {
+  border-color: var(--assistant-color);
+}
+
+/* Speaker C message styling */
+.speakerC {
+  align-self: flex-start;
+  margin-right: auto; 
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+}
+
+.speakerC:hover {
+  border-color: var(--accentC-color);
+}
+
+/* Speaker D message styling */
+.speakerD {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentD-color-light);
+}
+
+.speakerD:hover {
+  border-color: var(--accentD-color);
+}
+
+/* Speaker E message styling */
+.speakerE {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentE-color-light);
+}
+
+.speakerE:hover {
+  border-color: var(--accentE-color);
+}
+
+/* Generic speaker message styling */
+.generic-speaker {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--generic-color-light);
+}
+
+.generic-speaker:hover {
+  border-color: var(--generic-color);
+}
+
+/* Random speaker message styling */
+.random {
+  align-self: flex-start;
+  margin-right: auto;
+  background-color: transparent;
+  border: 2px solid var(--accentC-color-light);
+}
+
+.random:hover {
+  border-color: var(--accentC-color);
+}
+
+/* Custom positioning */
+.message.custom-left {
+  /* Base styles are applied inline */
+}
+
+.message.custom-right {
+  /* Base styles are applied inline */
+}
+
+/* Message content container */
+.message .content-container {
+  margin: 0;
+  padding: 0;
+}
+
+.message .content-container .content {
+  margin: 0;
+  padding: 0;
+} 

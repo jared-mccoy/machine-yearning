@@ -1,0 +1,203 @@
+/* Chat UI components */
+
+/* Section header styling */
+.chat-section-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 25px 0 15px;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Collapsed header style */
+.chat-section-header.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Header animation states */
+.chat-section-header.header-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: none;
+}
+
+.chat-section-header.header-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease-out, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Header levels styling */
+.chat-section-header[data-level="2"],
+.chat-section-header[data-level="3"],
+.chat-section-header[data-level="4"] {
+  width: 100%;
+  margin-left: 0;
+}
+
+.chat-section-header[data-level="2"] .header-content {
+  font-size: 1.2rem;
+}
+
+.chat-section-header[data-level="3"] .header-content {
+  font-size: 1.1rem;
+}
+
+.chat-section-header[data-level="4"] .header-content {
+  font-size: 1rem;
+}
+
+.chat-section-header:hover {
+  background-color: var(--accent-color-light);
+}
+
+/* Toggle button for sections */
+.section-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  padding: 0;
+  color: var(--accent-color);
+}
+
+.section-toggle:hover {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.section-toggle:focus {
+  outline: none;
+}
+
+.section-toggle .toggle-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+  fill: currentColor;
+}
+
+.section-toggle[aria-expanded="false"] .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.header-content {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+}
+
+.header-content h2, 
+.header-content h3, 
+.header-content h4 {
+  margin: 0;
+  padding: 0;
+  color: var(--accent-color);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Chat section container */
+.chat-section {
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  overflow: hidden;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  opacity: 1;
+  visibility: visible;
+  padding-left: 1rem;
+  border-left: none;
+  margin-bottom: 1rem;
+}
+
+/* Root-level sections should not have indentation */
+.chat-container > .chat-section {
+  padding-left: 0;
+  border-left: none;
+}
+
+.chat-section.collapsed {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  border-left: none;
+}
+
+/* Speaker icons */
+.message {
+  position: relative; /* Needed for absolute positioning of icon */
+}
+
+.message::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  top: 50%;
+  border: 2px solid transparent;
+  z-index: 10;
+}
+
+/* Left-side icons (for assistant, agent, etc.) */
+.assistant::before,
+.agent::before,
+.speakerC::before,
+.speakerD::before,
+.speakerE::before,
+.generic-speaker::before,
+.random::before {
+  left: -42px;
+  transform: translateY(-50%);
+}
+
+/* Right-side icons (for user) */
+.user::before {
+  right: -42px;
+  transform: translateY(-50%);
+}
+
+/* Show icon on hover or when speaking */
+.message:hover::before,
+.message.speaking::before {
+  opacity: 1;
+}
+
+/* Assign background images based on speaker type */
+.user::before {
+  background-image: url('../speaker_icons/user.png');
+  border-color: var(--user-color);
+}
+
+.agent::before,
+.assistant::before {
+  background-image: url('../speaker_icons/agent.png');
+  border-color: var(--assistant-color);
+} 

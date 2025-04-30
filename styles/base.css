@@ -1,0 +1,24 @@
+/* Base styles for Machine Yearning Chat */
+
+/* Main containers */
+#chat-container,
+.markdown-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 50vh;
+  padding-bottom: 50px;
+}
+
+/* Chat container */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Message container */
+.message-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+} 
