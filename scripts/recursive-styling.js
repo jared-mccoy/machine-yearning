@@ -164,17 +164,32 @@ function applyRecursiveStyling() {
       section.style.borderWidth = `${borderWidth}rem`;
       section.style.borderStyle = 'solid';
       section.style.borderRadius = `${borderRadius}rem`;
-      section.style.transition = 'transform 0.2s ease'; // Add just the transform transition
       
-      // Add hover effect handlers
-      section.onmouseenter = () => {
-        section.style.transform = 'translateX(8px)';
-      };
+      // Get the content container
+      const contentContainer = section.querySelector('.directory-content-container');
       
-      section.onmouseleave = () => {
-        section.style.transform = '';
-      };
-
+      // Check if this is a leaf node (no directory sections inside)
+      const isLeafNode = !contentContainer || !Array.from(contentContainer.children).some(
+        child => child.classList.contains('directory-section')
+      );
+      
+      // Only add transition and hover effects to leaf nodes
+      if (isLeafNode) {
+        section.style.transition = 'transform 0.2s ease';
+        section.onmouseenter = () => {
+          section.style.transform = 'translateX(8px)';
+        };
+        
+        section.onmouseleave = () => {
+          section.style.transform = '';
+        };
+      } else {
+        // Explicitly remove transition and hover effects from parent nodes
+        section.style.transition = '';
+        section.onmouseenter = null;
+        section.onmouseleave = null;
+      }
+      
       // Only apply margin-bottom if this is NOT the last section
       if (index < sections.length - 1) {
         section.style.marginBottom = `${marginBottom}rem`;
@@ -190,7 +205,6 @@ function applyRecursiveStyling() {
       }
       
       // Style the content container, adjusting padding based on content
-      const contentContainer = section.querySelector('.directory-content-container');
       if (contentContainer) {
         // Only apply bottom padding if the container has elements
         const hasContent = contentContainer.children.length > 0;
