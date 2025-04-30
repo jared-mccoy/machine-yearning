@@ -803,3 +803,34 @@ window.appController = {
 
 // Make debug logging globally available
 window.debugLog = debugLog; 
+
+// Simple function to handle speaking animation
+document.addEventListener('DOMContentLoaded', function() {
+  // Basic double-click handler to toggle speaking state
+  document.addEventListener('dblclick', function(event) {
+    // Find if we clicked on a message
+    let target = event.target;
+    let messageElement = null;
+    
+    while (target && target !== document.body) {
+      if (target.classList.contains('message')) {
+        messageElement = target;
+        break;
+      }
+      target = target.parentElement;
+    }
+    
+    if (messageElement) {
+      // Toggle speaking class
+      if (messageElement.classList.contains('speaking')) {
+        messageElement.classList.remove('speaking');
+      } else {
+        // Clear any other speaking messages first
+        document.querySelectorAll('.message.speaking').forEach(function(msg) {
+          msg.classList.remove('speaking');
+        });
+        messageElement.classList.add('speaking');
+      }
+    }
+  });
+}); 

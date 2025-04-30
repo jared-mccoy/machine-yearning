@@ -758,3 +758,82 @@ pre code::-webkit-scrollbar-thumb {
 .random :not(pre) > code {
   border: 1px solid var(--accentC-color);
 }
+
+/* Speaker icons */
+.message {
+  position: relative; /* Needed for absolute positioning of icon */
+}
+
+.message::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  top: 50%;
+  border: 2px solid transparent;
+  z-index: 10;
+}
+
+/* Left-side icons (for assistant, agent, etc.) */
+.assistant::before,
+.agent::before,
+.speakerC::before,
+.speakerD::before,
+.speakerE::before,
+.generic-speaker::before,
+.random::before {
+  left: -42px;
+  transform: translateY(-50%);
+}
+
+/* Right-side icons (for user) */
+.user::before {
+  right: -42px;
+  transform: translateY(-50%);
+}
+
+/* Show icon on hover or when speaking */
+.message:hover::before,
+.message.speaking::before {
+  opacity: 1;
+}
+
+/* Assign background images based on speaker type */
+.user::before {
+  background-image: url('../speaker_icons/user.png');
+  border-color: var(--user-color);
+}
+
+.agent::before,
+.assistant::before {
+  background-image: url('../speaker_icons/agent.png');
+  border-color: var(--assistant-color);
+}
+
+/* Pulsing animation for speaking state */
+@keyframes pulse {
+  0% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0.4);
+  }
+  
+  70% {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 0 0 6px rgba(var(--accent-color-rgb), 0);
+  }
+  
+  100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0);
+  }
+}
+
+.message.speaking::before {
+  animation: pulse 2s infinite;
+  opacity: 1;
+}
