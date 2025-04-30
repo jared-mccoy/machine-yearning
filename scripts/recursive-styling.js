@@ -140,14 +140,10 @@ function applyRecursiveStyling() {
   
   // Recursive function to process each level of nesting
   function processLevel(element, depth) {
-    // Find all direct child sections within this element
     const sections = Array.from(element.children).filter(
       child => child.classList.contains('directory-section')
     );
     
-    console.log(`Processing ${sections.length} sections at depth ${depth}`);
-    
-    // Apply styling to each section
     sections.forEach((section, index) => {
       // Calculate values for this depth using appropriate scaling factors
       const borderWidth = calculateValue(config.base.borderWidth, config.scale.borderWidth, depth);
@@ -168,12 +164,22 @@ function applyRecursiveStyling() {
       section.style.borderWidth = `${borderWidth}rem`;
       section.style.borderStyle = 'solid';
       section.style.borderRadius = `${borderRadius}rem`;
+      section.style.transition = 'transform 0.2s ease'; // Add just the transform transition
       
+      // Add hover effect handlers
+      section.onmouseenter = () => {
+        section.style.transform = 'translateX(8px)';
+      };
+      
+      section.onmouseleave = () => {
+        section.style.transform = '';
+      };
+
       // Only apply margin-bottom if this is NOT the last section
       if (index < sections.length - 1) {
         section.style.marginBottom = `${marginBottom}rem`;
       } else {
-        section.style.marginBottom = '0'; // Explicitly set to 0 for the last section
+        section.style.marginBottom = '0';
       }
       
       // Style the header elements
