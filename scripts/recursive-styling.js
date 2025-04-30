@@ -165,6 +165,31 @@ function applyRecursiveStyling() {
       section.style.borderStyle = 'solid';
       section.style.borderRadius = `${borderRadius}rem`;
       
+      // Remove any inline transform/transition styles
+      section.style.transition = '';
+      section.style.transform = '';
+      
+      // Add hover tracking - only the specific element and its children should slide
+      section.addEventListener('mouseenter', (event) => {
+        // Prevent mouseenter from bubbling to parent sections
+        event.stopPropagation();
+        
+        // Clear all hover states before setting new one to ensure only one active at a time
+        const allSections = document.querySelectorAll('.directory-section');
+        allSections.forEach(sect => sect.classList.remove('hover-active'));
+        
+        // Add hover class to THIS element only
+        section.classList.add('hover-active');
+      });
+      
+      section.addEventListener('mouseleave', (event) => {
+        // Prevent mouseleave from bubbling to parent sections
+        event.stopPropagation();
+        
+        // Remove hover class 
+        section.classList.remove('hover-active');
+      });
+      
       // Get the content container
       const contentContainer = section.querySelector('.directory-content-container');
       
@@ -172,23 +197,6 @@ function applyRecursiveStyling() {
       const isLeafNode = !contentContainer || !Array.from(contentContainer.children).some(
         child => child.classList.contains('directory-section')
       );
-      
-      // Only add transition and hover effects to leaf nodes
-      if (isLeafNode) {
-        section.style.transition = 'transform 0.2s ease';
-        section.onmouseenter = () => {
-          section.style.transform = 'translateX(8px)';
-        };
-        
-        section.onmouseleave = () => {
-          section.style.transform = '';
-        };
-      } else {
-        // Explicitly remove transition and hover effects from parent nodes
-        section.style.transition = '';
-        section.onmouseenter = null;
-        section.onmouseleave = null;
-      }
       
       // Only apply margin-bottom if this is NOT the last section
       if (index < sections.length - 1) {

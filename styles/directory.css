@@ -13,7 +13,20 @@
   border-radius: 6px;
   margin-bottom: 8px;
   overflow: hidden;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+/* Only apply transform to the specifically hovered element */
+.directory-section.hover-active {
+  transform: translateX(8px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
+}
+
+/* Non-transform hover effect for all elements */
+.directory-section:hover:not(.hover-active) {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
 }
 
 /* Header elements */
@@ -23,12 +36,6 @@
   cursor: pointer;
   font-weight: 600;
   background-color: transparent;
-}
-
-/* Hover effect */
-.directory-section:hover {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
 }
 
 /* Content containers - nesting with indentation */
