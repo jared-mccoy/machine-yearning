@@ -35,11 +35,22 @@ function applyRecursiveStyling() {
     const buffers = element.querySelectorAll('.spans-buffer');
     buffers.forEach(buffer => buffer.remove());
     
+    // Also remove any existing event listeners to prevent duplicates
     const sections = element.querySelectorAll('.directory-section');
     sections.forEach(section => {
+      const oldSection = section.cloneNode(true);
+      section.parentNode.replaceChild(oldSection, section);
+    });
+    
+    const sections2 = element.querySelectorAll('.directory-section');
+    sections2.forEach(section => {
       section.style.borderWidth = '';
       section.style.borderRadius = '';
       section.style.marginBottom = '';
+      
+      // Explicitly remove any transform or transition styles
+      section.style.transition = '';
+      section.style.transform = '';
       
       const header = section.querySelector('.directory-header-wrapper');
       if (header) {
@@ -192,6 +203,44 @@ function applyRecursiveStyling() {
       
       // Get the content container
       const contentContainer = section.querySelector('.directory-content-container');
+      
+      // Also add event handlers to directory-tags and directory-spans-container to ensure hover works
+      const tagsContainers = section.querySelectorAll('.directory-tags, .directory-spans-container');
+      tagsContainers.forEach(container => {
+        if (container) {
+          // When hovering over tags, trigger hover on parent section
+          container.addEventListener('mouseenter', (event) => {
+            // Stop propagation to prevent bubbling
+            event.stopPropagation();
+            
+            // Find the nearest parent section
+            let parentSection = container.closest('.directory-section');
+            if (parentSection) {
+              // Clear all hover states
+              const allSections = document.querySelectorAll('.directory-section');
+              allSections.forEach(sect => sect.classList.remove('hover-active'));
+              
+              // Add hover class to the parent section
+              parentSection.classList.add('hover-active');
+            }
+          });
+          
+          // Handle mouseleave properly
+          container.addEventListener('mouseleave', (event) => {
+            // Stop propagation
+            event.stopPropagation();
+            
+            // Find parent section
+            let parentSection = container.closest('.directory-section');
+            if (parentSection) {
+              // Special handling - only remove hover if we're not moving to the parent section
+              if (!parentSection.contains(event.relatedTarget)) {
+                parentSection.classList.remove('hover-active');
+              }
+            }
+          });
+        }
+      });
       
       // Check if this is a leaf node (no directory sections inside)
       const isLeafNode = !contentContainer || !Array.from(contentContainer.children).some(
