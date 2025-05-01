@@ -17,8 +17,8 @@
 
 /* Typing indicator */
 .typing-indicator {
-  --avatar-size: 40px;
-  --avatar-offset: -56px;
+  --avatar-size: 80px;
+  --avatar-offset: -96px;
   --speaker-color: var(--assistant-color);
   --speaker-color-light: var(--assistant-color-light);
   
@@ -247,10 +247,10 @@
 
 /* User typing indicator positioning */
 .typing-indicator[data-speaker="user"].visible {
-  margin-right: 20px; /* Add margin on right side to make room for user avatar */
+  transform: scale(1) translateX(-40px);
 }
 
 /* All other speakers typing indicator positioning */
 .typing-indicator:not([data-speaker="user"]).visible {
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
+  transform: scale(1) translateX(40px);
 } 
