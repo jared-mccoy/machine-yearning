@@ -17,6 +17,9 @@
 
 /* Typing indicator */
 .typing-indicator {
+  --avatar-size: 32px;
+  --avatar-offset: -42px;
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,12 +42,12 @@
   z-index: 2;
 }
 
-/* Add avatar for typing indicators */
+/* Base avatar for all typing indicators */
 .typing-indicator::before {
   content: '';
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
   border-radius: 50%;
   background-size: cover;
   background-position: center;
@@ -54,17 +57,9 @@
   transform: translateY(-50%);
   border: 2px solid transparent;
   z-index: 20;
-  left: -42px;
+  left: var(--avatar-offset);
   background-image: url('../speaker_icons/agent.png');
   border-color: var(--assistant-color);
-}
-
-/* Right position for user typing indicators */
-.typing-indicator.user-typing::before {
-  left: auto;
-  right: -42px;
-  background-image: url('../speaker_icons/user.png');
-  border-color: var(--user-color);
 }
 
 /* Show avatar when typing indicator is visible */
@@ -72,32 +67,50 @@
   opacity: 1;
 }
 
-/* Speaker-specific styling for typing indicators */
-.typing-indicator.speakerC-typing::before {
-  border-color: var(--accentC-color);
-}
-
-.typing-indicator.speakerD-typing::before {
-  border-color: var(--accentD-color);
-}
-
-.typing-indicator.speakerE-typing::before {
-  border-color: var(--accentE-color);
-}
-
-.typing-indicator.generic-speaker-typing::before {
-  border-color: var(--generic-color);
-}
-
-.typing-indicator.random-typing::before {
-  border-color: var(--accentC-color);
-}
-
-/* User typing indicator appears on the right side */
+/* Right position for user typing indicators */
 .typing-indicator.user-typing {
   align-self: flex-end;
   border: 2px solid var(--user-color-light);
   transform-origin: right center;
+}
+
+.typing-indicator.user-typing::before {
+  left: auto;
+  right: var(--avatar-offset);
+  background-image: url('../speaker_icons/user.png');
+  border-color: var(--user-color);
+}
+
+/* Speaker-specific styling using CSS variables */
+/* Each speaker type gets its own typing indicator style */
+.typing-indicator[class*="-typing"]::before {
+  border-color: var(--speaker-color, var(--assistant-color));
+}
+
+/* Individual speaker colors using CSS variables */
+.typing-indicator.speakerC-typing {
+  border-color: var(--accentC-color-light);
+  --speaker-color: var(--accentC-color);
+}
+
+.typing-indicator.speakerD-typing {
+  border-color: var(--accentD-color-light);
+  --speaker-color: var(--accentD-color);
+}
+
+.typing-indicator.speakerE-typing {
+  border-color: var(--accentE-color-light);
+  --speaker-color: var(--accentE-color);
+}
+
+.typing-indicator.generic-speaker-typing {
+  border-color: var(--generic-color-light);
+  --speaker-color: var(--generic-color);
+}
+
+.typing-indicator.random-typing {
+  border-color: var(--accentC-color-light);
+  --speaker-color: var(--accentC-color);
 }
 
 .typing-indicator.visible {
@@ -110,20 +123,45 @@
   transform: scale(1);
 }
 
+/* Typing indicator dot styles - unified approach */
 .typing-indicator span {
   width: 8px;
   height: 8px;
   margin: 0 3px;
-  background-color: var(--assistant-color);
+  background-color: var(--speaker-color, var(--assistant-color));
   border-radius: 50%;
   display: inline-block;
   opacity: 0.8;
   transform-origin: center bottom;
 }
 
-/* User typing indicator dots use user color */
+/* Dot styling for speaker types */
 .typing-indicator.user-typing span {
   background-color: var(--user-color);
+}
+
+.typing-indicator.speakerC-typing span {
+  background-color: var(--accentC-color);
+}
+
+.typing-indicator.speakerD-typing span {
+  background-color: var(--accentD-color);
+}
+
+.typing-indicator.speakerE-typing span {
+  background-color: var(--accentE-color);
+}
+
+.typing-indicator.generic-speaker-typing span {
+  background-color: var(--generic-color);
+}
+
+.typing-indicator.agent-typing span {
+  background-color: var(--assistant-color);
+}
+
+.typing-indicator.random-typing span {
+  background-color: var(--accentC-color);
 }
 
 .typing-indicator span:nth-child(1) {
@@ -159,67 +197,6 @@
 .typing-indicator[data-size="large"] span:nth-child(3) {
   animation-name: bounce-rotate;
   animation-duration: 1.1s;
-}
-
-/* Speaker-specific typing indicators */
-.typing-indicator.speakerC-typing {
-  align-self: flex-start;
-  border: 2px solid var(--accentC-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.speakerC-typing span {
-  background-color: var(--accentC-color);
-}
-
-.typing-indicator.speakerD-typing {
-  align-self: flex-start;
-  border: 2px solid var(--accentD-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.speakerD-typing span {
-  background-color: var(--accentD-color);
-}
-
-.typing-indicator.speakerE-typing {
-  align-self: flex-start;
-  border: 2px solid var(--accentE-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.speakerE-typing span {
-  background-color: var(--accentE-color);
-}
-
-.typing-indicator.generic-speaker-typing {
-  align-self: flex-start;
-  border: 2px solid var(--generic-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.generic-speaker-typing span {
-  background-color: var(--generic-color);
-}
-
-.typing-indicator.agent-typing {
-  align-self: flex-start;
-  border: 2px solid var(--assistant-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.agent-typing span {
-  background-color: var(--assistant-color);
-}
-
-.typing-indicator.random-typing {
-  align-self: flex-start;
-  border: 2px solid var(--accentC-color-light);
-  transform-origin: left center;
-}
-
-.typing-indicator.random-typing span {
-  background-color: var(--accentC-color);
 }
 
 /* Custom positioned typing indicators */

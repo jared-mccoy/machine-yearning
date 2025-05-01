@@ -148,14 +148,16 @@
 
 /* Speaker icons */
 .message {
+  --avatar-size: 32px;
+  --avatar-offset: -42px;
   position: relative; /* Needed for absolute positioning of icon */
 }
 
 .message::before {
   content: '';
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
   border-radius: 50%;
   background-size: cover;
   background-position: center;
@@ -164,6 +166,7 @@
   top: 50%;
   border: 2px solid transparent;
   z-index: 20;
+  transform: translateY(-50%);
 }
 
 /* Left-side icons (for assistant, agent, etc.) */
@@ -174,14 +177,12 @@
 .speakerE::before,
 .generic-speaker::before,
 .random::before {
-  left: -42px;
-  transform: translateY(-50%);
+  left: var(--avatar-offset);
 }
 
 /* Right-side icons (for user) */
 .user::before {
-  right: -42px;
-  transform: translateY(-50%);
+  right: var(--avatar-offset);
 }
 
 /* Show icon on hover or when speaking */
