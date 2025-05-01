@@ -208,13 +208,21 @@
   border: 2px solid var(--speaker-color);
   z-index: 20;
   transform: translateY(-50%);
-  background-image: url('../public/speaker_icons/agent.svg');
+  background-color: var(--speaker-color) !important;
+  mask-image: url('../public/speaker_icons/agent.svg');
+  mask-size: cover;
+  -webkit-mask-image: url('../public/speaker_icons/agent.svg');
+  -webkit-mask-size: cover;
 }
 
 /* Position based on user vs non-user */
 .message[data-speaker="user"]::before {
   right: var(--avatar-offset);
-  background-image: url('../public/speaker_icons/user.svg');
+  background-color: var(--speaker-color) !important;
+  mask-image: url('../public/speaker_icons/user.svg');
+  mask-size: cover;
+  -webkit-mask-image: url('../public/speaker_icons/user.svg');
+  -webkit-mask-size: cover;
 }
 
 .message:not([data-speaker="user"])::before {
