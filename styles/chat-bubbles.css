@@ -10,30 +10,25 @@
   transition: border-color 0.3s ease;
   display: block;
   overflow: visible; /* Ensure icons aren't clipped */
+  border: 2px solid var(--speaker-color-light, var(--assistant-color-light));
 }
 
-/* User message styling */
-.user {
+.message:hover {
+  border-color: var(--speaker-color, var(--assistant-color));
+}
+
+/* User message styling - right side */
+.message[data-speaker="user"] {
   align-self: flex-end;
   margin-left: auto;
   background-color: transparent;
-  border: 2px solid var(--user-color-light);
 }
 
-.user:hover {
-  border-color: var(--user-color);
-}
-
-/* Assistant/agent message styling */
-.assistant, .agent {
+/* Assistant/Agent message styling - left side */
+.message:not([data-speaker="user"]) {
   align-self: flex-start;
   margin-right: auto;
   background-color: transparent;
-  border: 2px solid var(--assistant-color-light);
-}
-
-.assistant:hover, .agent:hover {
-  border-color: var(--assistant-color);
 }
 
 /* Speaker C message styling */

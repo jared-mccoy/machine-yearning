@@ -146,13 +146,54 @@
   border-left: none;
 }
 
-/* Speaker icons */
+/* Speaker icons - data-driven approach */
 .message {
   --avatar-size: 32px;
   --avatar-offset: -42px;
+  --speaker-color: var(--assistant-color);
+  --speaker-color-light: var(--assistant-color-light);
   position: relative; /* Needed for absolute positioning of icon */
 }
 
+/* Set speaker-specific colors based on data-speaker attribute */
+.message[data-speaker="user"] {
+  --speaker-color: var(--user-color);
+  --speaker-color-light: var(--user-color-light);
+}
+
+.message[data-speaker="agent"],
+.message[data-speaker="assistant"] {
+  --speaker-color: var(--assistant-color);
+  --speaker-color-light: var(--assistant-color-light);
+}
+
+/* Dynamic speaker colors based on data-speaker attribute */
+.message[data-speaker="speakerC"] {
+  --speaker-color: var(--accentC-color);
+  --speaker-color-light: var(--accentC-color-light);
+}
+
+.message[data-speaker="speakerD"] {
+  --speaker-color: var(--accentD-color);
+  --speaker-color-light: var(--accentD-color-light);
+}
+
+.message[data-speaker="speakerE"] {
+  --speaker-color: var(--accentE-color);
+  --speaker-color-light: var(--accentE-color-light);
+}
+
+.message[data-speaker="generic-speaker"] {
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+}
+
+.message[data-speaker="random"] {
+  --speaker-color: var(--accentC-color);
+  --speaker-color-light: var(--accentC-color-light);
+}
+
+/* Generic avatar styling for all messages */
 .message::before {
   content: '';
   position: absolute;
@@ -164,71 +205,24 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   top: 50%;
-  border: 2px solid transparent;
+  border: 2px solid var(--speaker-color);
   z-index: 20;
   transform: translateY(-50%);
+  background-image: url('../speaker_icons/agent.png');
 }
 
-/* Left-side icons (for assistant, agent, etc.) */
-.assistant::before,
-.agent::before,
-.speakerC::before,
-.speakerD::before,
-.speakerE::before,
-.generic-speaker::before,
-.random::before {
-  left: var(--avatar-offset);
-}
-
-/* Right-side icons (for user) */
-.user::before {
+/* Position based on user vs non-user */
+.message[data-speaker="user"]::before {
   right: var(--avatar-offset);
+  background-image: url('../speaker_icons/user.png');
+}
+
+.message:not([data-speaker="user"])::before {
+  left: var(--avatar-offset);
 }
 
 /* Show icon on hover or when speaking */
 .message:hover::before,
 .message.speaking::before {
   opacity: 1;
-}
-
-/* Assign background images based on speaker type */
-.user::before {
-  background-image: url('../speaker_icons/user.png');
-  border-color: var(--user-color);
-}
-
-.agent::before,
-.assistant::before {
-  background-image: url('../speaker_icons/agent.png');
-  border-color: var(--assistant-color);
-}
-
-/* Speaker C styling */
-.speakerC::before {
-  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
-  border-color: var(--accentC-color);
-}
-
-/* Speaker D styling */
-.speakerD::before {
-  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
-  border-color: var(--accentD-color);
-}
-
-/* Speaker E styling */
-.speakerE::before {
-  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
-  border-color: var(--accentE-color);
-}
-
-/* Generic speaker styling */
-.generic-speaker::before {
-  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
-  border-color: var(--generic-color);
-}
-
-/* Random speaker styling */
-.random::before {
-  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
-  border-color: var(--accentC-color);
 } 

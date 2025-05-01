@@ -152,23 +152,27 @@ export function processNextInQueue(animator) {
       // Create typing indicator with appropriate class based on speaker type
       const typingIndicator = document.createElement('div');
       
-      // Determine the correct typing indicator class
-      let typingClass = 'typing-indicator';
+      // Determine speaker type
+      let speakerType = 'agent';
       if (isUser) {
-        typingClass += ' user-typing';
+        speakerType = 'user';
       } else if (isSpeakerC) {
-        typingClass += ' speakerC-typing';
+        speakerType = 'speakerC';
       } else if (isSpeakerD) {
-        typingClass += ' speakerD-typing';
+        speakerType = 'speakerD';
       } else if (isSpeakerE) {
-        typingClass += ' speakerE-typing';
+        speakerType = 'speakerE';
       } else if (isGenericSpeaker) {
-        typingClass += ' generic-speaker-typing';
+        speakerType = 'generic-speaker';
       } else if (isRandom) {
-        typingClass += ' random-typing';
+        speakerType = 'random';
       }
       
-      typingIndicator.className = typingClass;
+      // Base class - typing-indicator
+      typingIndicator.className = 'typing-indicator';
+      
+      // Set data attribute for speaker type
+      typingIndicator.setAttribute('data-speaker', speakerType);
       typingIndicator.innerHTML = '<span></span><span></span><span></span>';
       
       // Set size attribute based on message length
