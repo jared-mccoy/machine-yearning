@@ -35,6 +35,7 @@
   border-radius: 0.25rem;
   font-size: 0.95em;
   white-space: nowrap;
+  transition: all 0.3s ease;
 }
 
 /* Speaker-specific wiki link styling */
@@ -42,6 +43,13 @@
 .user p a[href*="wiki"],
 .user p a:has(code) {
   background-color: var(--user-color-light);
+  border: 1px solid var(--user-color-light);
+}
+
+.user p a[title*="wiki"]:hover,
+.user p a[href*="wiki"]:hover,
+.user p a:has(code):hover {
+  border-color: var(--user-color);
 }
 
 .assistant p a[title*="wiki"],
@@ -51,36 +59,81 @@
 .assistant p a:has(code),
 .agent p a:has(code) {
   background-color: var(--assistant-color-light);
+  border: 1px solid var(--assistant-color-light);
+}
+
+.assistant p a[title*="wiki"]:hover,
+.assistant p a[href*="wiki"]:hover,
+.agent p a[title*="wiki"]:hover,
+.agent p a[href*="wiki"]:hover,
+.assistant p a:has(code):hover,
+.agent p a:has(code):hover {
+  border-color: var(--assistant-color);
 }
 
 .speakerC p a[title*="wiki"],
 .speakerC p a[href*="wiki"],
 .speakerC p a:has(code) {
   background-color: var(--accentC-color-light);
+  border: 1px solid var(--accentC-color-light);
+}
+
+.speakerC p a[title*="wiki"]:hover,
+.speakerC p a[href*="wiki"]:hover,
+.speakerC p a:has(code):hover {
+  border-color: var(--accentC-color);
 }
 
 .speakerD p a[title*="wiki"],
 .speakerD p a[href*="wiki"],
 .speakerD p a:has(code) {
   background-color: var(--accentD-color-light);
+  border: 1px solid var(--accentD-color-light);
+}
+
+.speakerD p a[title*="wiki"]:hover,
+.speakerD p a[href*="wiki"]:hover,
+.speakerD p a:has(code):hover {
+  border-color: var(--accentD-color);
 }
 
 .speakerE p a[title*="wiki"],
 .speakerE p a[href*="wiki"],
 .speakerE p a:has(code) {
   background-color: var(--accentE-color-light);
+  border: 1px solid var(--accentE-color-light);
+}
+
+.speakerE p a[title*="wiki"]:hover,
+.speakerE p a[href*="wiki"]:hover,
+.speakerE p a:has(code):hover {
+  border-color: var(--accentE-color);
 }
 
 .generic-speaker p a[title*="wiki"],
 .generic-speaker p a[href*="wiki"],
 .generic-speaker p a:has(code) {
   background-color: var(--generic-color-light);
+  border: 1px solid var(--generic-color-light);
+}
+
+.generic-speaker p a[title*="wiki"]:hover,
+.generic-speaker p a[href*="wiki"]:hover,
+.generic-speaker p a:has(code):hover {
+  border-color: var(--generic-color);
 }
 
 .random p a[title*="wiki"],
 .random p a[href*="wiki"],
 .random p a:has(code) {
   background-color: var(--accentC-color-light);
+  border: 1px solid var(--accentC-color-light);
+}
+
+.random p a[title*="wiki"]:hover,
+.random p a[href*="wiki"]:hover,
+.random p a:has(code):hover {
+  border-color: var(--accentC-color);
 }
 
 /* Inline code (backticks) styling */
@@ -91,39 +144,39 @@
   border-radius: 4px;
   background-color: transparent;
   color: var(--text-color);
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
-  border: none;
+  border: 1px solid;
 }
 
 /* Speaker-specific backtick styling */
 .user :not(pre) > code {
-  border: 1px solid var(--user-color);
+  border-color: var(--user-color-light);
 }
 
 .assistant :not(pre) > code,
 .agent :not(pre) > code {
-  border: 1px solid var(--assistant-color);
+  border-color: var(--assistant-color-light);
 }
 
 .speakerC :not(pre) > code {
-  border: 1px solid var(--accentC-color);
+  border-color: var(--accentC-color-light);
 }
 
 .speakerD :not(pre) > code {
-  border: 1px solid var(--accentD-color);
+  border-color: var(--accentD-color-light);
 }
 
 .speakerE :not(pre) > code {
-  border: 1px solid var(--accentE-color);
+  border-color: var(--accentE-color-light);
 }
 
 .generic-speaker :not(pre) > code {
-  border: 1px solid var(--generic-color);
+  border-color: var(--generic-color-light);
 }
 
 .random :not(pre) > code {
-  border: 1px solid var(--accentC-color);
+  border-color: var(--accentC-color-light);
 }
 
 /* Hover effects for inline code */
