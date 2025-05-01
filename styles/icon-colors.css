@@ -1,0 +1,144 @@
+/* SVG Icon Coloring
+ * This stylesheet colors the monochrome SVG icons based on context and theme
+ */
+
+/* Base icon styling */
+.icon-svg {
+  color: currentColor; /* Default: inherit from parent */
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Theme-based coloring for navigation icons */
+[data-theme="light"] .theme-toggle svg,
+[data-theme="light"] .animation-toggle svg,
+[data-theme="light"] .settings-toggle svg,
+[data-theme="light"] .nav-link svg,
+[data-theme="light"] .section-toggle svg {
+  color: var(--assistant-color, #192b91);
+}
+
+[data-theme="dark"] .theme-toggle svg,
+[data-theme="dark"] .animation-toggle svg,
+[data-theme="dark"] .settings-toggle svg,
+[data-theme="dark"] .nav-link svg,
+[data-theme="dark"] .section-toggle svg {
+  color: var(--accent-color, #ffc400);
+}
+
+/* Speaker-specific coloring - target all SVG elements and images with SVG sources */
+.message[data-speaker="user"] svg,
+.message[data-speaker="user"] img[src$=".svg"] {
+  color: var(--user-color, #ffc400);
+  filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+}
+
+.message[data-speaker="agent"] svg,
+.message[data-speaker="agent"] img[src$=".svg"],
+.message[data-speaker="assistant"] svg,
+.message[data-speaker="assistant"] img[src$=".svg"] {
+  color: var(--assistant-color, #192b91);
+  filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+}
+
+.message[data-speaker="speakerC"] svg,
+.message[data-speaker="speakerC"] img[src$=".svg"] {
+  color: var(--accentC-color, #e63946);
+  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+.message[data-speaker="speakerD"] svg,
+.message[data-speaker="speakerD"] img[src$=".svg"] {
+  color: var(--accentD-color, #2a9d8f);
+  filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
+}
+
+.message[data-speaker="speakerE"] svg,
+.message[data-speaker="speakerE"] img[src$=".svg"] {
+  color: var(--accentE-color, #8338ec);
+  filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+}
+
+.message[data-speaker="generic-speaker"] svg,
+.message[data-speaker="generic-speaker"] img[src$=".svg"] {
+  color: var(--generic-color, #909090);
+  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
+}
+
+.message[data-speaker="random"] svg,
+.message[data-speaker="random"] img[src$=".svg"] {
+  color: var(--accentC-color, #e63946);
+  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+/* Apply filter even to direct image tags with SVG sources */
+.message::before {
+  content: '';
+  filter: none !important; /* Override filters for pseudo-elements */
+}
+
+/* Fix for avatar images - explicitly exclude them from coloring */
+.message img.avatar-image {
+  filter: none !important;
+  color: initial !important;
+}
+
+/* Alternative approach for embedded images */
+.message img:not(.avatar-image)[src$=".svg"] {
+  /* Ensure images take on appropriate colors based on message context */
+  filter: var(--speaker-filter, none);
+}
+
+/* Define speaker-specific filters as CSS variables */
+.message[data-speaker="user"] {
+  --speaker-filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+}
+
+.message[data-speaker="agent"],
+.message[data-speaker="assistant"] {
+  --speaker-filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+}
+
+/* Button hover states */
+.theme-toggle:hover svg,
+.animation-toggle:hover svg,
+.settings-toggle:hover svg,
+.nav-link:hover svg,
+.section-toggle:hover svg {
+  filter: brightness(1.2);
+}
+
+/* Active/selected states */
+.nav-link.active svg,
+.section-toggle[aria-expanded="true"] svg {
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+/* Icon size variations */
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-xl {
+  width: 48px;
+  height: 48px;
+}
+
+/* Transitions for smooth color changes */
+.icon-svg,
+img[src$=".svg"] {
+  transition: color 0.3s ease, filter 0.3s ease;
+} 

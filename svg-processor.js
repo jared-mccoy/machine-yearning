@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // SVG Processor Script - Node.js version
-// Directly converts images to SVG with background removal
+// Directly converts images to SVG with background removal - outputs in monochrome black
 const fs = require('fs');
 const path = require('path');
 const { createCanvas, Image } = require('canvas');
@@ -11,7 +11,6 @@ const defaults = {
   inputFile: 'agent.png',
   outputFile: 'agent-mono.svg',
   threshold: 200,
-  accentColor: '#192b91',
   batchMode: true,  // Default to batch mode
   inputDir: 'public/speaker_icons/raw',
   outputDir: 'public/speaker_icons'
@@ -23,7 +22,6 @@ let {
   inputFile,
   outputFile,
   threshold,
-  accentColor,
   batchMode,
   inputDir,
   outputDir
@@ -39,9 +37,6 @@ for (let i = 0; i < args.length; i++) {
     i++;
   } else if (args[i] === '--threshold' && i + 1 < args.length) {
     threshold = parseInt(args[i + 1]);
-    i++;
-  } else if (args[i] === '--color' && i + 1 < args.length) {
-    accentColor = args[i + 1];
     i++;
   } else if (args[i] === '--single' || args[i] === '-s') {
     batchMode = false;
@@ -62,7 +57,7 @@ console.log(`Configuration:
   Input: ${batchMode ? inputDir : inputFile}
   Output: ${batchMode ? outputDir : outputFile}
   Threshold: ${threshold}
-  Color: ${accentColor}
+  Output format: Monochrome black (can be colored via CSS)
 `);
 
 // Ensure directories exist
@@ -74,7 +69,7 @@ function ensureDirectoryExists(dir) {
 }
 
 // Convert image to monochrome SVG
-function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
+function convertImageToSvg(inputPath, outputPath, threshold) {
   // Read the image file
   const img = new Image();
   
@@ -114,10 +109,10 @@ function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
     }
     
     // Create SVG header with proper viewBox
-    let svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}" width="${canvas.width}" height="${canvas.height}">`;
+    let svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}" width="${canvas.width}" height="${canvas.height}" class="icon-svg">`;
     
-    // Create a single path that contains all dark areas
-    svgString += `<path fill="${accentColor}" d="`;
+    // Create a single path that contains all dark areas - using black (#000) as the color
+    svgString += `<path fill="currentColor" d="`;
     
     // Use a simplified approach - create rectangles for runs of dark pixels
     const paths = [];
@@ -148,9 +143,6 @@ function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
     // Add all paths to SVG
     svgString += paths.join(' ') + '"/>'; 
     
-    // Create simple rect version for testing
-    svgString += `<rect x="0" y="0" width="${canvas.width}" height="${canvas.height}" fill="none" stroke="red" stroke-width="1" opacity="0.1"/>`;
-    
     // Close SVG
     svgString += '</svg>';
     
@@ -158,11 +150,6 @@ function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
     fs.writeFileSync(outputPath, svgString);
     
     console.log(`Successfully converted ${inputPath} to ${outputPath}`);
-    console.log(`Applied: 
-    - Color: ${accentColor}
-    - Threshold: ${threshold} (higher = more aggressive background removal)
-    - Input dimensions: ${img.width}x${img.height}
-    `);
     
     return true;
   } catch (error) {
@@ -172,7 +159,7 @@ function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
 }
 
 // Process a directory of images
-function processBatch(inputDirectory, outputDirectory, accentColor, threshold) {
+function processBatch(inputDirectory, outputDirectory, threshold) {
   // Ensure output directory exists
   ensureDirectoryExists(outputDirectory);
   
@@ -209,7 +196,7 @@ function processBatch(inputDirectory, outputDirectory, accentColor, threshold) {
     
     console.log(`Processing: ${inputPath} -> ${outputPath}`);
     
-    const success = convertImageToSvg(inputPath, outputPath, accentColor, threshold);
+    const success = convertImageToSvg(inputPath, outputPath, threshold);
     if (success) {
       successCount++;
     } else {
@@ -221,12 +208,25 @@ function processBatch(inputDirectory, outputDirectory, accentColor, threshold) {
   console.log(`- Total files: ${imageFiles.length}`);
   console.log(`- Successfully converted: ${successCount}`);
   console.log(`- Failed: ${failCount}`);
+  console.log('\nNow you can use the SVGs with CSS coloring:');
+  console.log(`
+  /* In your CSS file */
+  .icon-svg {
+    color: var(--accent-color); /* Icons inherit color from CSS */
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Dynamic coloring based on theme */
+  [data-theme="light"] .icon-svg { color: #192b91; }
+  [data-theme="dark"] .icon-svg { color: #ffc400; }
+  `);
 }
 
 // Run in batch mode or single file mode
 if (batchMode) {
   console.log('Running in batch mode...');
-  processBatch(inputDir, outputDir, accentColor, threshold);
+  processBatch(inputDir, outputDir, threshold);
 } else {
   // Check if the file exists
   if (!fs.existsSync(inputFile)) {
@@ -239,7 +239,21 @@ if (batchMode) {
   ensureDirectoryExists(outputDirectory);
   
   // Run the conversion for single file
-  convertImageToSvg(inputFile, outputFile, accentColor, threshold);
+  convertImageToSvg(inputFile, outputFile, threshold);
+  
+  console.log('\nYou can use the SVG with CSS coloring:');
+  console.log(`
+  /* In your CSS file */
+  .icon-svg {
+    color: var(--accent-color); /* Icons inherit color from CSS */
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Dynamic coloring based on theme */
+  [data-theme="light"] .icon-svg { color: #192b91; }
+  [data-theme="dark"] .icon-svg { color: #ffc400; }
+  `);
 }
 
 /*
@@ -255,10 +269,10 @@ USAGE:
    - Input directory: public/speaker_icons/raw
    - Output directory: public/speaker_icons
    - Threshold: 200
-   - Color: #192b91
+   - Output: Monochrome black SVGs with currentColor fill (for CSS styling)
 
 4. Run with custom parameters for batch processing:
-   node svg-processor.js --input-dir public/speaker_icons/raw --output-dir public/speaker_icons --threshold 180 --color "#ffc400"
+   node svg-processor.js --input-dir public/speaker_icons/raw --output-dir public/speaker_icons --threshold 180
 
 5. Run in single file mode:
    node svg-processor.js --single --input agent.png --output agent-mono.svg
@@ -271,5 +285,17 @@ USAGE:
    --input-dir   : Input directory for batch processing
    --output-dir  : Output directory for batch processing
    --threshold   : Brightness threshold (0-255, higher = more aggressive background removal)
-   --color       : Hex color for the SVG output
+
+7. CSS Usage:
+   The output SVGs use currentColor, so you can color them with CSS:
+   
+   // HTML
+   <img src="agent.svg" class="icon-svg">
+   
+   // CSS
+   .icon-svg {
+     color: var(--accent-color);
+     width: 24px;
+     height: 24px;
+   }
 */ 
