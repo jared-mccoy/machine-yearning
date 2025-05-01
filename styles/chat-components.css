@@ -208,13 +208,13 @@
   border: 2px solid var(--speaker-color);
   z-index: 20;
   transform: translateY(-50%);
-  background-image: url('../speaker_icons/agent.png');
+  background-image: url('../public/speaker_icons/agent.png');
 }
 
 /* Position based on user vs non-user */
 .message[data-speaker="user"]::before {
   right: var(--avatar-offset);
-  background-image: url('../speaker_icons/user.png');
+  background-image: url('../public/speaker_icons/user.png');
 }
 
 .message:not([data-speaker="user"])::before {

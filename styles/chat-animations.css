@@ -53,17 +53,17 @@
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
   top: 50%;
   transform: translateY(-50%);
   border: 2px solid var(--speaker-color);
   z-index: 20;
   left: var(--avatar-offset);
-  background-image: url('../speaker_icons/agent.png');
+  background-image: url('../public/speaker_icons/agent.png');
 }
 
-/* Show avatar when typing indicator is visible */
+/* Show avatar when typing indicator is visible - no longer needed */
 .typing-indicator.visible::before {
   opacity: 1;
 }
@@ -79,7 +79,7 @@
 .typing-indicator[data-speaker="user"]::before {
   left: auto;
   right: var(--avatar-offset);
-  background-image: url('../speaker_icons/user.png');
+  background-image: url('../public/speaker_icons/user.png');
 }
 
 /* Set speaker colors based on data-speaker attribute */
