@@ -148,8 +148,8 @@
 
 /* Speaker icons - data-driven approach */
 .message {
-  --avatar-size: 32px;
-  --avatar-offset: -42px;
+  --avatar-size: 40px;
+  --avatar-offset: -56px;
   --speaker-color: var(--assistant-color);
   --speaker-color-light: var(--assistant-color-light);
   position: relative; /* Needed for absolute positioning of icon */

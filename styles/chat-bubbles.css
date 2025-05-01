@@ -5,7 +5,7 @@
   margin-bottom: 20px;
   border-radius: 8px;
   padding: 12px 16px;
-  max-width: 80%;
+  max-width: 75%;
   position: relative;
   transition: border-color 0.3s ease;
   display: block;
@@ -21,6 +21,7 @@
 .message[data-speaker="user"] {
   align-self: flex-end;
   margin-left: auto;
+  margin-right: 20px; /* Add margin on right side to make room for user avatar */
   background-color: transparent;
 }
 
@@ -28,13 +29,15 @@
 .message:not([data-speaker="user"]) {
   align-self: flex-start;
   margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for assistant avatar */
   background-color: transparent;
 }
 
 /* Speaker C message styling */
 .speakerC {
   align-self: flex-start;
-  margin-right: auto; 
+  margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
 }
@@ -47,6 +50,7 @@
 .speakerD {
   align-self: flex-start;
   margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentD-color-light);
 }
@@ -59,6 +63,7 @@
 .speakerE {
   align-self: flex-start;
   margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentE-color-light);
 }
@@ -71,6 +76,7 @@
 .generic-speaker {
   align-self: flex-start;
   margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--generic-color-light);
 }
@@ -83,6 +89,7 @@
 .random {
   align-self: flex-start;
   margin-right: auto;
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
 }
