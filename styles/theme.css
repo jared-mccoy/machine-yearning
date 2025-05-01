@@ -75,8 +75,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   transition: all 0.3s ease;
   margin-right: 8px;
@@ -88,8 +88,8 @@ body {
 }
 
 .theme-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   fill: currentColor;
 }
 
@@ -112,8 +112,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   transition: all 0.3s ease;
   margin-right: 8px;
@@ -126,8 +126,8 @@ body {
 }
 
 .animation-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   fill: currentColor;
   position: absolute;
   top: 50%;
@@ -157,8 +157,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   transition: all 0.3s ease;
 }
@@ -169,8 +169,8 @@ body {
 }
 
 .settings-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   fill: currentColor;
 }
 

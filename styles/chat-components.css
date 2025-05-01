@@ -64,8 +64,8 @@
   background: none;
   border: none;
   cursor: pointer;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,8 +84,8 @@
 }
 
 .section-toggle .toggle-icon {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   display: block;
   transition: transform 0.3s ease;
   transform: rotate(0deg);
