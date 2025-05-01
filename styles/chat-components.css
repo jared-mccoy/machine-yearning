@@ -200,4 +200,34 @@
 .assistant::before {
   background-image: url('../speaker_icons/agent.png');
   border-color: var(--assistant-color);
+}
+
+/* Speaker C styling */
+.speakerC::before {
+  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
+  border-color: var(--accentC-color);
+}
+
+/* Speaker D styling */
+.speakerD::before {
+  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
+  border-color: var(--accentD-color);
+}
+
+/* Speaker E styling */
+.speakerE::before {
+  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
+  border-color: var(--accentE-color);
+}
+
+/* Generic speaker styling */
+.generic-speaker::before {
+  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
+  border-color: var(--generic-color);
+}
+
+/* Random speaker styling */
+.random::before {
+  background-image: url('../speaker_icons/user.png'); /* Using existing icon temporarily */
+  border-color: var(--accentC-color);
 } 
