@@ -79,7 +79,7 @@
 .typing-indicator[data-speaker="user"]::before {
   left: auto;
   right: var(--avatar-offset);
-  background-image: url('../public/speaker_icons/user.png');
+  background-image: url('../public/speaker_icons/user.svg');
 }
 
 /* Set speaker colors based on data-speaker attribute */

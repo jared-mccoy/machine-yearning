@@ -6,12 +6,28 @@ const fs = require('fs');
 const path = require('path');
 const { createCanvas, Image } = require('canvas');
 
+// Default configuration
+const defaults = {
+  inputFile: 'agent.png',
+  outputFile: 'agent-mono.svg',
+  threshold: 200,
+  accentColor: '#192b91',
+  batchMode: true,  // Default to batch mode
+  inputDir: 'public/speaker_icons/raw',
+  outputDir: 'public/speaker_icons'
+};
+
 // Get arguments
 const args = process.argv.slice(2);
-let inputFile = 'agent.png';
-let outputFile = 'agent-mono.svg';
-let threshold = 200;
-let accentColor = '#192b91';
+let {
+  inputFile,
+  outputFile,
+  threshold,
+  accentColor,
+  batchMode,
+  inputDir,
+  outputDir
+} = defaults;
 
 // Parse command line arguments
 for (let i = 0; i < args.length; i++) {
@@ -27,17 +43,34 @@ for (let i = 0; i < args.length; i++) {
   } else if (args[i] === '--color' && i + 1 < args.length) {
     accentColor = args[i + 1];
     i++;
+  } else if (args[i] === '--single' || args[i] === '-s') {
+    batchMode = false;
+  } else if (args[i] === '--batch' || args[i] === '-b') {
+    batchMode = true;
+  } else if (args[i] === '--input-dir' && i + 1 < args.length) {
+    inputDir = args[i + 1];
+    i++;
+  } else if (args[i] === '--output-dir' && i + 1 < args.length) {
+    outputDir = args[i + 1];
+    i++;
   }
 }
 
-// Default to the sample file if no input is provided
-if (args.length === 0) {
-  console.log(`No arguments provided, using defaults:
-  Input: ${inputFile}
-  Output: ${outputFile}
+// Display configuration
+console.log(`Configuration:
+  Mode: ${batchMode ? 'Batch' : 'Single file'}
+  Input: ${batchMode ? inputDir : inputFile}
+  Output: ${batchMode ? outputDir : outputFile}
   Threshold: ${threshold}
   Color: ${accentColor}
-  `);
+`);
+
+// Ensure directories exist
+function ensureDirectoryExists(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created directory: ${dir}`);
+  }
 }
 
 // Convert image to monochrome SVG
@@ -133,19 +166,81 @@ function convertImageToSvg(inputPath, outputPath, accentColor, threshold) {
     
     return true;
   } catch (error) {
-    console.error('Error converting image:', error.message);
+    console.error(`Error converting image ${inputPath}:`, error.message);
     return false;
   }
 }
 
-// Check if the file exists
-if (!fs.existsSync(inputFile)) {
-  console.error(`Error: Input file "${inputFile}" not found.`);
-  process.exit(1);
+// Process a directory of images
+function processBatch(inputDirectory, outputDirectory, accentColor, threshold) {
+  // Ensure output directory exists
+  ensureDirectoryExists(outputDirectory);
+  
+  // Check if input directory exists
+  if (!fs.existsSync(inputDirectory)) {
+    console.error(`Error: Input directory "${inputDirectory}" not found.`);
+    process.exit(1);
+  }
+  
+  // Get all files in the input directory
+  const files = fs.readdirSync(inputDirectory);
+  
+  // Filter for image files
+  const imageFiles = files.filter(file => {
+    const ext = path.extname(file).toLowerCase();
+    return ['.png', '.jpg', '.jpeg', '.gif'].includes(ext);
+  });
+  
+  console.log(`Found ${imageFiles.length} image files in ${inputDirectory}`);
+  
+  if (imageFiles.length === 0) {
+    console.log('No image files found to process.');
+    return;
+  }
+  
+  // Process each image
+  let successCount = 0;
+  let failCount = 0;
+  
+  imageFiles.forEach(file => {
+    const inputPath = path.join(inputDirectory, file);
+    const outputFileName = path.basename(file, path.extname(file)) + '.svg';
+    const outputPath = path.join(outputDirectory, outputFileName);
+    
+    console.log(`Processing: ${inputPath} -> ${outputPath}`);
+    
+    const success = convertImageToSvg(inputPath, outputPath, accentColor, threshold);
+    if (success) {
+      successCount++;
+    } else {
+      failCount++;
+    }
+  });
+  
+  console.log('\nBatch processing complete:');
+  console.log(`- Total files: ${imageFiles.length}`);
+  console.log(`- Successfully converted: ${successCount}`);
+  console.log(`- Failed: ${failCount}`);
 }
 
-// Run the conversion
-convertImageToSvg(inputFile, outputFile, accentColor, threshold);
+// Run in batch mode or single file mode
+if (batchMode) {
+  console.log('Running in batch mode...');
+  processBatch(inputDir, outputDir, accentColor, threshold);
+} else {
+  // Check if the file exists
+  if (!fs.existsSync(inputFile)) {
+    console.error(`Error: Input file "${inputFile}" not found.`);
+    process.exit(1);
+  }
+  
+  // Ensure output directory exists
+  const outputDirectory = path.dirname(outputFile);
+  ensureDirectoryExists(outputDirectory);
+  
+  // Run the conversion for single file
+  convertImageToSvg(inputFile, outputFile, accentColor, threshold);
+}
 
 /*
 USAGE:
@@ -155,15 +250,26 @@ USAGE:
 2. Make the script executable (Unix/Linux/Mac):
    chmod +x svg-processor.js
 
-3. Run with defaults (processes agent.png in current directory):
-   node svg-processor.js
+3. Running the script with no arguments will use defaults:
+   - Batch processing mode
+   - Input directory: public/speaker_icons/raw
+   - Output directory: public/speaker_icons
+   - Threshold: 200
+   - Color: #192b91
 
-4. Run with custom parameters:
-   node svg-processor.js --input agent.png --output agent-mono.svg --threshold 200 --color "#192b91"
+4. Run with custom parameters for batch processing:
+   node svg-processor.js --input-dir public/speaker_icons/raw --output-dir public/speaker_icons --threshold 180 --color "#ffc400"
 
-5. Parameters:
-   --input     : Input image file path
-   --output    : Output SVG file path
-   --threshold : Brightness threshold (0-255, higher = remove more)
-   --color     : Hex color for the SVG output
+5. Run in single file mode:
+   node svg-processor.js --single --input agent.png --output agent-mono.svg
+
+6. Parameters:
+   --single, -s  : Process a single file instead of batch
+   --batch, -b   : Process all images in the input directory (default)
+   --input       : Input image file path (for single mode)
+   --output      : Output SVG file path (for single mode)
+   --input-dir   : Input directory for batch processing
+   --output-dir  : Output directory for batch processing
+   --threshold   : Brightness threshold (0-255, higher = more aggressive background removal)
+   --color       : Hex color for the SVG output
 */ 
