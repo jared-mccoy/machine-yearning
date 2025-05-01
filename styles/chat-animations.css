@@ -31,11 +31,66 @@
   min-height: 0;
   height: 0;
   opacity: 0;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
   transition: all 0.3s ease;
   transform-origin: left center;
   transform: scale(0.8);
+  z-index: 2;
+}
+
+/* Add avatar for typing indicators */
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 2px solid transparent;
+  z-index: 20;
+  left: -42px;
+  background-image: url('../speaker_icons/agent.png');
+  border-color: var(--assistant-color);
+}
+
+/* Right position for user typing indicators */
+.typing-indicator.user-typing::before {
+  left: auto;
+  right: -42px;
+  background-image: url('../speaker_icons/user.png');
+  border-color: var(--user-color);
+}
+
+/* Show avatar when typing indicator is visible */
+.typing-indicator.visible::before {
+  opacity: 1;
+}
+
+/* Speaker-specific styling for typing indicators */
+.typing-indicator.speakerC-typing::before {
+  border-color: var(--accentC-color);
+}
+
+.typing-indicator.speakerD-typing::before {
+  border-color: var(--accentD-color);
+}
+
+.typing-indicator.speakerE-typing::before {
+  border-color: var(--accentE-color);
+}
+
+.typing-indicator.generic-speaker-typing::before {
+  border-color: var(--generic-color);
+}
+
+.typing-indicator.random-typing::before {
+  border-color: var(--accentC-color);
 }
 
 /* User typing indicator appears on the right side */
