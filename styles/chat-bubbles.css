@@ -7,7 +7,7 @@
   padding: 12px 16px;
   max-width: 75%;
   position: relative;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
   display: block;
   overflow: visible; /* Crucial to ensure avatars aren't clipped */
   border: 2px solid var(--speaker-color-light, var(--assistant-color-light));
@@ -21,81 +21,118 @@
 .message[data-speaker="user"] {
   align-self: flex-end;
   margin-left: auto;
-  margin-right: 20px; /* Add margin on right side to make room for user avatar */
   background-color: transparent;
+  transition: margin-right 0.3s ease;
+}
+
+/* User message hover/speaking state - slide toward center */
+.message[data-speaker="user"]:hover,
+.message[data-speaker="user"].speaking {
+  margin-right: 20px; /* Add margin on right side to make room for user avatar */
 }
 
 /* Assistant/Agent message styling - left side */
 .message:not([data-speaker="user"]) {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for assistant avatar */
   background-color: transparent;
+  transition: margin-left 0.3s ease;
+}
+
+/* Assistant message hover/speaking state - slide toward center */
+.message:not([data-speaker="user"]):hover,
+.message:not([data-speaker="user"]).speaking {
+  margin-left: 20px; /* Add margin on left side to make room for assistant avatar */
 }
 
 /* Speaker C message styling */
 .speakerC {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
+  transition: margin-left 0.3s ease;
 }
 
 .speakerC:hover {
   border-color: var(--accentC-color);
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
+}
+
+.speakerC.speaking {
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
 }
 
 /* Speaker D message styling */
 .speakerD {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentD-color-light);
+  transition: margin-left 0.3s ease;
 }
 
 .speakerD:hover {
   border-color: var(--accentD-color);
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
+}
+
+.speakerD.speaking {
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
 }
 
 /* Speaker E message styling */
 .speakerE {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentE-color-light);
+  transition: margin-left 0.3s ease;
 }
 
 .speakerE:hover {
   border-color: var(--accentE-color);
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
+}
+
+.speakerE.speaking {
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
 }
 
 /* Generic speaker message styling */
 .generic-speaker {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--generic-color-light);
+  transition: margin-left 0.3s ease;
 }
 
 .generic-speaker:hover {
   border-color: var(--generic-color);
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
+}
+
+.generic-speaker.speaking {
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
 }
 
 /* Random speaker message styling */
 .random {
   align-self: flex-start;
   margin-right: auto;
-  margin-left: 20px; /* Add margin on left side to make room for avatar */
   background-color: transparent;
   border: 2px solid var(--accentC-color-light);
+  transition: margin-left 0.3s ease;
 }
 
 .random:hover {
   border-color: var(--accentC-color);
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
+}
+
+.random.speaking {
+  margin-left: 20px; /* Add margin on left side to make room for avatar */
 }
 
 /* Custom positioning */
