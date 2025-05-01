@@ -14,6 +14,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding-left: 50px;  /* Space for left-side avatars */
+  padding-right: 50px; /* Space for right-side avatars */
 }
 
 /* Message container */

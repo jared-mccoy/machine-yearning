@@ -117,7 +117,7 @@
 /* Chat section container */
 .chat-section {
   transition: max-height 0.3s ease, opacity 0.2s ease;
-  overflow: hidden;
+  overflow: visible;
   max-height: none;
   display: flex;
   flex-direction: column;
@@ -163,7 +163,7 @@
   transition: opacity 0.3s ease;
   top: 50%;
   border: 2px solid transparent;
-  z-index: 10;
+  z-index: 20;
 }
 
 /* Left-side icons (for assistant, agent, etc.) */
