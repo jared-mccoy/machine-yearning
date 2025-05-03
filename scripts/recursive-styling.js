@@ -17,8 +17,8 @@ function applyRecursiveStyling() {
     return;
   }
   
+  // Only log once at start, not for every depth level
   console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
-  console.log('Using config:', config);
   
   // Remove any existing hover handlers
   const sections = document.querySelectorAll('.directory-section');
@@ -139,8 +139,6 @@ function applyRecursiveStyling() {
         
         if (current.classList.contains('directory-spans-container') && 
             next.classList.contains('directory-section')) {
-          console.log('Found spans container followed by directory section - adding buffer');
-          
           // Find the depth of this content container
           let depth = 0;
           let parent = container;
@@ -195,13 +193,6 @@ function applyRecursiveStyling() {
       const verticalPadding = calculateValue(config.base.verticalPadding, config.scale.spacing, depth);
       const horizontalPadding = calculateValue(config.base.horizontalPadding, config.scale.spacing, depth);
       const fontSize = calculateValue(config.base.fontSize, config.scale.fontSize, depth);
-      
-      // Log calculated values in pixels for debugging
-      console.log(`Section ${index} at depth ${depth}:`, {
-        borderWidth: remToPx(borderWidth) + 'px',
-        borderRadius: remToPx(borderRadius) + 'px',
-        fontSize: remToPx(fontSize) + 'px'
-      });
       
       // Apply border styling
       section.style.borderWidth = `${borderWidth}rem`;
@@ -261,8 +252,6 @@ function applyRecursiveStyling() {
           const tagPaddingH = calculateValue(tagBase.paddingH, tagScale.padding, depth);
           const tagBorderRadius = calculateValue(tagBase.borderRadius, tagScale.borderRadius, depth);
           const tagBorderWidth = calculateValue(tagBase.borderWidth, tagScale.borderWidth, depth);
-          
-          console.log(`Styling ${tags.length} tags at depth ${depth} with fontSize: ${tagFontSize}rem, borderWidth: ${tagBorderWidth}rem`);
 
           // Apply styles to each tag
           tags.forEach(tag => {

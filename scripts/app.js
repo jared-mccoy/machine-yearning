@@ -28,6 +28,16 @@ const logSettings = {
   }
 };
 
+// Set DEBUG_TAGS to false to disable all tag debug logging
+const DEBUG_TAGS = false;
+
+// Helper function to conditionally log tag debug info
+function tagDebug(message, ...args) {
+  if (DEBUG_TAGS) {
+    console.log('[TagDebug] ' + message, ...args);
+  }
+}
+
 /**
  * Debug function to log to console only, not the page
  * @param {string} message - The message to log
@@ -560,7 +570,7 @@ async function initDirectoryView() {
           if (spanEnabled && spans && spans.tree && 
               window.spanExtractor && typeof window.spanExtractor.createNodeSpansContainer === 'function') {
             
-            console.log('[TagDebug] Processing spans for file:', file.title);
+            tagDebug('Processing spans for file:', file.title);
             
             // Function to recursively add spans from the tree
             function addSpansFromTree(node, headerElements, contentContainer) {
@@ -574,33 +584,33 @@ async function initDirectoryView() {
                   h.text.toLowerCase().trim() === normalizedNodeText);
                 
                 if (matchingHeader) {
-                  console.log('[TagDebug] Found matching header for:', node.text);
-                  console.log('[TagDebug] Node has wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
+                  tagDebug('Found matching header for:', node.text);
+                  tagDebug('Node has wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                   
                   // Create and add spans for this node
                   const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                   if (spansContainer) {
-                    console.log('[TagDebug] Adding spans container to header:', matchingHeader.text);
+                    tagDebug('Adding spans container to header:', matchingHeader.text);
                     matchingHeader.content.appendChild(spansContainer);
                   } else {
-                    console.log('[TagDebug] No spans container created for:', node.text);
+                    tagDebug('No spans container created for:', node.text);
                   }
                 } else {
-                  console.log('[TagDebug] No matching header found for:', node.text);
+                  tagDebug('No matching header found for:', node.text);
                 }
               } else if (node.text === 'Root' && node.wikilinks.length + node.backticks.length > 0) {
                 // For root node (content before first header), add directly to the content container
-                console.log('[TagDebug] Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
+                tagDebug('Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                 const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                 if (spansContainer) {
-                  console.log('[TagDebug] Adding Root spans to content container');
+                  tagDebug('Adding Root spans to content container');
                   contentContainer.appendChild(spansContainer);
                 }
               }
               
               // Process children recursively
               if (node.children && node.children.length) {
-                console.log('[TagDebug] Processing', node.children.length, 'children of', node.text || 'Root');
+                tagDebug('Processing', node.children.length, 'children of', node.text || 'Root');
                 node.children.forEach(child => {
                   addSpansFromTree(child, headerElements, contentContainer);
                 });
@@ -608,14 +618,14 @@ async function initDirectoryView() {
             }
             
             // Log full tree structure for debugging
-            console.log('[TagDebug] Full tree structure:', JSON.stringify(spans.tree, (key, value) => {
+            tagDebug('Full tree structure:', JSON.stringify(spans.tree, (key, value) => {
               // Exclude parent to avoid circular reference and content to reduce size
               if (key === 'parent' || key === 'content') return undefined;
               return value;
             }, 2));
             
             // Log header elements for debugging
-            console.log('[TagDebug] UI Header elements:', headerElements.map(h => ({
+            tagDebug('UI Header elements:', headerElements.map(h => ({
               text: h.text,
               level: h.level
             })));
@@ -660,7 +670,8 @@ async function initDirectoryView() {
             // Get the root node which contains all spans when no headers exist
             const rootNode = spans.tree;
             
-            console.log('[TagDebug] No headers case - Root node has wikilinks:', 
+            // No headers case logs
+            tagDebug('No headers case - Root node has wikilinks:', 
               rootNode.wikilinks?.length || 0, 'backticks:', rootNode.backticks?.length || 0);
             
             if (rootNode && (rootNode.wikilinks.length > 0 || rootNode.backticks.length > 0)) {
@@ -671,11 +682,13 @@ async function initDirectoryView() {
               const spansContainer = window.spanExtractor.createNodeSpansContainer(rootNode, spanSettings);
               
               if (spansContainer) {
-                console.log('[TagDebug] Adding spans container in no-headers case');
+                // Spans container logs
+                tagDebug('Adding spans container in no-headers case');
                 fileContent.appendChild(spansContainer);
                 fileSection.appendChild(fileContent);
               } else {
-                console.log('[TagDebug] No spans container created in no-headers case');
+                // Spans container logs
+                tagDebug('No spans container created in no-headers case');
               }
             }
           }
