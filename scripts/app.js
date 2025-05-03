@@ -34,7 +34,7 @@ const DEBUG_TAGS = false;
 // Helper function to conditionally log tag debug info
 function tagDebug(message, ...args) {
   if (DEBUG_TAGS) {
-    console.debug('[TagDebug] ' + message, ...args);
+    console.info('[TagDebug] ' + message, ...args);
   }
 }
 
@@ -81,7 +81,7 @@ function debugLog(message, category = 'system') {
   }
   
   // Only log to console, never to the page
-  console.debug(message);
+  console.info(message);
 }
 
 // Special function for error messages that should be visible on the page

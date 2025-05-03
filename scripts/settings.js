@@ -148,49 +148,13 @@ function applyLoggingSettings() {
   const loggingMode = appSettings.logging.mode;
   const allowedLevels = appSettings.logging.levels[loggingMode] || [];
   
-  // Setup global log function if it doesn't exist
-  if (!window.appLog) {
-    window.appLog = function(level, message, ...data) {
-      // Skip logging if level is not in the allowed levels
-      if (!allowedLevels.includes(level)) {
-        return;
-      }
-      
-      // Map log levels to console methods
-      switch (level) {
-        case 'debug':
-          console.debug(`[DEBUG] ${message}`, ...data);
-          break;
-        case 'info':
-          console.info(`[INFO] ${message}`, ...data);
-          break;
-        case 'warning':
-          console.warn(`[WARNING] ${message}`, ...data);
-          break;
-        case 'error':
-          console.error(`[ERROR] ${message}`, ...data);
-          break;
-        case 'critical':
-          console.error(`[CRITICAL] ${message}`, ...data);
-          break;
-        default:
-          console.debug(`[${level.toUpperCase()}] ${message}`, ...data);
-      }
-    };
+  // If our logging system is already initialized, just update it
+  if (window.appLog && window.appLog.setMode) {
+    window.appLog.setMode(loggingMode, appSettings.logging.levels);
+  } else {
+    // This shouldn't happen if logging.js is loaded first, but just in case
+    console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
   }
-  
-  // Provide helper methods for each log level
-  window.appLog.debug = (message, ...data) => window.appLog('debug', message, ...data);
-  window.appLog.info = (message, ...data) => window.appLog('info', message, ...data);
-  window.appLog.warning = (message, ...data) => window.appLog('warning', message, ...data);
-  window.appLog.error = (message, ...data) => window.appLog('error', message, ...data);
-  window.appLog.critical = (message, ...data) => window.appLog('critical', message, ...data);
-  
-  // Store the current logging mode and allowed levels
-  window.appLog.mode = loggingMode;
-  window.appLog.allowedLevels = allowedLevels;
-  
-  console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
 }
 
 /**

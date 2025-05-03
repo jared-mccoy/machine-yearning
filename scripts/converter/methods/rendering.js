@@ -79,7 +79,7 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
   
   // Override the code renderer with our own implementation
   renderer.code = function(code, language) {
-    console.debug("Code renderer received:", typeof code, code, "Language:", language);
+    console.info("Code renderer received:", typeof code, code, "Language:", language);
     
     try {
       // Extract code content
@@ -89,7 +89,7 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
         // If no explicit language was provided but the object has a lang property, use it
         if (!language && code.lang) {
           language = code.lang;
-          console.debug("Using language from object:", language);
+          console.info("Using language from object:", language);
         }
       } else {
         codeText = code || '';
@@ -99,8 +99,8 @@ export function createCustomRenderer(escapeHtml, restoreSpacePlaceholders) {
       codeText = restoreSpacePlaceholders(codeText);
       
       // For debugging
-      console.debug("After space restoration:", codeText.substring(0, 100) + "...");
-      console.debug("Final language:", language);
+      console.info("After space restoration:", codeText.substring(0, 100) + "...");
+      console.info("Final language:", language);
       
       // Create language class and attribute
       const languageClass = language ? ` class="language-${language}"` : '';

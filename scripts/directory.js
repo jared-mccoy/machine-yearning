@@ -9,8 +9,8 @@ const baseUrl = window.location.hostname === 'localhost' || window.location.host
   : '/machine-yearning';
 
 // Add more detailed logging
-console.debug(`Running on ${window.location.hostname} with baseUrl set to: "${baseUrl}"`);
-console.debug(`Full current URL: ${window.location.href}`);
+console.info(`Running on ${window.location.hostname} with baseUrl set to: "${baseUrl}"`);
+console.info(`Full current URL: ${window.location.href}`);
 
 class ChatDirectoryScanner {
   constructor() {
@@ -27,7 +27,7 @@ class ChatDirectoryScanner {
     if (typeof window.debugLog === 'function') {
       window.debugLog('ChatDirectoryScanner constructor completed');
     } else {
-      console.debug('ChatDirectoryScanner constructor completed');
+      console.info('ChatDirectoryScanner constructor completed');
     }
   }
   
@@ -38,7 +38,7 @@ class ChatDirectoryScanner {
       if (window.debugLog) {
         window.debugLog('Chat scanner cache cleared');
       } else {
-        console.debug('Chat scanner cache cleared');
+        console.info('Chat scanner cache cleared');
       }
     } catch (e) {
       console.warn('Failed to clear cache:', e);
@@ -54,7 +54,7 @@ class ChatDirectoryScanner {
       if (typeof window.debugLog === 'function') {
         window.debugLog(msg);
       } else {
-        console.debug(msg);
+        console.info(msg);
       }
     };
     
@@ -163,7 +163,7 @@ class ChatDirectoryScanner {
       if (window.debugLog) {
         window.debugLog(msg);
       } else {
-        console.debug(msg);
+        console.info(msg);
       }
     };
 
@@ -174,12 +174,12 @@ class ChatDirectoryScanner {
       try {
         const apiUrl = `${baseUrl}/api.json`;
         logMsg(`Fetching chat list from API: ${apiUrl}`);
-        console.debug(`Full API URL being fetched: ${apiUrl}`);
-        console.debug(`Document location: ${document.location.href}`);
+        console.info(`Full API URL being fetched: ${apiUrl}`);
+        console.info(`Document location: ${document.location.href}`);
         
         // Use relative path that works on both GitHub Pages and locally
         const apiResponse = await fetch(apiUrl);
-        console.debug(`API response status: ${apiResponse.status}`);
+        console.info(`API response status: ${apiResponse.status}`);
         
         if (apiResponse.ok) {
           const apiData = await apiResponse.json();
@@ -200,11 +200,11 @@ class ChatDirectoryScanner {
       // Fallback: Fetch the content directory
       const contentUrl = `${baseUrl}/content/`;
       logMsg(`Fetching content directory listing: ${contentUrl}`);
-      console.debug(`Full content URL being fetched: ${contentUrl}`);
+      console.info(`Full content URL being fetched: ${contentUrl}`);
       
       // Use relative path that works on both GitHub Pages and locally
       const response = await fetch(contentUrl);
-      console.debug(`Content directory response status: ${response.status}`);
+      console.info(`Content directory response status: ${response.status}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch content directory: ${response.status}`);

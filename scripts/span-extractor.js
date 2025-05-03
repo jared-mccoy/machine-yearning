@@ -18,7 +18,7 @@ const spanExtractor = (function() {
       if (message.includes('Speaker marker')) {
         return;
       }
-      console.debug(`[SpanExtractor] ${message}`);
+      console.info(`[SpanExtractor] ${message}`);
     }
   }
   
