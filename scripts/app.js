@@ -28,61 +28,8 @@ const logSettings = {
   }
 };
 
-// Set DEBUG_TAGS to false to disable all tag debug logging
-const DEBUG_TAGS = false;
-
-// Helper function to conditionally log tag debug info
-function tagDebug(message, ...args) {
-  if (DEBUG_TAGS) {
-    console.info('[TagDebug] ' + message, ...args);
-  }
-}
-
-/**
- * Debug function to log to console only, not the page
- * @param {string} message - The message to log
- * @param {string} category - Optional category for the message (animation, system, viewport)
- */
-function debugLog(message, category = 'system') {
-  // Skip if category is disabled
-  if (logSettings[category] && !logSettings[category].enabled) {
-    return;
-  }
-  
-  // Skip repetitive messages within a short time period
-  const now = Date.now();
-  const cooldownPeriod = logSettings[category] ? 
-    logSettings[category].cooldownPeriod : 5000; // Default 5 seconds
-  
-  const messageKey = `${category}:${message}`;
-  
-  if (lastLogMessages.messages[messageKey] === true && 
-      now - lastLogMessages.timestamps[messageKey] < cooldownPeriod) {
-    // Skip this repetitive message
-    return;
-  }
-  
-  // Update tracking
-  lastLogMessages.messages[messageKey] = true;
-  lastLogMessages.timestamps[messageKey] = now;
-  
-  // Skip certain verbose animation messages completely
-  if (category === 'animation') {
-    // Skip logging read delays and typing times which are very common
-    if (message.includes('Read delay for message:') || 
-        message.includes('Typing time for message:') ||
-        message.includes('Message size category:')) {
-      // Only log these once every 20 seconds at most
-      if (now - (lastLogMessages.timestamps['animation_verbose'] || 0) < 20000) {
-        return;
-      }
-      lastLogMessages.timestamps['animation_verbose'] = now;
-    }
-  }
-  
-  // Only log to console, never to the page
-  console.info(message);
-}
+// Note: using global debugLog function that's defined in logging.js
+// We're not redefining it here
 
 // Special function for error messages that should be visible on the page
 function errorLog(message) {
@@ -570,7 +517,7 @@ async function initDirectoryView() {
           if (spanEnabled && spans && spans.tree && 
               window.spanExtractor && typeof window.spanExtractor.createNodeSpansContainer === 'function') {
             
-            tagDebug('Processing spans for file:', file.title);
+            debugLog('Processing spans for file:', file.title);
             
             // Function to recursively add spans from the tree
             function addSpansFromTree(node, headerElements, contentContainer) {
@@ -584,33 +531,33 @@ async function initDirectoryView() {
                   h.text.toLowerCase().trim() === normalizedNodeText);
                 
                 if (matchingHeader) {
-                  tagDebug('Found matching header for:', node.text);
-                  tagDebug('Node has wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
+                  debugLog('Found matching header for:', node.text);
+                  debugLog('Node has wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                   
                   // Create and add spans for this node
                   const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                   if (spansContainer) {
-                    tagDebug('Adding spans container to header:', matchingHeader.text);
+                    debugLog('Adding spans container to header:', matchingHeader.text);
                     matchingHeader.content.appendChild(spansContainer);
                   } else {
-                    tagDebug('No spans container created for:', node.text);
+                    debugLog('No spans container created for:', node.text);
                   }
                 } else {
-                  tagDebug('No matching header found for:', node.text);
+                  debugLog('No matching header found for:', node.text);
                 }
               } else if (node.text === 'Root' && node.wikilinks.length + node.backticks.length > 0) {
                 // For root node (content before first header), add directly to the content container
-                tagDebug('Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
+                debugLog('Processing Root node, wikilinks:', node.wikilinks.length, 'backticks:', node.backticks.length);
                 const spansContainer = window.spanExtractor.createNodeSpansContainer(node, spanSettings);
                 if (spansContainer) {
-                  tagDebug('Adding Root spans to content container');
+                  debugLog('Adding Root spans to content container');
                   contentContainer.appendChild(spansContainer);
                 }
               }
               
               // Process children recursively
               if (node.children && node.children.length) {
-                tagDebug('Processing', node.children.length, 'children of', node.text || 'Root');
+                debugLog('Processing', node.children.length, 'children of', node.text || 'Root');
                 node.children.forEach(child => {
                   addSpansFromTree(child, headerElements, contentContainer);
                 });
@@ -618,14 +565,14 @@ async function initDirectoryView() {
             }
             
             // Log full tree structure for debugging
-            tagDebug('Full tree structure:', JSON.stringify(spans.tree, (key, value) => {
+            debugLog('Full tree structure:', JSON.stringify(spans.tree, (key, value) => {
               // Exclude parent to avoid circular reference and content to reduce size
               if (key === 'parent' || key === 'content') return undefined;
               return value;
             }, 2));
             
             // Log header elements for debugging
-            tagDebug('UI Header elements:', headerElements.map(h => ({
+            debugLog('UI Header elements:', headerElements.map(h => ({
               text: h.text,
               level: h.level
             })));
@@ -671,7 +618,7 @@ async function initDirectoryView() {
             const rootNode = spans.tree;
             
             // No headers case logs
-            tagDebug('No headers case - Root node has wikilinks:', 
+            debugLog('No headers case - Root node has wikilinks:', 
               rootNode.wikilinks?.length || 0, 'backticks:', rootNode.backticks?.length || 0);
             
             if (rootNode && (rootNode.wikilinks.length > 0 || rootNode.backticks.length > 0)) {
@@ -683,12 +630,12 @@ async function initDirectoryView() {
               
               if (spansContainer) {
                 // Spans container logs
-                tagDebug('Adding spans container in no-headers case');
+                debugLog('Adding spans container in no-headers case');
                 fileContent.appendChild(spansContainer);
                 fileSection.appendChild(fileContent);
               } else {
                 // Spans container logs
-                tagDebug('No spans container created in no-headers case');
+                debugLog('No spans container created in no-headers case');
               }
             }
           }
@@ -813,9 +760,6 @@ window.appController = {
   initChatViewer,
   initDirectoryView
 }; 
-
-// Make debug logging globally available
-window.debugLog = debugLog; 
 
 // Simple function to handle speaking animation
 document.addEventListener('DOMContentLoaded', function() {

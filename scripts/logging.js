@@ -1,102 +1,47 @@
 /**
  * Simple Logging System
- * Override console methods immediately with default production setting
+ * Does NOT override console methods - just provides a clean logging interface
  */
 
-// Store original console methods
-const originalConsole = {
-  log: console.log,
-  debug: console.debug,
-  info: console.info,
-  warn: console.warn,
-  error: console.error
+// Ensure debugLog is defined immediately
+window.debugLog = function(message, category = 'system') {
+  console.log(`[DEBUG] ${message}`);
 };
 
-// Default logging configuration (production mode)
-let loggingMode = 'production';
-let allowedLevels = ['warning', 'error', 'critical'];
-
-// Override console methods immediately
-function overrideConsole() {
-  // Log - treat as debug level
-  console.log = function(message, ...args) {
-    if (allowedLevels.includes('debug')) {
-      originalConsole.log(message, ...args);
-    }
-  };
-  
-  // Debug level
-  console.debug = function(message, ...args) {
-    if (allowedLevels.includes('debug')) {
-      originalConsole.debug(message, ...args);
-    }
-  };
-  
-  // Info level
-  console.info = function(message, ...args) {
-    if (allowedLevels.includes('info')) {
-      originalConsole.info(message, ...args);
-    }
-  };
-  
-  // Warning level
-  console.warn = function(message, ...args) {
-    if (allowedLevels.includes('warning')) {
-      originalConsole.warn(message, ...args);
-    }
-  };
-  
-  // Error level
-  console.error = function(message, ...args) {
-    if (allowedLevels.includes('error') || allowedLevels.includes('critical')) {
-      originalConsole.error(message, ...args);
-    }
-  };
-}
-
-// Apply overrides immediately
-overrideConsole();
-
-// Check for settings in localStorage first (for faster loading)
-try {
-  const savedSettings = localStorage.getItem('appSettings');
-  if (savedSettings) {
-    const settings = JSON.parse(savedSettings);
-    if (settings.logging && settings.logging.mode && settings.logging.levels) {
-      loggingMode = settings.logging.mode;
-      allowedLevels = settings.logging.levels[loggingMode] || allowedLevels;
-      originalConsole.info(`[Logging] Using cached settings, mode: ${loggingMode}`);
-    }
-  }
-} catch (e) {
-  // Ignore errors reading from localStorage
-}
+// Default logging configuration
+let loggingMode = 'debug'; // Start with debug by default
+let allowedLevels = ['debug', 'info', 'warning', 'error', 'critical'];
 
 // Global appLog object for direct use
 window.appLog = {
+  // Core logging methods
   debug: (message, ...data) => {
     if (allowedLevels.includes('debug')) {
-      originalConsole.debug(`[DEBUG] ${message}`, ...data);
+      console.log(`[DEBUG] ${message}`, ...data);
     }
   },
+  
   info: (message, ...data) => {
     if (allowedLevels.includes('info')) {
-      originalConsole.info(`[INFO] ${message}`, ...data);
+      console.info(`[INFO] ${message}`, ...data);
     }
   },
+  
   warning: (message, ...data) => {
     if (allowedLevels.includes('warning')) {
-      originalConsole.warn(`[WARNING] ${message}`, ...data);
+      console.warn(`[WARNING] ${message}`, ...data);
     }
   },
+  
   error: (message, ...data) => {
     if (allowedLevels.includes('error')) {
-      originalConsole.error(`[ERROR] ${message}`, ...data);
+      console.error(`[ERROR] ${message}`, ...data);
     }
   },
+  
   critical: (message, ...data) => {
     if (allowedLevels.includes('critical')) {
-      originalConsole.error(`[CRITICAL] ${message}`, ...data);
+      console.error(`[CRITICAL] ${message}`, ...data);
     }
   },
   
@@ -104,9 +49,35 @@ window.appLog = {
   setMode: function(mode, levels) {
     loggingMode = mode;
     allowedLevels = levels[mode] || allowedLevels;
-    originalConsole.info(`[Logging] Mode set to: ${mode}, levels: ${allowedLevels.join(', ')}`);
-  },
-  
-  // Access to original console
-  original: originalConsole
-}; 
+    console.info(`[Logging] Mode set to: ${mode}, levels: ${allowedLevels.join(', ')}`);
+    
+    // Update the global debugLog function to respect logging levels
+    window.debugLog = function(message, category = 'system') {
+      if (allowedLevels.includes('debug')) {
+        console.log(`[DEBUG] ${message}`);
+      }
+    };
+  }
+};
+
+// Load settings right away
+try {
+  const savedSettings = localStorage.getItem('appSettings');
+  if (savedSettings) {
+    const settings = JSON.parse(savedSettings);
+    if (settings.logging && settings.logging.mode && settings.logging.levels) {
+      loggingMode = settings.logging.mode;
+      allowedLevels = settings.logging.levels[loggingMode] || allowedLevels;
+      console.info(`[Logging] Using settings from storage, mode: ${loggingMode}, levels: ${allowedLevels.join(', ')}`);
+      
+      // Update debugLog immediately after loading settings
+      if (!allowedLevels.includes('debug')) {
+        window.debugLog = function() {}; // No-op if debug level isn't allowed
+      }
+    }
+  } else {
+    console.info('[Logging] No settings found in storage, using defaults');
+  }
+} catch (e) {
+  console.warn('[Logging] Error loading settings:', e);
+} 

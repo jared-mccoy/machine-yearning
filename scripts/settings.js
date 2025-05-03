@@ -62,8 +62,10 @@ let appSettings = { ...DEFAULT_SETTINGS };
  */
 async function loadSettings() {
   try {
-    if (window.debugLog) {
-      window.debugLog('Loading application settings');
+    if (window.appLog) {
+      appLog.debug('Loading application settings');
+    } else {
+      console.info('Loading application settings');
     }
     
     const response = await fetch('settings.json');
@@ -76,8 +78,10 @@ async function loadSettings() {
     // Merge with defaults to ensure all properties exist
     appSettings = mergeWithDefaults(settings, DEFAULT_SETTINGS);
     
-    if (window.debugLog) {
-      window.debugLog('Settings loaded successfully');
+    if (window.appLog) {
+      appLog.debug('Settings loaded successfully');
+    } else {
+      console.info('Settings loaded successfully');
     }
     
     // Apply any immediate settings
@@ -153,7 +157,11 @@ function applyLoggingSettings() {
     window.appLog.setMode(loggingMode, appSettings.logging.levels);
   } else {
     // This shouldn't happen if logging.js is loaded first, but just in case
-    console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
+    if (window.appLog) {
+      appLog.debug(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
+    } else {
+      console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
+    }
   }
 }
 

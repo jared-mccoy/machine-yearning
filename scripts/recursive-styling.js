@@ -18,7 +18,7 @@ function applyRecursiveStyling() {
   }
   
   // Only log once at start, not for every depth level
-  console.info('Applying recursive styling with root font size:', rootFontSize + 'px');
+  debugLog('Applying recursive styling with root font size:', rootFontSize + 'px');
   
   // Remove any existing hover handlers
   const sections = document.querySelectorAll('.directory-section');
@@ -344,7 +344,7 @@ function debounce(func, wait) {
 
 // Hook into the directory view initialization
 function initRecursiveStyling() {
-  console.info('Initializing recursive styling');
+  debugLog('Initializing recursive styling');
   
   // Apply initial styling after a short delay to ensure DOM is ready
   setTimeout(applyRecursiveStyling, 500);
@@ -377,33 +377,33 @@ window.recursiveStyling = {
 
 // Auto-initialize after directory view is ready
 document.addEventListener('DOMContentLoaded', () => {
-  console.info('Setting up recursive styling initialization');
-  console.info(`Current URL path: ${window.location.pathname}`);
-  console.info(`Current search params: ${window.location.search}`);
+  debugLog('Setting up recursive styling initialization');
+  debugLog(`Current URL path: ${window.location.pathname}`);
+  debugLog(`Current search params: ${window.location.search}`);
   
   // Skip on chat pages - only run on directory pages
   if (window.location.search.includes('path=')) {
-    console.info('On chat page - skipping recursive styling');
+    debugLog('On chat page - skipping recursive styling');
     return;
   }
   
   // Check if we can find the directory container
   const checkAndInit = () => {
     const container = document.querySelector('.directory-container');
-    console.info(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
+    debugLog(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
     
     // Let's log all elements on the page to see what's there
-    console.info('Current DOM elements:', {
+    debugLog('Current DOM elements:', {
       'body children': document.body.children.length,
       'post-container': document.getElementById('post-container'),
       'post-container content': document.getElementById('post-container')?.innerHTML
     });
     
     if (container) {
-      console.info('Directory container found, initializing styling');
+      debugLog('Directory container found, initializing styling');
       initRecursiveStyling();
     } else {
-      console.info('Directory container not found yet, retrying...');
+      debugLog('Directory container not found yet, retrying...');
       // Try again in a moment
       setTimeout(checkAndInit, 200);
     }

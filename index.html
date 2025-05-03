@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Machine Yearning</title>
   
+  <!-- Load logging first to ensure debugLog is available to all scripts -->
+  <script src="scripts/logging.js"></script>
+  
   <!-- Prevent flash of incorrect theme -->
   <script>
     // Immediately set theme before page renders
@@ -184,14 +187,13 @@
   </style>
   
   <!-- Add app scripts at the end of body -->
-  <script src="scripts/logging.js"></script>
   <script src="scripts/settings.js"></script>
+  <script src="scripts/app.js"></script>
   <script src="scripts/ui.js"></script>
   <script src="scripts/directory.js"></script>
   <script type="module" src="scripts/converter/ChatConverter.js"></script>
   <script type="module" src="scripts/animate/ChatAnimator.js"></script>
   <script src="scripts/recursive-styling.js"></script>
   <script src="scripts/span-extractor.js"></script>
-  <script src="scripts/app.js"></script>
 </body>
 </html> 
