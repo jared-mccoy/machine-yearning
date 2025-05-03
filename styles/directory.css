@@ -18,8 +18,13 @@
 }
 
 /* Apply transform AND tinting to the specifically hovered element and its children */
-.directory-section.hover-active {
+/* Exclude top-level directory sections from transform */
+.directory-section.hover-active:not(.directory-container > .directory-section) {
   transform: translateX(4px);
+}
+
+/* All directory sections get the color and shadow change */
+.directory-section.hover-active {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: color-mix(in srgb, var(--accent-color) 4%, transparent);
 }
