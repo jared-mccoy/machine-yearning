@@ -16,6 +16,13 @@
       "variancePercentage": 20
     }
   },
+  "logging": {
+    "mode": "production",
+    "levels": {
+      "production": ["warning", "error", "critical"],
+      "debug": ["debug", "info", "warning", "error", "critical"]
+    }
+  },
   "theme": {
     "accentA": "#192b91",
     "accentB": "#ffc400",

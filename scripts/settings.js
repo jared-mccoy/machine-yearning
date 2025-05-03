@@ -22,6 +22,13 @@ const DEFAULT_SETTINGS = {
       variancePercentage: 20
     }
   },
+  logging: {
+    mode: "production",
+    levels: {
+      production: ["warning", "error", "critical"],
+      debug: ["debug", "info", "warning", "error", "critical"]
+    }
+  },
   theme: {
     accentA: "#192b91",
     accentB: "#ffc400"
@@ -124,11 +131,66 @@ function applySettings() {
       animationToggle.setAttribute('data-state', animationEnabled ? 'enabled' : 'disabled');
     }
     
+    // Apply logging settings
+    applyLoggingSettings();
+    
     // Trigger a settings changed event
     dispatchSettingsChangedEvent();
   } catch (error) {
     console.error('Error applying settings:', error);
   }
+}
+
+/**
+ * Apply logging settings based on current configuration
+ */
+function applyLoggingSettings() {
+  const loggingMode = appSettings.logging.mode;
+  const allowedLevels = appSettings.logging.levels[loggingMode] || [];
+  
+  // Setup global log function if it doesn't exist
+  if (!window.appLog) {
+    window.appLog = function(level, message, ...data) {
+      // Skip logging if level is not in the allowed levels
+      if (!allowedLevels.includes(level)) {
+        return;
+      }
+      
+      // Map log levels to console methods
+      switch (level) {
+        case 'debug':
+          console.debug(`[DEBUG] ${message}`, ...data);
+          break;
+        case 'info':
+          console.info(`[INFO] ${message}`, ...data);
+          break;
+        case 'warning':
+          console.warn(`[WARNING] ${message}`, ...data);
+          break;
+        case 'error':
+          console.error(`[ERROR] ${message}`, ...data);
+          break;
+        case 'critical':
+          console.error(`[CRITICAL] ${message}`, ...data);
+          break;
+        default:
+          console.log(`[${level.toUpperCase()}] ${message}`, ...data);
+      }
+    };
+  }
+  
+  // Provide helper methods for each log level
+  window.appLog.debug = (message, ...data) => window.appLog('debug', message, ...data);
+  window.appLog.info = (message, ...data) => window.appLog('info', message, ...data);
+  window.appLog.warning = (message, ...data) => window.appLog('warning', message, ...data);
+  window.appLog.error = (message, ...data) => window.appLog('error', message, ...data);
+  window.appLog.critical = (message, ...data) => window.appLog('critical', message, ...data);
+  
+  // Store the current logging mode and allowed levels
+  window.appLog.mode = loggingMode;
+  window.appLog.allowedLevels = allowedLevels;
+  
+  console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
 }
 
 /**
@@ -260,6 +322,15 @@ function setupSettingsPanel() {
       </div>
       
       <div class="setting-group">
+        <h4>Logging</h4>
+        <label for="logging-mode">Logging Mode:</label>
+        <select id="logging-mode" class="settings-select">
+          <option value="production">Production (Warnings & Errors only)</option>
+          <option value="debug">Debug (All logs)</option>
+        </select>
+      </div>
+      
+      <div class="setting-group">
         <h4>Theme Colors</h4>
         <label for="accent-a">Accent A (Assistant):</label>
         <input type="text" id="accent-a">
@@ -333,6 +404,9 @@ function populateSettingsPanel() {
   panel.querySelector('#max-read-time').value = readDelay.maxReadTime;
   panel.querySelector('#read-variance').value = readDelay.variancePercentage;
   
+  // Logging settings
+  panel.querySelector('#logging-mode').value = appSettings.logging.mode;
+  
   // Theme settings
   panel.querySelector('#accent-a').value = theme.accentA;
   panel.querySelector('#accent-b').value = theme.accentB;
@@ -365,6 +439,9 @@ function saveSettingsFromPanel() {
   newSettings.chat.readDelay.minReadTime = parseInt(panel.querySelector('#min-read-time').value);
   newSettings.chat.readDelay.maxReadTime = parseInt(panel.querySelector('#max-read-time').value);
   newSettings.chat.readDelay.variancePercentage = parseInt(panel.querySelector('#read-variance').value);
+  
+  // Logging settings
+  newSettings.logging.mode = panel.querySelector('#logging-mode').value;
   
   // Theme settings
   newSettings.theme.accentA = panel.querySelector('#accent-a').value;
@@ -414,5 +491,6 @@ window.appSettings = {
   load: loadSettings,
   get: getSettings,
   update: updateSettings,
-  showPanel: setupSettingsPanel
+  showPanel: setupSettingsPanel,
+  log: window.appLog
 }; 
