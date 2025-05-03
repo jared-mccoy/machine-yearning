@@ -52,7 +52,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 // Display configuration
-console.log(`Configuration:
+console.debug(`Configuration:
   Mode: ${batchMode ? 'Batch' : 'Single file'}
   Input: ${batchMode ? inputDir : inputFile}
   Output: ${batchMode ? outputDir : outputFile}
@@ -64,7 +64,7 @@ console.log(`Configuration:
 function ensureDirectoryExists(dir) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-    console.log(`Created directory: ${dir}`);
+    console.debug(`Created directory: ${dir}`);
   }
 }
 
@@ -149,7 +149,7 @@ function convertImageToSvg(inputPath, outputPath, threshold) {
     // Write SVG to file
     fs.writeFileSync(outputPath, svgString);
     
-    console.log(`Successfully converted ${inputPath} to ${outputPath}`);
+    console.debug(`Successfully converted ${inputPath} to ${outputPath}`);
     
     return true;
   } catch (error) {
@@ -178,10 +178,10 @@ function processBatch(inputDirectory, outputDirectory, threshold) {
     return ['.png', '.jpg', '.jpeg', '.gif'].includes(ext);
   });
   
-  console.log(`Found ${imageFiles.length} image files in ${inputDirectory}`);
+  console.debug(`Found ${imageFiles.length} image files in ${inputDirectory}`);
   
   if (imageFiles.length === 0) {
-    console.log('No image files found to process.');
+    console.debug('No image files found to process.');
     return;
   }
   
@@ -194,7 +194,7 @@ function processBatch(inputDirectory, outputDirectory, threshold) {
     const outputFileName = path.basename(file, path.extname(file)) + '.svg';
     const outputPath = path.join(outputDirectory, outputFileName);
     
-    console.log(`Processing: ${inputPath} -> ${outputPath}`);
+    console.debug(`Processing: ${inputPath} -> ${outputPath}`);
     
     const success = convertImageToSvg(inputPath, outputPath, threshold);
     if (success) {
@@ -204,12 +204,12 @@ function processBatch(inputDirectory, outputDirectory, threshold) {
     }
   });
   
-  console.log('\nBatch processing complete:');
-  console.log(`- Total files: ${imageFiles.length}`);
-  console.log(`- Successfully converted: ${successCount}`);
-  console.log(`- Failed: ${failCount}`);
-  console.log('\nNow you can use the SVGs with CSS coloring:');
-  console.log(`
+  console.debug('\nBatch processing complete:');
+  console.debug(`- Total files: ${imageFiles.length}`);
+  console.debug(`- Successfully converted: ${successCount}`);
+  console.debug(`- Failed: ${failCount}`);
+  console.debug('\nNow you can use the SVGs with CSS coloring:');
+  console.debug(`
   /* In your CSS file */
   .icon-svg {
     color: var(--accent-color); /* Icons inherit color from CSS */
@@ -225,7 +225,7 @@ function processBatch(inputDirectory, outputDirectory, threshold) {
 
 // Run in batch mode or single file mode
 if (batchMode) {
-  console.log('Running in batch mode...');
+  console.debug('Running in batch mode...');
   processBatch(inputDir, outputDir, threshold);
 } else {
   // Check if the file exists
@@ -241,8 +241,8 @@ if (batchMode) {
   // Run the conversion for single file
   convertImageToSvg(inputFile, outputFile, threshold);
   
-  console.log('\nYou can use the SVG with CSS coloring:');
-  console.log(`
+  console.debug('\nYou can use the SVG with CSS coloring:');
+  console.debug(`
   /* In your CSS file */
   .icon-svg {
     color: var(--accent-color); /* Icons inherit color from CSS */

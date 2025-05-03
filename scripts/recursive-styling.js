@@ -18,7 +18,7 @@ function applyRecursiveStyling() {
   }
   
   // Only log once at start, not for every depth level
-  console.log('Applying recursive styling with root font size:', rootFontSize + 'px');
+  console.debug('Applying recursive styling with root font size:', rootFontSize + 'px');
   
   // Remove any existing hover handlers
   const sections = document.querySelectorAll('.directory-section');
@@ -344,7 +344,7 @@ function debounce(func, wait) {
 
 // Hook into the directory view initialization
 function initRecursiveStyling() {
-  console.log('Initializing recursive styling');
+  console.debug('Initializing recursive styling');
   
   // Apply initial styling after a short delay to ensure DOM is ready
   setTimeout(applyRecursiveStyling, 500);
@@ -377,33 +377,33 @@ window.recursiveStyling = {
 
 // Auto-initialize after directory view is ready
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Setting up recursive styling initialization');
-  console.log(`Current URL path: ${window.location.pathname}`);
-  console.log(`Current search params: ${window.location.search}`);
+  console.debug('Setting up recursive styling initialization');
+  console.debug(`Current URL path: ${window.location.pathname}`);
+  console.debug(`Current search params: ${window.location.search}`);
   
   // Skip on chat pages - only run on directory pages
   if (window.location.search.includes('path=')) {
-    console.log('On chat page - skipping recursive styling');
+    console.debug('On chat page - skipping recursive styling');
     return;
   }
   
   // Check if we can find the directory container
   const checkAndInit = () => {
     const container = document.querySelector('.directory-container');
-    console.log(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
+    console.debug(`Directory container attempt: ${container ? 'FOUND' : 'NOT FOUND'}`);
     
     // Let's log all elements on the page to see what's there
-    console.log('Current DOM elements:', {
+    console.debug('Current DOM elements:', {
       'body children': document.body.children.length,
       'post-container': document.getElementById('post-container'),
       'post-container content': document.getElementById('post-container')?.innerHTML
     });
     
     if (container) {
-      console.log('Directory container found, initializing styling');
+      console.debug('Directory container found, initializing styling');
       initRecursiveStyling();
     } else {
-      console.log('Directory container not found yet, retrying...');
+      console.debug('Directory container not found yet, retrying...');
       // Try again in a moment
       setTimeout(checkAndInit, 200);
     }

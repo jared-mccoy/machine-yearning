@@ -174,7 +174,7 @@ function applyLoggingSettings() {
           console.error(`[CRITICAL] ${message}`, ...data);
           break;
         default:
-          console.log(`[${level.toUpperCase()}] ${message}`, ...data);
+          console.debug(`[${level.toUpperCase()}] ${message}`, ...data);
       }
     };
   }
