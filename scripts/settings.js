@@ -154,14 +154,17 @@ function applyLoggingSettings() {
   
   // If our logging system is already initialized, just update it
   if (window.appLog && window.appLog.setMode) {
+    // This will update both appLog methods and the global debugLog function
     window.appLog.setMode(loggingMode, appSettings.logging.levels);
   } else {
-    // This shouldn't happen if logging.js is loaded first, but just in case
-    if (window.appLog) {
-      appLog.debug(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
-    } else {
-      console.info(`Logging initialized with mode: ${loggingMode}, allowed levels: ${allowedLevels.join(', ')}`);
-    }
+    console.warn('Logging system not properly initialized');
+  }
+  
+  // Store settings in localStorage for persistence across page loads
+  try {
+    localStorage.setItem('appSettings', JSON.stringify(appSettings));
+  } catch (e) {
+    console.warn('Failed to save settings to localStorage:', e);
   }
 }
 

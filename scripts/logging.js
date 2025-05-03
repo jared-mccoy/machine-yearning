@@ -3,14 +3,21 @@
  * Does NOT override console methods - just provides a clean logging interface
  */
 
-// Ensure debugLog is defined immediately
+// Set up default logging configuration
+let loggingMode = 'production'; // Start in production by default
+let allowedLevels = ['warning', 'error', 'critical'];
+
+// Create a basic no-op function that does nothing when called
+const noop = function() {};
+
+// Ensure debugLog is defined immediately based on settings
 window.debugLog = function(message, category = 'system') {
+  // If in production mode and debug logs are not allowed, do nothing
+  if (!allowedLevels.includes('debug')) {
+    return; // Silent in production
+  }
   console.log(`[DEBUG] ${message}`);
 };
-
-// Default logging configuration
-let loggingMode = 'debug'; // Start with debug by default
-let allowedLevels = ['debug', 'info', 'warning', 'error', 'critical'];
 
 // Global appLog object for direct use
 window.appLog = {
@@ -52,15 +59,41 @@ window.appLog = {
     console.info(`[Logging] Mode set to: ${mode}, levels: ${allowedLevels.join(', ')}`);
     
     // Update the global debugLog function to respect logging levels
-    window.debugLog = function(message, category = 'system') {
-      if (allowedLevels.includes('debug')) {
+    if (allowedLevels.includes('debug')) {
+      window.debugLog = function(message, category = 'system') {
         console.log(`[DEBUG] ${message}`);
-      }
-    };
+      };
+    } else {
+      window.debugLog = noop; // Replace with no-op in production
+    }
   }
 };
 
-// Load settings right away
+// Immediately try to load settings.json directly (faster than waiting for settings.js)
+(async function loadLoggingConfig() {
+  try {
+    const response = await fetch('settings.json');
+    if (response.ok) {
+      const settings = await response.json();
+      if (settings.logging && settings.logging.mode && settings.logging.levels) {
+        // Apply settings immediately
+        loggingMode = settings.logging.mode;
+        allowedLevels = settings.logging.levels[loggingMode] || allowedLevels;
+        
+        // Update the debugLog function right away
+        if (!allowedLevels.includes('debug')) {
+          window.debugLog = noop; // Replace with no-op in production
+        }
+        
+        console.info(`[Logging] Loaded settings directly from settings.json, mode: ${loggingMode}`);
+      }
+    }
+  } catch (e) {
+    console.warn('[Logging] Failed to load settings.json directly:', e);
+  }
+})();
+
+// Also check localStorage for settings (as backup)
 try {
   const savedSettings = localStorage.getItem('appSettings');
   if (savedSettings) {
@@ -68,16 +101,15 @@ try {
     if (settings.logging && settings.logging.mode && settings.logging.levels) {
       loggingMode = settings.logging.mode;
       allowedLevels = settings.logging.levels[loggingMode] || allowedLevels;
-      console.info(`[Logging] Using settings from storage, mode: ${loggingMode}, levels: ${allowedLevels.join(', ')}`);
       
-      // Update debugLog immediately after loading settings
+      // Update the debugLog function to match the settings
       if (!allowedLevels.includes('debug')) {
-        window.debugLog = function() {}; // No-op if debug level isn't allowed
+        window.debugLog = noop; // Replace with no-op in production
       }
+      
+      console.info(`[Logging] Using settings from localStorage, mode: ${loggingMode}`);
     }
-  } else {
-    console.info('[Logging] No settings found in storage, using defaults');
   }
 } catch (e) {
-  console.warn('[Logging] Error loading settings:', e);
+  console.warn('[Logging] Error loading settings from localStorage:', e);
 } 
