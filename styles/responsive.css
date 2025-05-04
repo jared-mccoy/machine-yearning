@@ -2,30 +2,71 @@
 
 /* Only apply these styles on smaller screens */
 @media screen and (max-width: 600px) {
-  /* Adjust chat container padding for mobile */
+  /* Make header more compact */
+  .site-header {
+    padding: 8px 0 15px;
+    margin-bottom: 20px;
+  }
+  
+  /* Prevent title from wrapping */
+  .site-title {
+    padding: 4px 10px;
+  }
+  
+  .site-title h1 {
+    font-size: 1.1rem;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  
+  /* Header buttons */
+  .header-controls button {
+    margin-left: 5px;
+  }
+  
+  /* Chat title in navigation */
+  .chat-title {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px 10px;
+  }
+  
+  /* Increase container padding to give room for icons on either side */
   .chat-container {
-    padding-left: 25px;  /* Reduced from 50px but still enough for icons */
-    padding-right: 25px; /* Reduced from 50px but still enough for icons */
+    padding-left: 60px;
+    padding-right: 60px;
   }
   
-  /* Make message bubbles slightly wider on mobile */
+  /* Make message bubbles wider on mobile */
   .message {
-    max-width: 85%;
+    max-width: 90%;
   }
   
-  /* Reduce the avatar offset but keep size the same */
-  .message[data-speaker="user"]::before {
-    right: -75px; /* Closer to bubble than default -96px */
+  /* Position avatar correctly */
+  .message {
+    --avatar-size: 45px; /* Smaller avatar */
   }
   
+  /* Fix assistant avatar (left side) */
   .message:not([data-speaker="user"])::before {
-    left: -75px; /* Closer to bubble than default -96px */
+    left: -55px;
+    width: 45px;
+    height: 45px;
   }
   
-  /* Reduce hover transform distance */
+  /* Fix user avatar (right side) */
+  .message[data-speaker="user"]::before {
+    right: -55px;
+    width: 45px;
+    height: 45px;
+  }
+  
+  /* Reduce hover transform distance to avoid overflow */
   .message[data-speaker="user"]:hover,
   .message[data-speaker="user"].speaking {
-    transform: translateX(-25px); /* Less than default -40px */
+    transform: translateX(-20px);
   }
   
   .message:not([data-speaker="user"]):hover,
@@ -40,33 +81,64 @@
   .generic-speaker.speaking,
   .random:hover,
   .random.speaking {
-    transform: translateX(25px); /* Less than default 40px */
+    transform: translateX(20px);
   }
 }
 
 /* Very small screens */
 @media screen and (max-width: 400px) {
-  /* Further reduce side padding */
+  /* Further compact header */
+  .site-title h1 {
+    font-size: 1rem;
+  }
+  
+  /* Make header controls more compact */
+  .theme-toggle,
+  .animation-toggle,
+  .settings-toggle {
+    width: 36px;
+    height: 36px;
+    padding: 4px;
+  }
+  
+  .theme-toggle svg,
+  .animation-toggle svg,
+  .settings-toggle svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Adjust container padding for smaller screens */
   .chat-container {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 50px;
+    padding-right: 50px;
   }
   
-  /* Slightly increase message width to use more space */
+  /* Increase message width to use more space */
   .message {
-    max-width: 90%;
+    max-width: 95%;
+    padding: 10px 12px;
   }
   
-  /* Move avatars even closer to messages */
-  .message[data-speaker="user"]::before {
-    right: -65px;
+  /* Smaller avatars for very small screens */
+  .message {
+    --avatar-size: 40px;
   }
   
+  /* Fine-tune avatar positioning */
   .message:not([data-speaker="user"])::before {
-    left: -65px;
+    left: -45px;
+    width: 40px;
+    height: 40px;
   }
   
-  /* Minimal hover animation */
+  .message[data-speaker="user"]::before {
+    right: -45px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Further reduce hover distance */
   .message[data-speaker="user"]:hover,
   .message[data-speaker="user"].speaking {
     transform: translateX(-15px);
