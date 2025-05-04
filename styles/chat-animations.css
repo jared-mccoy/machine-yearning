@@ -258,12 +258,31 @@
   transform: scale(1);
 }
 
+/* Ensure typing indicator fades out smoothly */
+.typing-indicator:not(.visible) {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin-bottom: 0;
+  transform: scale(0.8);
+}
+
 /* User typing indicator positioning */
 .typing-indicator[data-speaker="user"].visible {
   transform: scale(1) translateX(-40px);
 }
 
+/* Ensure user typing indicator fades out in the same position */
+.typing-indicator[data-speaker="user"]:not(.visible) {
+  transform: scale(0.8) translateX(-40px);
+}
+
 /* All other speakers typing indicator positioning */
 .typing-indicator:not([data-speaker="user"]).visible {
   transform: scale(1) translateX(40px);
+}
+
+/* Ensure other typing indicators fade out in the same position */
+.typing-indicator:not([data-speaker="user"]):not(.visible) {
+  transform: scale(0.8) translateX(40px);
 } 

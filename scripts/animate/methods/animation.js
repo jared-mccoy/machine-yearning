@@ -330,11 +330,12 @@ export function processNextInQueue(animator) {
             currentMsg.classList.remove('hidden');
             currentMsg.classList.add('visible');
             
-            // Remove the indicator
-            typingIndicator.remove();
-            
             // Wait for message animation to complete before processing next
             setTimeout(() => {
+              // Now that message is fully visible and typing indicator has faded out,
+              // we can safely remove the typing indicator element
+              typingIndicator.remove();
+              
               animator.animationInProgress = false;
               animator.processNextInQueue();
             }, 600);
@@ -349,17 +350,20 @@ export function processNextInQueue(animator) {
             }
           }
           
-          // Remove the indicator immediately since we're not showing the message
-          typingIndicator.remove();
-          
-          // Add message to failed list to retry later
-          animator.animationFailedMessages.push(currentMsg);
-          
-          // Set a retry timeout that's shorter than normal animation
+          // For out-of-view messages, wait for the typing indicator to fade out,
+          // then remove it from the DOM
           setTimeout(() => {
-            animator.animationInProgress = false;
-            animator.processNextInQueue();
-          }, 300);
+            typingIndicator.remove();
+            
+            // Add message to failed list to retry later
+            animator.animationFailedMessages.push(currentMsg);
+            
+            // Set a retry timeout that's shorter than normal animation
+            setTimeout(() => {
+              animator.animationInProgress = false;
+              animator.processNextInQueue();
+            }, 100);
+          }, 300); // Match this to the typing indicator transition duration
         }
       }, typingTime); // Use calculated dynamic typing time instead of fixed values
     }, readDelay); // Add read delay before showing typing indicator
