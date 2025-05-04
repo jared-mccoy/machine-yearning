@@ -198,7 +198,11 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     const speakerClass = getSpeakerClassFn(msgData.speaker);
     messageEl.classList.add(speakerClass);
     
-    // Add a data attribute for the speaker
+    // Always add the visible class to ensure the message is displayed
+    messageEl.classList.add('visible');
+    
+    // Add a data attribute for the speaker's actual name
+    // This ensures CSS rules based on data-speaker will work correctly
     messageEl.setAttribute('data-speaker', msgData.speaker);
     
     // Apply custom layout if provided

@@ -33,7 +33,8 @@ export function extractSpeaker(line) {
   // Check for << SPEAKER {LAYOUT} >> format (new primary format)
   const angleTagMatch = line.match(/<<\s*(.*?)(?:\s+\{(.*?)\})?\s*>>/);
   if (angleTagMatch) {
-    const speaker = angleTagMatch[1].trim().toLowerCase();
+    // Handle empty speaker tags (<<>>) as special "direct-text" type
+    const speaker = angleTagMatch[1].trim() === "" ? "direct-text" : angleTagMatch[1].trim().toLowerCase();
     const layoutTag = angleTagMatch[2] || null;
     
     speakerInfo = {
@@ -47,7 +48,8 @@ export function extractSpeaker(line) {
   // Check for <<SPEAKER {LAYOUT}>> format (legacy format)
   const speakerMatch = line.match(/\[\[\[(.*?)(?:\s+\{(.*?)\})?\]\]\]/);
   if (speakerMatch) {
-    const speaker = speakerMatch[1].trim().toLowerCase();
+    // Handle empty speaker tags ([[[]]]) as special "direct-text" type
+    const speaker = speakerMatch[1].trim() === "" ? "direct-text" : speakerMatch[1].trim().toLowerCase();
     const layoutTag = speakerMatch[2] || null;
     
     speakerInfo = {
@@ -61,7 +63,8 @@ export function extractSpeaker(line) {
   // Check for <!-- SPEAKER {LAYOUT} --> format (alternate format)
   const htmlCommentMatch = line.match(/<!--\s*(.*?)(?:\s+\{(.*?)\})?\s*-->/);
   if (htmlCommentMatch) {
-    const speaker = htmlCommentMatch[1].trim().toLowerCase();
+    // Handle empty speaker tags (<!-- -->) as special "direct-text" type
+    const speaker = htmlCommentMatch[1].trim() === "" ? "direct-text" : htmlCommentMatch[1].trim().toLowerCase();
     const layoutTag = htmlCommentMatch[2] || null;
     
     speakerInfo = {

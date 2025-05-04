@@ -88,6 +88,43 @@ export function processNextInQueue(animator) {
     animator.animationInProgress = true;
     const currentMsg = animator.animationQueue.shift().element;
     
+    // Check if this is a direct-text element (empty speaker tags)
+    const isDirectText = currentMsg.getAttribute('data-speaker') === 'direct-text';
+
+    // If it's a direct-text element, we skip the typing indicator and show it immediately
+    if (isDirectText) {
+      // Mark message as processed to avoid double animations
+      currentMsg.setAttribute('data-observed', 'processed');
+      
+      // Get the read delay if this isn't the first message
+      const visibleCount = document.querySelectorAll('.message.visible').length;
+      const isFirstMessage = visibleCount === 0;
+      
+      // Find the last visible message for read delay
+      const lastVisibleMessage = Array.from(document.querySelectorAll('.message.visible'))
+        .slice(-1)[0] || null;
+        
+      // Calculate a shorter read delay for direct-text elements
+      const readDelay = isFirstMessage ? 0 : Math.min(
+        animator.calculateReadDelay(lastVisibleMessage) / 2, 
+        500
+      );
+      
+      setTimeout(() => {
+        // Show the direct-text with a simple fade in
+        currentMsg.classList.remove('hidden');
+        currentMsg.classList.add('visible');
+        
+        // Process next item in queue after a short delay
+        setTimeout(() => {
+          animator.animationInProgress = false;
+          animator.processNextInQueue();
+        }, 300);
+      }, readDelay);
+      
+      return; // Exit early, we've handled this item
+    }
+    
     // Determine the speaker type from the message class
     const isUser = currentMsg.classList.contains('user');
     const isSpeakerC = currentMsg.classList.contains('speakerC');

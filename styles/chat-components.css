@@ -228,4 +228,40 @@
 .message:hover::before,
 .message.speaking::before {
   opacity: 1;
+}
+
+/* Direct text styling (for <<>> empty speaker tags) */
+.message[data-speaker="direct-text"] {
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem auto;
+  align-self: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  --speaker-color: transparent;
+  --speaker-color-light: transparent;
+}
+
+.message[data-speaker="direct-text"]::before {
+  display: none; /* Hide speaker icon */
+}
+
+.message[data-speaker="direct-text"] .content-container {
+  width: 100%;
+  max-width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0.5rem 1rem;
+}
+
+.message[data-speaker="direct-text"] .content {
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  color: var(--text-color);
+  font-style: italic;
+  opacity: 0.85;
 } 
