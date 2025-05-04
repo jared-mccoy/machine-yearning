@@ -81,8 +81,10 @@
   
   /* Reduce chat container padding for mobile */
   .chat-container {
-    padding-left: calc(0.75 * var(--spacing-unit) * var(--content-padding-multiplier));
-    padding-right: calc(0.75 * var(--spacing-unit) * var(--content-padding-multiplier));
+    /* Increase padding to create space for sliding animation */
+    padding-left: calc(2.5 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(2.5 * var(--spacing-unit) * var(--content-padding-multiplier));
+    overflow-x: hidden; /* Prevent horizontal scrolling */
   }
   
   /* Make message bubbles wider on mobile with proper padding */
@@ -132,8 +134,8 @@
   /* Unify avatar styling for all components */
   .message,
   .typing-indicator {
-    --avatar-size: calc(80px * var(--avatar-scale));
-    --avatar-offset: calc(-96px * var(--avatar-scale));
+    --avatar-size: calc(52px * var(--avatar-scale));
+    --avatar-offset: calc(-60px * var(--avatar-scale));
   }
   
   /* Fix avatar positioning and sizing for all components */
@@ -143,6 +145,9 @@
     height: var(--avatar-size);
     border-width: 1px; /* Thinner border on mobile */
     z-index: 30; /* Ensure avatars appear above all content */
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
   }
   
   /* Position based on user vs non-user for all components */
@@ -169,10 +174,10 @@
     margin: 0 2px;
   }
   
-  /* Reduce hover transform distance to avoid overflow */
+  /* Animation for messages - slide into the margin space */
   .message[data-speaker="user"]:hover,
   .message[data-speaker="user"].speaking {
-    transform: translateX(-20px);
+    transform: translateX(-40px);
   }
   
   .message:not([data-speaker="user"]):hover,
@@ -187,7 +192,13 @@
   .generic-speaker.speaking,
   .random:hover,
   .random.speaking {
-    transform: translateX(20px);
+    transform: translateX(40px);
+  }
+  
+  /* Show icon on hover/speaking - explicitly set opacity */
+  .message:hover::before,
+  .message.speaking::before {
+    opacity: 1;
   }
   
   /* Adjust animation detection for mobile */
@@ -204,7 +215,7 @@
     --spacing-multiplier: 0.7;
     --content-padding-multiplier: 0.5;
     --layout-density: 0.8;
-    --avatar-scale: 0.5;
+    --avatar-scale: 0.6;
     --bubble-padding-x: 12px;
     --bubble-padding-y: 8px;
     --section-header-padding: 5px 8px;
@@ -218,6 +229,12 @@
     font-size: 1rem;
   }
   
+  /* Adjust container padding for sliding animation */
+  .chat-container {
+    padding-left: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+  }
+  
   /* Make header controls more compact */
   .theme-toggle,
   .animation-toggle,
@@ -227,6 +244,35 @@
     padding: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
+  /* Make avatars slightly smaller */
+  .message,
+  .typing-indicator {
+    --avatar-size: calc(48px * var(--avatar-scale));
+    --avatar-offset: calc(-54px * var(--avatar-scale));
+  }
+  
+  /* Animation for messages - slightly less slide distance */
+  .message[data-speaker="user"]:hover,
+  .message[data-speaker="user"].speaking {
+    transform: translateX(-30px);
+  }
+  
+  .message:not([data-speaker="user"]):hover,
+  .message:not([data-speaker="user"]).speaking,
+  .speakerC:hover,
+  .speakerC.speaking,
+  .speakerD:hover,
+  .speakerD.speaking,
+  .speakerE:hover,
+  .speakerE.speaking,
+  .generic-speaker:hover,
+  .generic-speaker.speaking,
+  .random:hover,
+  .random.speaking {
+    transform: translateX(30px);
+  }
+  
+  /* Theme toggle svg control size */
   .theme-toggle svg,
   .animation-toggle svg,
   .settings-toggle svg {
@@ -266,26 +312,5 @@
     width: 5px;
     height: 5px;
     margin: 0 2px;
-  }
-  
-  /* Further reduce hover distance */
-  .message[data-speaker="user"]:hover,
-  .message[data-speaker="user"].speaking {
-    transform: translateX(-15px);
-  }
-  
-  .message:not([data-speaker="user"]):hover,
-  .message:not([data-speaker="user"]).speaking,
-  .speakerC:hover,
-  .speakerC.speaking,
-  .speakerD:hover,
-  .speakerD.speaking,
-  .speakerE:hover,
-  .speakerE.speaking,
-  .generic-speaker:hover,
-  .generic-speaker.speaking,
-  .random:hover,
-  .random.speaking {
-    transform: translateX(15px);
   }
 } 
