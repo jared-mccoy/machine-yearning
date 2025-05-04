@@ -38,39 +38,42 @@
 .message[data-speaker="agent"] svg,
 .message[data-speaker="agent"] img[src$=".svg"],
 .message[data-speaker="assistant"] svg,
-.message[data-speaker="assistant"] img[src$=".svg"] {
+.message[data-speaker="assistant"] img[src$=".svg"],
+.message[data-speaker="test"] svg,
+.message[data-speaker="test"] img[src$=".svg"] {
   color: var(--assistant-color, #192b91);
   filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
 }
 
-.message[data-speaker="speakerC"] svg,
-.message[data-speaker="speakerC"] img[src$=".svg"] {
+.message[data-speaker="speakerc"] svg,
+.message[data-speaker="speakerc"] img[src$=".svg"] {
   color: var(--accentC-color, #e63946);
   filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
 }
 
-.message[data-speaker="speakerD"] svg,
-.message[data-speaker="speakerD"] img[src$=".svg"] {
+.message[data-speaker="speakerd"] svg,
+.message[data-speaker="speakerd"] img[src$=".svg"] {
   color: var(--accentD-color, #2a9d8f);
   filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
 }
 
-.message[data-speaker="speakerE"] svg,
-.message[data-speaker="speakerE"] img[src$=".svg"] {
+.message[data-speaker="speakere"] svg,
+.message[data-speaker="speakere"] img[src$=".svg"] {
   color: var(--accentE-color, #8338ec);
   filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
-}
-
-.message[data-speaker="generic-speaker"] svg,
-.message[data-speaker="generic-speaker"] img[src$=".svg"] {
-  color: var(--generic-color, #909090);
-  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
 .message[data-speaker="random"] svg,
 .message[data-speaker="random"] img[src$=".svg"] {
   color: var(--accentC-color, #e63946);
   filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+/* Default coloring for any other speakers */
+.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) svg,
+.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) img[src$=".svg"] {
+  color: var(--generic-color, #909090);
+  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
 /* Apply filter even to direct image tags with SVG sources */
@@ -97,28 +100,30 @@
 }
 
 .message[data-speaker="agent"],
-.message[data-speaker="assistant"] {
+.message[data-speaker="assistant"],
+.message[data-speaker="test"] {
   --speaker-filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
 }
 
-.message[data-speaker="speakerC"] {
+.message[data-speaker="speakerc"] {
   --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
 }
 
-.message[data-speaker="speakerD"] {
+.message[data-speaker="speakerd"] {
   --speaker-filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
 }
 
-.message[data-speaker="speakerE"] {
+.message[data-speaker="speakere"] {
   --speaker-filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
-}
-
-.message[data-speaker="generic-speaker"] {
-  --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
 .message[data-speaker="random"] {
   --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+/* For any other speakers, use the generic color */
+.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) {
+  --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
 /* Button hover states */

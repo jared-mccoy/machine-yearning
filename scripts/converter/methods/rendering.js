@@ -423,33 +423,15 @@ export function enhanceCodeBlocks() {
  * @returns {string} CSS class name for the speaker
  */
 export function getSpeakerClass(speaker, speakers = []) {
-  // Special case for "random" speaker
-  if (speaker === 'random') {
-    return 'random';
-  }
+  // Return the actual speaker tag as the class
+  // This ensures we use the speaker tag from the markdown directly
   
-  // Check if this speaker has been seen before
-  const speakerIndex = speakers.indexOf(speaker);
-  
-  // If not found, add to speakers array
-  if (speakerIndex === -1) {
+  // Add speaker to tracking array if not seen before
+  if (speakers.indexOf(speaker) === -1) {
     speakers.push(speaker);
-    const newIndex = speakers.length - 1;
-    
-    // Return appropriate class based on the speaker's position
-    if (newIndex === 0) return 'user';      // First speaker (right side)
-    if (newIndex === 1) return 'assistant'; // Second speaker (left side)
-    if (newIndex === 2) return 'speakerC';  // Third speaker
-    if (newIndex === 3) return 'speakerD';  // Fourth speaker
-    if (newIndex === 4) return 'speakerE';  // Fifth speaker
-    return 'generic-speaker';               // Any other speakers
-  } else {
-    // Return class for existing speaker
-    if (speakerIndex === 0) return 'user';
-    if (speakerIndex === 1) return 'assistant';
-    if (speakerIndex === 2) return 'speakerC';
-    if (speakerIndex === 3) return 'speakerD';
-    if (speakerIndex === 4) return 'speakerE';
-    return 'generic-speaker';
   }
+  
+  // Return the speaker name directly - this avoids the position-based mapping
+  // that was causing the issue with hardcoded user/assistant classes
+  return speaker;
 } 
