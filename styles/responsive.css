@@ -7,6 +7,10 @@
   --spacing-multiplier: 1;
   --content-padding-multiplier: 1;
   --layout-density: 1;
+  --avatar-scale: 1;
+  --bubble-padding-x: 16px;
+  --bubble-padding-y: 12px;
+  --section-header-padding: 8px 12px;
 }
 
 /* Only apply these styles on smaller screens */
@@ -14,8 +18,12 @@
   :root {
     /* Reduce spacing globally by adjusting multipliers */
     --spacing-multiplier: 0.85;
-    --content-padding-multiplier: 0.6;
+    --content-padding-multiplier: 0.7;
     --layout-density: 0.9;
+    --avatar-scale: 0.65;
+    --bubble-padding-x: 14px;
+    --bubble-padding-y: 10px;
+    --section-header-padding: 6px 10px;
   }
   
   /* Make header more compact */
@@ -35,28 +43,6 @@
     font-size: 1.1rem;
     white-space: nowrap;
     line-height: 1.2;
-  }
-  
-  /* Responsive spacing for all elements */
-  .message {
-    padding: calc(0.75 * var(--spacing-unit) * var(--content-padding-multiplier));
-    margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
-  }
-  
-  /* Content spacing adjustments */
-  .message p + p {
-    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
-  }
-  
-  .message ul, 
-  .message ol {
-    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
-    margin-bottom: calc(0.5 * var(--spacing-unit) * var(--layout-density));
-    padding-left: calc(var(--spacing-unit) * var(--layout-density));
-  }
-  
-  .message li {
-    margin-bottom: calc(0.25 * var(--spacing-unit) * var(--layout-density));
   }
   
   /* Header buttons */
@@ -80,28 +66,74 @@
     padding-right: calc(0.75 * var(--spacing-unit) * var(--content-padding-multiplier));
   }
   
-  /* Make message bubbles wider on mobile */
+  /* Make message bubbles wider on mobile with proper padding */
   .message {
     max-width: 90%;
+    padding: var(--bubble-padding-y) var(--bubble-padding-x);
+    margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
+    border-width: 1px; /* Thinner borders on mobile */
   }
   
-  /* Position avatar correctly */
-  .message {
-    --avatar-size: 45px; /* Smaller avatar */
+  /* Section headers with proper padding */
+  .chat-section-header {
+    padding: var(--section-header-padding);
+    margin: calc(1.25 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+            calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
-  /* Fix assistant avatar (left side) */
-  .message:not([data-speaker="user"])::before {
-    left: -55px;
-    width: 45px;
-    height: 45px;
+  /* Content spacing adjustments */
+  .message p + p {
+    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
   }
   
-  /* Fix user avatar (right side) */
-  .message[data-speaker="user"]::before {
-    right: -55px;
-    width: 45px;
-    height: 45px;
+  .message ul, 
+  .message ol {
+    margin-top: calc(0.5 * var(--spacing-unit) * var(--layout-density));
+    margin-bottom: calc(0.5 * var(--spacing-unit) * var(--layout-density));
+    padding-left: calc(var(--spacing-unit) * var(--layout-density));
+  }
+  
+  .message li {
+    margin-bottom: calc(0.25 * var(--spacing-unit) * var(--layout-density));
+  }
+  
+  /* Unify avatar styling for all components */
+  .message,
+  .typing-indicator {
+    --avatar-size: calc(80px * var(--avatar-scale));
+    --avatar-offset: calc(-96px * var(--avatar-scale));
+  }
+  
+  /* Fix avatar positioning and sizing for all components */
+  .message::before,
+  .typing-indicator::before {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    border-width: 1px; /* Thinner border on mobile */
+  }
+  
+  /* Position based on user vs non-user for all components */
+  .message[data-speaker="user"]::before,
+  .typing-indicator[data-speaker="user"]::before {
+    right: var(--avatar-offset);
+  }
+  
+  .message:not([data-speaker="user"])::before,
+  .typing-indicator:not([data-speaker="user"])::before {
+    left: var(--avatar-offset);
+  }
+  
+  /* Typing indicator adjustments */
+  .typing-indicator.visible {
+    padding: calc(var(--bubble-padding-y) * 0.6) var(--bubble-padding-x);
+    border-width: 1px;
+    transform: scale(0.9);
+  }
+  
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
   }
   
   /* Reduce hover transform distance to avoid overflow */
@@ -131,8 +163,12 @@
   :root {
     /* Further reduce spacing for very small screens */
     --spacing-multiplier: 0.7;
-    --content-padding-multiplier: 0.4;
+    --content-padding-multiplier: 0.5;
     --layout-density: 0.8;
+    --avatar-scale: 0.5;
+    --bubble-padding-x: 12px;
+    --bubble-padding-y: 8px;
+    --section-header-padding: 5px 8px;
   }
 
   /* Further compact header */
@@ -156,32 +192,20 @@
     height: 24px;
   }
   
-  /* Further reduce chat container padding */
-  .chat-container {
-    /* Already handled by CSS variables */
-  }
-  
   /* Increase message width to use more space */
   .message {
     max-width: 95%;
   }
   
-  /* Smaller avatars for very small screens */
-  .message {
-    --avatar-size: 40px;
+  /* Further reduce typing indicator */
+  .typing-indicator.visible {
+    padding: calc(var(--bubble-padding-y) * 0.5) calc(var(--bubble-padding-x) * 0.8);
   }
   
-  /* Fine-tune avatar positioning */
-  .message:not([data-speaker="user"])::before {
-    left: -45px;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .message[data-speaker="user"]::before {
-    right: -45px;
-    width: 40px;
-    height: 40px;
+  .typing-indicator span {
+    width: 5px;
+    height: 5px;
+    margin: 0 2px;
   }
   
   /* Further reduce hover distance */
