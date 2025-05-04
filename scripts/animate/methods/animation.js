@@ -324,18 +324,21 @@ export function processNextInQueue(animator) {
           // Update the last sender type
           animator.lastSenderWasUser = isUser;
           
-          // Show the message with animation
-          currentMsg.classList.remove('hidden');
-          currentMsg.classList.add('visible');
-          
-          // Remove the indicator after its transition completes
-          setTimeout(() => typingIndicator.remove(), 300);
-          
-          // Wait for message animation to complete before processing next
+          // Wait for typing indicator transition to complete before showing message
           setTimeout(() => {
-            animator.animationInProgress = false;
-            animator.processNextInQueue();
-          }, 600);
+            // Show the message with animation
+            currentMsg.classList.remove('hidden');
+            currentMsg.classList.add('visible');
+            
+            // Remove the indicator
+            typingIndicator.remove();
+            
+            // Wait for message animation to complete before processing next
+            setTimeout(() => {
+              animator.animationInProgress = false;
+              animator.processNextInQueue();
+            }, 600);
+          }, 300); // Match this to the typing indicator transition duration
         } else {
           // Message is really far from viewport, don't show it yet
           // Only log once per session until the state changes
