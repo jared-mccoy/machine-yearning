@@ -23,7 +23,7 @@
     --spacing-multiplier: 0.85;
     --content-padding-multiplier: 0.7;
     --layout-density: 0.9;
-    --avatar-scale: 0.65;
+    --avatar-scale: 0.85; /* Increased from 0.65 to make icons larger */
     --bubble-padding-x: 14px;
     --bubble-padding-y: 10px;
     --section-header-padding: 6px 10px;
@@ -79,20 +79,35 @@
     border-width: 1px;
   }
   
-  /* Reduce chat container padding for mobile */
-  .chat-container {
-    /* Increase padding to create space for sliding animation */
-    padding-left: calc(2.5 * var(--spacing-unit) * var(--content-padding-multiplier));
-    padding-right: calc(2.5 * var(--spacing-unit) * var(--content-padding-multiplier));
-    overflow-x: hidden; /* Prevent horizontal scrolling */
+  /* Remove body overflow restrictions that might clip avatars */
+  body {
+    overflow-x: visible !important;
   }
   
-  /* Make message bubbles wider on mobile with proper padding */
+  /* Reduce chat container padding for mobile */
+  .chat-container {
+    /* Create space for sliding animation without pushing content off-screen */
+    padding-left: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    overflow: visible !important; /* Allow avatars to extend beyond container */
+    /* Add property to be used by JavaScript animation detection */
+    --mobile-animation-cutoff: true;
+    position: relative; /* Establish positioning context */
+  }
+  
+  /* Make message bubbles narrower to allow more space for avatars */
   .message {
-    max-width: 90%;
+    max-width: 85%;
     padding: var(--bubble-padding-y) var(--bubble-padding-x);
     margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
     border-width: 1px; /* Thinner borders on mobile */
+    position: relative; /* For proper positioning context */
+    overflow: visible !important; /* Allow avatar to extend outside */
+  }
+  
+  /* Ensure wrapper doesn't clip elements */
+  .wrapper {
+    overflow: visible !important;
   }
   
   /* Section headers with proper padding */
@@ -134,8 +149,8 @@
   /* Unify avatar styling for all components */
   .message,
   .typing-indicator {
-    --avatar-size: calc(52px * var(--avatar-scale));
-    --avatar-offset: calc(-60px * var(--avatar-scale));
+    --avatar-size: calc(54px * var(--avatar-scale));
+    --avatar-offset: calc(-65px * var(--avatar-scale)); /* Increased offset for larger avatars */
   }
   
   /* Fix avatar positioning and sizing for all components */
@@ -144,7 +159,7 @@
     width: var(--avatar-size);
     height: var(--avatar-size);
     border-width: 1px; /* Thinner border on mobile */
-    z-index: 30; /* Ensure avatars appear above all content */
+    z-index: 100; /* Ensure avatars appear above all content */
     top: 50%;
     transform: translateY(-50%);
     border-radius: 50%;
@@ -162,6 +177,11 @@
   }
   
   /* Typing indicator adjustments */
+  .typing-indicator {
+    overflow: visible !important; /* Allow avatar to extend outside */
+    position: relative; /* For proper positioning context */
+  }
+  
   .typing-indicator.visible {
     padding: calc(var(--bubble-padding-y) * 0.6) var(--bubble-padding-x);
     border-width: 1px;
@@ -177,7 +197,7 @@
   /* Animation for messages - slide into the margin space */
   .message[data-speaker="user"]:hover,
   .message[data-speaker="user"].speaking {
-    transform: translateX(-40px);
+    transform: translateX(-25px); /* Reduced slide to keep content visible */
   }
   
   .message:not([data-speaker="user"]):hover,
@@ -192,19 +212,13 @@
   .generic-speaker.speaking,
   .random:hover,
   .random.speaking {
-    transform: translateX(40px);
+    transform: translateX(25px); /* Reduced slide to keep content visible */
   }
   
   /* Show icon on hover/speaking - explicitly set opacity */
   .message:hover::before,
   .message.speaking::before {
     opacity: 1;
-  }
-  
-  /* Adjust animation detection for mobile */
-  .chat-container {
-    /* Add property to be used by JavaScript animation detection */
-    --mobile-animation-cutoff: true;
   }
 }
 
@@ -215,7 +229,7 @@
     --spacing-multiplier: 0.7;
     --content-padding-multiplier: 0.5;
     --layout-density: 0.8;
-    --avatar-scale: 0.6;
+    --avatar-scale: 0.75; /* Increased from 0.6 to make icons larger on very small screens */
     --bubble-padding-x: 12px;
     --bubble-padding-y: 8px;
     --section-header-padding: 5px 8px;
@@ -231,8 +245,8 @@
   
   /* Adjust container padding for sliding animation */
   .chat-container {
-    padding-left: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
-    padding-right: calc(2 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-left: calc(1.75 * var(--spacing-unit) * var(--content-padding-multiplier));
+    padding-right: calc(1.75 * var(--spacing-unit) * var(--content-padding-multiplier));
   }
   
   /* Make header controls more compact */
@@ -247,14 +261,14 @@
   /* Make avatars slightly smaller */
   .message,
   .typing-indicator {
-    --avatar-size: calc(48px * var(--avatar-scale));
-    --avatar-offset: calc(-54px * var(--avatar-scale));
+    --avatar-size: calc(50px * var(--avatar-scale));
+    --avatar-offset: calc(-58px * var(--avatar-scale)); /* Adjusted offset for better positioning */
   }
   
   /* Animation for messages - slightly less slide distance */
   .message[data-speaker="user"]:hover,
   .message[data-speaker="user"].speaking {
-    transform: translateX(-30px);
+    transform: translateX(-20px); /* Reduced slide to keep content visible */
   }
   
   .message:not([data-speaker="user"]):hover,
@@ -269,7 +283,7 @@
   .generic-speaker.speaking,
   .random:hover,
   .random.speaking {
-    transform: translateX(30px);
+    transform: translateX(20px); /* Reduced slide to keep content visible */
   }
   
   /* Theme toggle svg control size */
@@ -294,7 +308,7 @@
   
   /* Increase message width to use more space */
   .message {
-    max-width: 95%;
+    max-width: 88%; /* Balance between space for content and avatars */
   }
   
   /* Further reduce section spacing */
