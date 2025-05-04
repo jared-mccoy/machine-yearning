@@ -236,25 +236,21 @@
   max-width: 100%;
   margin: 1rem auto;
   align-self: center;
-  background: transparent;
-  border: none;
+  background-color: rgba(var(--generic-color-rgb), 0.05);
+  border-radius: 8px;
   box-shadow: none;
-  padding: 0;
+  padding: 8px 12px;
   --speaker-color: transparent;
   --speaker-color-light: transparent;
+  transition: background-color 0.3s ease;
+}
+
+.message[data-speaker="direct-text"]:hover {
+  background-color: rgba(var(--generic-color-rgb), 0.1);
 }
 
 .message[data-speaker="direct-text"]::before {
   display: none; /* Hide speaker icon */
-}
-
-.message[data-speaker="direct-text"] .content-container {
-  width: 100%;
-  max-width: 100%;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0.5rem 1rem;
 }
 
 .message[data-speaker="direct-text"] .content {
@@ -263,5 +259,5 @@
   text-align: center;
   color: var(--text-color);
   font-style: normal;
-  opacity: 0.85;
+  opacity: 1;
 } 
