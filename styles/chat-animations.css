@@ -11,7 +11,8 @@
 .message.visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.8s ease-out, transform 0.6s var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transition: opacity var(--hover-transition-duration, 0.8s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              transform var(--hover-transition-duration, 0.6s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   pointer-events: auto;
 }
 
@@ -38,7 +39,7 @@
   opacity: 0;
   overflow: visible;
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   transform-origin: left center;
   transform: scale(0.8);
   z-index: 2;
@@ -54,7 +55,7 @@
   background-size: cover;
   background-position: center;
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   top: 50%;
   transform: translateY(-50%);
   border: 2px solid var(--speaker-color);

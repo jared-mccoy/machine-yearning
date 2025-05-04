@@ -63,7 +63,7 @@ pre > code {
   align-items: center;
   padding: 3px;
   border-radius: 4px;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .copy-button:hover {

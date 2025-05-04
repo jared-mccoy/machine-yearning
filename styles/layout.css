@@ -18,7 +18,7 @@ h2 {
 a {
   color: var(--accent-color);
   text-decoration: none;
-  transition: color 0.2s ease-in-out;
+  transition: color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 a:hover {
@@ -40,7 +40,7 @@ a:hover {
   font-weight: 700;
   color: var(--accent-color);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   display: flex;
   align-items: center;
   padding: 5px 15px;
@@ -62,6 +62,7 @@ a:hover {
   align-items: center;
   padding: 0 0 15px 0;
   margin-bottom: 30px;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Header navigation specifics */
@@ -93,7 +94,7 @@ a:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .chat-title:hover {
@@ -109,7 +110,7 @@ a:hover {
   border: 2px solid var(--accent-color);
   border-radius: 4px;
   color: var(--accent-color);
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .nav-link svg {

@@ -165,5 +165,14 @@
 /* Transitions for smooth color changes */
 .icon-svg,
 img[src$=".svg"] {
-  transition: color 0.3s ease, filter 0.3s ease;
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              filter var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Icon styling for various color schemes */
+.icon-colored {
+  color: var(--accent-color); /* Set the default fill color to accent color */
+  /* Add transitions for smooth color changes */
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              filter var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 } 

@@ -61,7 +61,8 @@ body {
   padding: 20px 20px 60px 20px;
   background-color: var(--background-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              color var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   min-height: 100vh;
 }
 
@@ -78,7 +79,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   margin-right: 8px;
 }
 
@@ -115,7 +116,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   margin-right: 8px;
   position: relative;
 }
@@ -133,7 +134,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  transition: opacity 0.3s ease;
+  transition: opacity var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Show the appropriate icon based on animation state */
@@ -160,7 +161,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .settings-toggle:hover {
@@ -189,7 +190,8 @@ body {
   transform: translateY(-20px);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              opacity var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 .settings-panel.visible {

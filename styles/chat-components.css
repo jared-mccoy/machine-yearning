@@ -10,7 +10,7 @@
   background-color: transparent;
   border-radius: 4px;
   border: none;
-  transition: all 0.2s ease;
+  transition: all var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Collapsed header style */
@@ -32,7 +32,8 @@
 .chat-section-header.header-visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.5s ease-out, transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: opacity var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              transform var(--hover-transition-duration, 0.4s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Header levels styling */
@@ -87,7 +88,7 @@
   width: 32px;
   height: 32px;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   transform: rotate(0deg);
   fill: currentColor;
 }
@@ -116,7 +117,8 @@
 
 /* Chat section container */
 .chat-section {
-  transition: max-height 0.3s ease, opacity 0.2s ease;
+  transition: max-height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              opacity var(--hover-transition-duration, 0.2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   overflow: visible;
   max-height: none;
   display: flex;
@@ -198,7 +200,7 @@
   background-size: cover;
   background-position: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   top: 50%;
   border: 2px solid var(--speaker-color);
   z-index: 20;
@@ -275,4 +277,35 @@
   color: var(--text-color);
   font-style: normal;
   opacity: 1;
+}
+
+/* Chat message components */
+
+/* Expand toggle animation */
+.message .arrow-container {
+  transition: transform var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transform: rotate(0deg);
+}
+
+.message.collapsed .arrow-container {
+  transform: rotate(-90deg);
+}
+
+/* Collapsed content */
+.message .collapsible-content {
+  transition: max-height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
+              opacity var(--hover-transition-duration, 0.2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  overflow: hidden;
+  max-height: 5000px; /* Arbitrary large value */
+  opacity: 1;
+}
+
+/* Loading dots animation */
+.loading-dots {
+  display: inline-block;
+  position: relative;
+  width: 40px;
+  height: 12px;
+  opacity: 0.7;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 } 
