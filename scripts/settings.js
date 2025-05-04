@@ -260,7 +260,7 @@ function setupSettingsPanel() {
         <div>
           <label>
             <input type="checkbox" id="animation-enabled">
-            Enable typing animation
+            <span>Enable typing animation</span>
           </label>
         </div>
         <label for="typing-applies-to">Apply typing animation to:</label>
@@ -288,7 +288,7 @@ function setupSettingsPanel() {
         <div>
           <label>
             <input type="checkbox" id="read-delay-enabled">
-            Add reading delay between messages
+            <span>Add reading delay between messages</span>
           </label>
         </div>
         

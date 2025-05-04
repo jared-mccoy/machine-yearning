@@ -206,15 +206,17 @@ body {
 .settings-panel h3 {
   margin-top: 0;
   margin-bottom: 8px;
-  color: var(--text-color);
+  color: var(--accent-color);
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .settings-panel h4 {
   font-size: 0.8rem;
   margin-top: 0;
   margin-bottom: 6px;
-  color: var(--text-color);
+  color: var(--accent-color);
+  font-weight: 600;
 }
 
 .settings-panel label {
@@ -222,7 +224,7 @@ body {
   margin-bottom: 2px;
   font-weight: 500;
   font-size: 0.75rem;
-  color: var(--text-color);
+  color: var(--accent-color);
 }
 
 .settings-panel input[type="number"],
@@ -230,7 +232,7 @@ body {
 .settings-panel select.settings-select {
   width: 100%;
   padding: 4px 6px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--accent-color-light);
   border-radius: 4px;
   background-color: var(--background-color);
   color: var(--text-color);
@@ -258,12 +260,30 @@ body {
 .settings-panel input[type="checkbox"] {
   margin-right: 6px;
   accent-color: var(--accent-color);
+  width: 14px;
+  height: 14px;
+  position: relative;
+  top: 2px;
+}
+
+.settings-panel input[type="checkbox"] + span {
+  color: var(--accent-color);
+}
+
+.settings-panel input[type="checkbox"]:checked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.settings-panel select.settings-select option {
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .settings-panel .setting-group {
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--accent-color-light);
 }
 
 .settings-panel .setting-group:last-child {
@@ -274,7 +294,7 @@ body {
 
 .settings-panel button {
   background-color: var(--accent-color);
-  color: white;
+  color: var(--background-color);
   border: none;
   border-radius: 4px;
   padding: 4px 8px;
