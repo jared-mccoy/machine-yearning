@@ -33,10 +33,10 @@
     padding: 4px 10px;
   }
   
-  /* Increase container padding to give room for icons on either side */
+  /* Reduce chat container padding for mobile */
   .chat-container {
-    padding-left: 60px;
-    padding-right: 60px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
   
   /* Make message bubbles wider on mobile */
@@ -108,10 +108,10 @@
     height: 24px;
   }
   
-  /* Adjust container padding for smaller screens */
+  /* Further reduce chat container padding */
   .chat-container {
-    padding-left: 50px;
-    padding-right: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   /* Increase message width to use more space */
