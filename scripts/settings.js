@@ -110,9 +110,11 @@ function applySettings() {
     if (currentTheme === 'dark') {
       document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentB);
       document.documentElement.style.setProperty('--user-color', appSettings.theme.accentA);
+      document.documentElement.style.setProperty('--form-accent-color', appSettings.theme.accentB);
     } else {
       document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
       document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
+      document.documentElement.style.setProperty('--form-accent-color', appSettings.theme.accentA);
     }
     
     // Set other accent colors
@@ -353,13 +355,31 @@ function setupSettingsPanel() {
     cancelButton.addEventListener('click', () => {
       toggleSettingsPanel(false);
     });
+    
+    // Add click event listener to close panel when clicking outside
+    document.addEventListener('click', (event) => {
+      const panel = document.getElementById('settings-panel');
+      const settingsToggle = document.getElementById('settings-toggle');
+      
+      if (panel && panel.classList.contains('visible')) {
+        // If the click is outside the panel and not on the settings toggle button
+        if (!panel.contains(event.target) && event.target !== settingsToggle && !settingsToggle.contains(event.target)) {
+          toggleSettingsPanel(false);
+        }
+      }
+    }, true);
   }
   
   // Update the panel with current settings
   populateSettingsPanel();
   
-  // Show the panel
-  toggleSettingsPanel(true);
+  // Show or toggle the panel
+  const panel = document.getElementById('settings-panel');
+  if (panel.classList.contains('visible')) {
+    toggleSettingsPanel(false);
+  } else {
+    toggleSettingsPanel(true);
+  }
 }
 
 /**
@@ -452,6 +472,21 @@ function toggleSettingsPanel(show) {
   
   if (show) {
     panel.classList.add('visible');
+    
+    // Ensure proper accent colors are applied to form elements
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const accentColor = currentTheme === 'dark' ? 
+      document.documentElement.style.getPropertyValue('--user-color') || '#ffc400' : 
+      document.documentElement.style.getPropertyValue('--assistant-color') || '#192b91';
+    
+    // Apply accent color to form elements via CSS variable
+    document.documentElement.style.setProperty('--form-accent-color', accentColor);
+    
+    // Update select elements with currentColor for the dropdown arrow
+    const selects = panel.querySelectorAll('select.settings-select');
+    selects.forEach(select => {
+      select.style.color = 'var(--text-color)';
+    });
   } else {
     panel.classList.remove('visible');
   }
