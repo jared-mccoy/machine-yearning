@@ -66,11 +66,9 @@ function setupThemeToggle() {
       if (newTheme === 'dark') {
         document.documentElement.style.setProperty('--assistant-color', settings.theme.accentB);
         document.documentElement.style.setProperty('--user-color', settings.theme.accentA);
-        document.documentElement.style.setProperty('--form-accent-color', settings.theme.accentB);
       } else {
         document.documentElement.style.setProperty('--assistant-color', settings.theme.accentA);
         document.documentElement.style.setProperty('--user-color', settings.theme.accentB);
-        document.documentElement.style.setProperty('--form-accent-color', settings.theme.accentA);
       }
       
       // Update semi-transparent versions

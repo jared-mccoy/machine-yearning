@@ -110,11 +110,9 @@ function applySettings() {
     if (currentTheme === 'dark') {
       document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentB);
       document.documentElement.style.setProperty('--user-color', appSettings.theme.accentA);
-      document.documentElement.style.setProperty('--form-accent-color', appSettings.theme.accentB);
     } else {
       document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
       document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
-      document.documentElement.style.setProperty('--form-accent-color', appSettings.theme.accentA);
     }
     
     // Set other accent colors
@@ -473,16 +471,7 @@ function toggleSettingsPanel(show) {
   if (show) {
     panel.classList.add('visible');
     
-    // Ensure proper accent colors are applied to form elements
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const accentColor = currentTheme === 'dark' ? 
-      document.documentElement.style.getPropertyValue('--user-color') || '#ffc400' : 
-      document.documentElement.style.getPropertyValue('--assistant-color') || '#192b91';
-    
-    // Apply accent color to form elements via CSS variable
-    document.documentElement.style.setProperty('--form-accent-color', accentColor);
-    
-    // Update select elements with currentColor for the dropdown arrow
+    // Update select elements to ensure consistent styling
     const selects = panel.querySelectorAll('select.settings-select');
     selects.forEach(select => {
       select.style.color = 'var(--text-color)';

@@ -20,7 +20,6 @@
   --section-header-bg-hover: #ebebeb;
   --accent-color: var(--assistant-color);  /* Default accent for light mode */
   --accent-color-light: var(--assistant-color-light);
-  --form-accent-color: var(--accent-color); /* Form elements accent color */
   --color-light: rgb(101, 123, 131); /* Plaintext color for light mode */
   --color-dark: rgb(204, 204, 204);  /* Plaintext color for dark mode */
   --code-color: var(--color-light);  /* Default code color */
@@ -182,18 +181,20 @@ body {
   top: 80px;
   right: 20px;
   width: 300px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
   background-color: var(--background-color);
   border: 2px solid var(--accent-color);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 16px;
+  padding: 12px;
   z-index: 1000;
   transform: translateY(-20px);
   opacity: 0;
   pointer-events: none;
   transition: transform var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
               opacity var(--hover-transition-duration, 1s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .settings-panel.visible {
@@ -204,22 +205,23 @@ body {
 
 .settings-panel h3 {
   margin-top: 0;
-  margin-bottom: 12px;
-  color: var(--form-accent-color);
-  font-size: 1rem;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-size: 0.9rem;
 }
 
 .settings-panel h4 {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   margin-top: 0;
-  color: var(--form-accent-color);
+  margin-bottom: 6px;
+  color: var(--text-color);
 }
 
 .settings-panel label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-color);
 }
 
@@ -227,40 +229,40 @@ body {
 .settings-panel input[type="text"],
 .settings-panel select.settings-select {
   width: 100%;
-  padding: 8px;
+  padding: 4px 6px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background-color: var(--background-color);
   color: var(--text-color);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
 }
 
 .settings-panel input[type="number"]:focus,
 .settings-panel input[type="text"]:focus,
 .settings-panel select.settings-select:focus {
   outline: none;
-  border-color: var(--form-accent-color);
-  box-shadow: 0 0 0 2px var(--form-accent-color-light, rgba(var(--form-accent-color), 0.3));
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px var(--accent-color-light);
 }
 
 .settings-panel select.settings-select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22currentColor%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 12px;
-  padding-right: 28px;
-  color: var(--text-color);
+  background-position: right 6px center;
+  background-size: 10px;
+  padding-right: 24px;
 }
 
 .settings-panel input[type="checkbox"] {
-  margin-right: 8px;
-  accent-color: var(--form-accent-color);
+  margin-right: 6px;
+  accent-color: var(--accent-color);
 }
 
 .settings-panel .setting-group {
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -271,13 +273,14 @@ body {
 }
 
 .settings-panel button {
-  background-color: var(--form-accent-color);
+  background-color: var(--accent-color);
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
+  padding: 4px 8px;
   cursor: pointer;
-  margin-right: 8px;
+  margin-right: 6px;
+  font-size: 0.75rem;
 }
 
 .settings-panel button:hover {
@@ -287,7 +290,7 @@ body {
 .settings-panel .settings-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 /* Header controls layout */
