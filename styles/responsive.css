@@ -13,6 +13,7 @@
   --section-header-padding: 8px 12px;
   --nav-icon-size: 32px;
   --nav-container-size: 44px;
+  --animation-visibility-buffer: 200px; /* Default animation buffer */
 }
 
 /* Only apply these styles on smaller screens */
@@ -28,6 +29,7 @@
     --section-header-padding: 6px 10px;
     --nav-icon-size: 28px;
     --nav-container-size: 40px;
+    --animation-visibility-buffer: 100px; /* Reduced buffer for mobile */
   }
   
   /* Make header more compact */
@@ -94,8 +96,21 @@
   /* Section headers with proper padding */
   .chat-section-header {
     padding: var(--section-header-padding);
-    margin: calc(1.25 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
-            calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier));
+    margin: calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+            calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
+  }
+  
+  /* Fix nested section padding on mobile */
+  .chat-section {
+    padding-left: 0; /* Remove left padding on all sections for mobile */
+    margin-bottom: calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
+    overflow: visible; /* Ensure avatars aren't clipped */
+  }
+  
+  /* Ensure root sections have proper spacing */
+  .chat-container > .chat-section {
+    padding-left: 0;
+    margin-bottom: calc(0.75 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
   /* Content spacing adjustments */
@@ -127,6 +142,7 @@
     width: var(--avatar-size);
     height: var(--avatar-size);
     border-width: 1px; /* Thinner border on mobile */
+    z-index: 30; /* Ensure avatars appear above all content */
   }
   
   /* Position based on user vs non-user for all components */
@@ -173,6 +189,12 @@
   .random.speaking {
     transform: translateX(20px);
   }
+  
+  /* Adjust animation detection for mobile */
+  .chat-container {
+    /* Add property to be used by JavaScript animation detection */
+    --mobile-animation-cutoff: true;
+  }
 }
 
 /* Very small screens */
@@ -188,6 +210,7 @@
     --section-header-padding: 5px 8px;
     --nav-icon-size: 24px;
     --nav-container-size: 36px;
+    --animation-visibility-buffer: 80px; /* Even smaller buffer for tiny screens */
   }
 
   /* Further compact header */
@@ -226,6 +249,12 @@
   /* Increase message width to use more space */
   .message {
     max-width: 95%;
+  }
+  
+  /* Further reduce section spacing */
+  .chat-section-header {
+    margin: calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier)) 0 
+            calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
   /* Further reduce typing indicator */

@@ -334,13 +334,35 @@ export function processNextInQueue(animator) {
           }, 500);
         }, 50);
         
-        // Relax the viewport check - just make sure message is near viewport
+        // Get the message rect for viewport checking
         const rect2 = currentMsg.getBoundingClientRect();
         
-        // Consider a message "in view" if it's even partially in viewport or within 300px below
-        const isInView = rect2.top < window.innerHeight + 300;
+        // Get animation buffer size from CSS variables - default to 200px if not defined
+        const chatContainer = document.querySelector('.chat-container');
+        let animationBuffer = 200;
         
-        // If it's anywhere close to view, show the message
+        // Check if we're on mobile using the CSS variable
+        if (chatContainer && window.getComputedStyle) {
+          const computedStyle = window.getComputedStyle(document.documentElement);
+          const bufferValue = computedStyle.getPropertyValue('--animation-visibility-buffer').trim();
+          
+          if (bufferValue) {
+            // Parse the buffer value (removing 'px' if present)
+            const parsedBuffer = parseInt(bufferValue.replace('px', ''), 10);
+            if (!isNaN(parsedBuffer)) {
+              animationBuffer = parsedBuffer;
+            }
+          }
+          
+          if (window.debugLog) {
+            window.debugLog(`Using animation buffer of ${animationBuffer}px`, 'viewport');
+          }
+        }
+        
+        // Consider a message "in view" if it's within the defined buffer zone
+        const isInView = rect2.top < window.innerHeight + animationBuffer;
+        
+        // If it's within the buffer zone, show the message
         if (isInView) {
           // Update the viewport state tracking
           if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'in-view') {
@@ -368,7 +390,7 @@ export function processNextInQueue(animator) {
           if (!animator.hasOwnProperty('lastViewportState') || animator.lastViewportState !== 'out-of-view') {
             animator.lastViewportState = 'out-of-view';
             if (window.debugLog) {
-              window.debugLog("Messages far from viewport, waiting for user to scroll into view", 'viewport');
+              window.debugLog(`Messages far from viewport (${Math.round(rect2.top - window.innerHeight)}px below), waiting for user to scroll into view`, 'viewport');
             }
           }
           
