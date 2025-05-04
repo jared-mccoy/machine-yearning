@@ -155,4 +155,12 @@
 .message .content-container .content {
   margin: 0;
   padding: 0;
+}
+
+/* Disable hover effects for direct-text */
+.message[data-speaker="direct-text"],
+.message[data-speaker="direct-text"]:hover,
+.message[data-speaker="direct-text"].speaking {
+  transform: none !important;
+  border: none;
 } 
