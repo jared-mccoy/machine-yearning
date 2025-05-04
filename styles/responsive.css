@@ -1,0 +1,89 @@
+/* Responsive styles for mobile devices only */
+
+/* Only apply these styles on smaller screens */
+@media screen and (max-width: 600px) {
+  /* Adjust chat container padding for mobile */
+  .chat-container {
+    padding-left: 25px;  /* Reduced from 50px but still enough for icons */
+    padding-right: 25px; /* Reduced from 50px but still enough for icons */
+  }
+  
+  /* Make message bubbles slightly wider on mobile */
+  .message {
+    max-width: 85%;
+  }
+  
+  /* Reduce the avatar offset but keep size the same */
+  .message[data-speaker="user"]::before {
+    right: -75px; /* Closer to bubble than default -96px */
+  }
+  
+  .message:not([data-speaker="user"])::before {
+    left: -75px; /* Closer to bubble than default -96px */
+  }
+  
+  /* Reduce hover transform distance */
+  .message[data-speaker="user"]:hover,
+  .message[data-speaker="user"].speaking {
+    transform: translateX(-25px); /* Less than default -40px */
+  }
+  
+  .message:not([data-speaker="user"]):hover,
+  .message:not([data-speaker="user"]).speaking,
+  .speakerC:hover,
+  .speakerC.speaking,
+  .speakerD:hover,
+  .speakerD.speaking,
+  .speakerE:hover,
+  .speakerE.speaking,
+  .generic-speaker:hover,
+  .generic-speaker.speaking,
+  .random:hover,
+  .random.speaking {
+    transform: translateX(25px); /* Less than default 40px */
+  }
+}
+
+/* Very small screens */
+@media screen and (max-width: 400px) {
+  /* Further reduce side padding */
+  .chat-container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  /* Slightly increase message width to use more space */
+  .message {
+    max-width: 90%;
+  }
+  
+  /* Move avatars even closer to messages */
+  .message[data-speaker="user"]::before {
+    right: -65px;
+  }
+  
+  .message:not([data-speaker="user"])::before {
+    left: -65px;
+  }
+  
+  /* Minimal hover animation */
+  .message[data-speaker="user"]:hover,
+  .message[data-speaker="user"].speaking {
+    transform: translateX(-15px);
+  }
+  
+  .message:not([data-speaker="user"]):hover,
+  .message:not([data-speaker="user"]).speaking,
+  .speakerC:hover,
+  .speakerC.speaking,
+  .speakerD:hover,
+  .speakerD.speaking,
+  .speakerE:hover,
+  .speakerE.speaking,
+  .generic-speaker:hover,
+  .generic-speaker.speaking,
+  .random:hover,
+  .random.speaking {
+    transform: translateX(15px);
+  }
+} 

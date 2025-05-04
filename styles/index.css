@@ -16,4 +16,7 @@
 @import 'chat-animations.css';
 
 /* Directory and navigation */
-@import 'directory.css'; 
+@import 'directory.css';
+
+/* Mobile responsive adjustments (mobile-only) */
+@import 'responsive.css'; 
