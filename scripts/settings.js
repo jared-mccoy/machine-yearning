@@ -474,7 +474,20 @@ function toggleSettingsPanel(show) {
     // Update select elements to ensure consistent styling
     const selects = panel.querySelectorAll('select.settings-select');
     selects.forEach(select => {
-      select.style.color = 'var(--text-color)';
+      // Ensure text color matches the theme
+      select.style.color = 'var(--accent-color)';
+      
+      // Add custom styling for options
+      const options = select.querySelectorAll('option');
+      options.forEach(option => {
+        option.style.backgroundColor = 'var(--background-color)';
+        option.style.color = 'var(--accent-color)';
+      });
+      
+      // Add event listener to update selected option styling
+      select.addEventListener('change', () => {
+        select.style.color = 'var(--accent-color)';
+      });
     });
   } else {
     panel.classList.remove('visible');

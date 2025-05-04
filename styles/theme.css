@@ -235,7 +235,7 @@ body {
   border: 1px solid var(--accent-color-light);
   border-radius: 4px;
   background-color: var(--background-color);
-  color: var(--text-color);
+  color: var(--accent-color);
   margin-bottom: 8px;
   font-size: 0.75rem;
 }
@@ -255,6 +255,21 @@ body {
   background-position: right 6px center;
   background-size: 10px;
   padding-right: 24px;
+  color: var(--accent-color);
+}
+
+.settings-panel select.settings-select option {
+  background-color: var(--background-color);
+  color: var(--accent-color);
+  padding: 6px;
+}
+
+/* Style for dropdown when open */
+.settings-panel select.settings-select:focus option:checked,
+.settings-panel select.settings-select option:hover,
+.settings-panel select.settings-select option:focus {
+  background-color: var(--accent-color);
+  color: var(--background-color);
 }
 
 .settings-panel input[type="checkbox"] {
@@ -273,11 +288,6 @@ body {
 .settings-panel input[type="checkbox"]:checked {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
-}
-
-.settings-panel select.settings-select option {
-  background-color: var(--background-color);
-  color: var(--text-color);
 }
 
 .settings-panel .setting-group {
@@ -317,4 +327,51 @@ body {
 .header-controls {
   display: flex;
   align-items: center;
+}
+
+/* Style for Firefox dropdown */
+@-moz-document url-prefix() {
+  .settings-panel select.settings-select {
+    color: var(--accent-color);
+    background-color: var(--background-color);
+  }
+  
+  .settings-panel select.settings-select option {
+    color: var(--accent-color);
+    background-color: var(--background-color);
+  }
+}
+
+/* Style for Webkit/Blink dropdowns */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .settings-panel select.settings-select {
+    color: var(--accent-color);
+    background-color: var(--background-color);
+  }
+  
+  .settings-panel select.settings-select option {
+    color: var(--accent-color);
+    background-color: var(--background-color);
+  }
+}
+
+/* Additional input styling to override any browser defaults */
+.settings-panel input[type="number"],
+.settings-panel input[type="text"] {
+  color: var(--accent-color) !important;
+  caret-color: var(--accent-color);
+}
+
+.settings-panel input[type="number"]::placeholder,
+.settings-panel input[type="text"]::placeholder {
+  color: var(--accent-color-light);
+}
+
+/* Force consistent styling for all browsers */
+.settings-panel input:-webkit-autofill,
+.settings-panel input:-webkit-autofill:hover, 
+.settings-panel input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--accent-color) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--background-color) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 } 
