@@ -47,6 +47,7 @@
   transform-origin: left center;
   transform: scale(0.8);
   z-index: 2;
+  will-change: transform, opacity, height, padding, margin;
 }
 
 /* Base avatar for all typing indicators */
@@ -59,7 +60,7 @@
   background-size: cover;
   background-position: center;
   opacity: 1;
-  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transition: all var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   top: 50%;
   transform: translateY(-50%);
   border: 2px solid var(--speaker-color);
@@ -70,6 +71,7 @@
   mask-size: cover;
   -webkit-mask-image: url('../public/speaker_icons/agent.svg');
   -webkit-mask-size: cover;
+  will-change: transform, opacity;
 }
 
 /* Show avatar when typing indicator is visible - no longer needed */
@@ -285,4 +287,4 @@
 /* Ensure other typing indicators fade out in the same position */
 .typing-indicator:not([data-speaker="user"]):not(.visible) {
   transform: scale(0.8) translateX(40px);
-} 
+}
