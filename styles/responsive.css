@@ -11,6 +11,8 @@
   --bubble-padding-x: 16px;
   --bubble-padding-y: 12px;
   --section-header-padding: 8px 12px;
+  --nav-icon-size: 32px;
+  --nav-container-size: 44px;
 }
 
 /* Only apply these styles on smaller screens */
@@ -24,6 +26,8 @@
     --bubble-padding-x: 14px;
     --bubble-padding-y: 10px;
     --section-header-padding: 6px 10px;
+    --nav-icon-size: 28px;
+    --nav-container-size: 40px;
   }
   
   /* Make header more compact */
@@ -50,6 +54,18 @@
     margin-left: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
+  /* Navigation controls - unified sizing */
+  .nav-link {
+    width: var(--nav-container-size);
+    height: var(--nav-container-size);
+    border-width: 1px;
+  }
+  
+  .nav-link svg {
+    width: var(--nav-icon-size);
+    height: var(--nav-icon-size);
+  }
+  
   /* Chat title in navigation */
   .chat-title {
     font-size: 0.95rem;
@@ -58,6 +74,7 @@
     text-overflow: ellipsis;
     padding: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier)) 
              calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
+    border-width: 1px;
   }
   
   /* Reduce chat container padding for mobile */
@@ -169,6 +186,8 @@
     --bubble-padding-x: 12px;
     --bubble-padding-y: 8px;
     --section-header-padding: 5px 8px;
+    --nav-icon-size: 24px;
+    --nav-container-size: 36px;
   }
 
   /* Further compact header */
@@ -180,16 +199,28 @@
   .theme-toggle,
   .animation-toggle,
   .settings-toggle {
-    width: 36px;
-    height: 36px;
+    width: var(--nav-container-size);
+    height: var(--nav-container-size);
     padding: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
   .theme-toggle svg,
   .animation-toggle svg,
   .settings-toggle svg {
-    width: 24px;
-    height: 24px;
+    width: var(--nav-icon-size);
+    height: var(--nav-icon-size);
+  }
+  
+  /* Further reduce border thickness */
+  .nav-link,
+  .chat-title {
+    border-width: 1px;
+  }
+  
+  /* Chat title smaller text */
+  .chat-title {
+    font-size: 0.9rem;
+    padding: 3px 8px;
   }
   
   /* Increase message width to use more space */
