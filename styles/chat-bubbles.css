@@ -7,7 +7,7 @@
   padding: 12px 16px;
   max-width: 70%;
   position: relative;
-  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   display: block;
   overflow: visible; /* Crucial to ensure avatars aren't clipped */
   border: 2px solid var(--speaker-color-light, var(--assistant-color-light));

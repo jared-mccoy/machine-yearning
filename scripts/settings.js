@@ -20,6 +20,10 @@ const DEFAULT_SETTINGS = {
       minReadTime: 300,
       maxReadTime: 3000,
       variancePercentage: 20
+    },
+    hoverEffects: {
+      transitionDelay: 0.5,
+      easing: "cubic-bezier(0.19, 1, 0.22, 1)"
     }
   },
   logging: {
@@ -124,6 +128,11 @@ function applySettings() {
     document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#2a9d8f') + '71');
     document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#8338ec') + '71');
     document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#909090') + '71');
+    
+    // Set hover effect settings
+    const hoverEffects = appSettings.chat.hoverEffects || { transitionDelay: 0.5, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };
+    document.documentElement.style.setProperty('--hover-transition-duration', `${hoverEffects.transitionDelay}s`);
+    document.documentElement.style.setProperty('--hover-transition-timing', hoverEffects.easing);
     
     // Set animation enabled state
     const animationEnabled = appSettings.chat.typingAnimation.enabled;

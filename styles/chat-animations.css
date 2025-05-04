@@ -11,7 +11,7 @@
 .message.visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.8s ease-out, transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: opacity 0.8s ease-out, transform 0.6s var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   pointer-events: auto;
 }
 

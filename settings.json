@@ -14,6 +14,10 @@
       "minReadTime": 300,
       "maxReadTime": 15000,
       "variancePercentage": 20
+    },
+    "hoverEffects": {
+      "transitionDelay": 1,
+      "easing": "cubic-bezier(0.19, 1, 0.22, 1)"
     }
   },
   "logging": {
