@@ -270,14 +270,23 @@ function setupSettingsPanel() {
           <option value="user">User messages only</option>
         </select>
         
-        <label for="words-per-minute">Words Per Minute:</label>
-        <input type="number" id="words-per-minute" min="50" max="1000" step="10">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="words-per-minute">WPM:</label>
+            <input type="number" id="words-per-minute" min="50" max="1000" step="10">
+          </div>
+        </div>
         
-        <label for="min-typing-time">Minimum Typing Time (ms):</label>
-        <input type="number" id="min-typing-time" min="200" max="3000" step="100">
-        
-        <label for="max-typing-time">Maximum Typing Time (ms):</label>
-        <input type="number" id="max-typing-time" min="1000" max="10000" step="100">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="min-typing-time">Min Time (ms):</label>
+            <input type="number" id="min-typing-time" min="200" max="3000" step="100">
+          </div>
+          <div class="settings-col">
+            <label for="max-typing-time">Max Time (ms):</label>
+            <input type="number" id="max-typing-time" min="1000" max="10000" step="100">
+          </div>
+        </div>
         
         <label for="variance-percentage">Typing Variance (%):</label>
         <input type="number" id="variance-percentage" min="0" max="50" step="5">
@@ -295,11 +304,16 @@ function setupSettingsPanel() {
         <label for="read-delay-wpm">Reading Speed (WPM):</label>
         <input type="number" id="read-delay-wpm" min="100" max="1500" step="50">
         
-        <label for="min-read-time">Minimum Read Time (ms):</label>
-        <input type="number" id="min-read-time" min="0" max="2000" step="100">
-        
-        <label for="max-read-time">Maximum Read Time (ms):</label>
-        <input type="number" id="max-read-time" min="500" max="8000" step="100">
+        <div class="settings-row">
+          <div class="settings-col">
+            <label for="min-read-time">Min Time (ms):</label>
+            <input type="number" id="min-read-time" min="0" max="2000" step="100">
+          </div>
+          <div class="settings-col">
+            <label for="max-read-time">Max Time (ms):</label>
+            <input type="number" id="max-read-time" min="500" max="8000" step="100">
+          </div>
+        </div>
         
         <label for="read-variance">Reading Variance (%):</label>
         <input type="number" id="read-variance" min="0" max="50" step="5">
@@ -316,23 +330,38 @@ function setupSettingsPanel() {
       
       <div class="setting-group">
         <h4>Theme Colors</h4>
-        <label for="accent-a">Accent A (Assistant):</label>
-        <input type="text" id="accent-a">
         
-        <label for="accent-b">Accent B (User):</label>
-        <input type="text" id="accent-b">
-        
-        <label for="accent-c">Accent C (Speaker C):</label>
-        <input type="text" id="accent-c">
-        
-        <label for="accent-d">Accent D (Speaker D):</label>
-        <input type="text" id="accent-d">
-        
-        <label for="accent-e">Accent E (Speaker E):</label>
-        <input type="text" id="accent-e">
-        
-        <label for="generic-accent">Generic Accent (Other Speakers):</label>
-        <input type="text" id="generic-accent">
+        <div class="color-grid">
+          <div class="color-row">
+            <label for="accent-a">Assistant:</label>
+            <input type="text" id="accent-a" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-b">User:</label>
+            <input type="text" id="accent-b" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-c">Speaker C:</label>
+            <input type="text" id="accent-c" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-d">Speaker D:</label>
+            <input type="text" id="accent-d" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-e">Speaker E:</label>
+            <input type="text" id="accent-e" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="generic-accent">Generic:</label>
+            <input type="text" id="generic-accent" class="color-input">
+          </div>
+        </div>
       </div>
       
       <div class="settings-actions">

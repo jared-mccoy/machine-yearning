@@ -187,7 +187,7 @@ body {
   border: 2px solid var(--accent-color);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 12px;
+  padding: 10px;
   z-index: 1000;
   transform: translateY(-20px);
   opacity: 0;
@@ -205,7 +205,7 @@ body {
 
 .settings-panel h3 {
   margin-top: 0;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--accent-color);
   font-size: 0.9rem;
   font-weight: 600;
@@ -214,7 +214,7 @@ body {
 .settings-panel h4 {
   font-size: 0.8rem;
   margin-top: 0;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   color: var(--accent-color);
   font-weight: 600;
 }
@@ -231,13 +231,14 @@ body {
 .settings-panel input[type="text"],
 .settings-panel select.settings-select {
   width: 100%;
-  padding: 4px 6px;
+  padding: 3px 5px;
   border: 1px solid var(--accent-color-light);
   border-radius: 4px;
   background-color: var(--background-color);
   color: var(--accent-color);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 0.75rem;
+  height: 24px;
 }
 
 .settings-panel input[type="number"]:focus,
@@ -273,12 +274,12 @@ body {
 }
 
 .settings-panel input[type="checkbox"] {
-  margin-right: 6px;
+  margin-right: 4px;
   accent-color: var(--accent-color);
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   position: relative;
-  top: 2px;
+  top: 1px;
 }
 
 .settings-panel input[type="checkbox"] + span {
@@ -291,7 +292,7 @@ body {
 }
 
 .settings-panel .setting-group {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--accent-color-light);
 }
@@ -307,10 +308,11 @@ body {
   color: var(--background-color);
   border: none;
   border-radius: 4px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   cursor: pointer;
-  margin-right: 6px;
-  font-size: 0.75rem;
+  margin-right: 5px;
+  font-size: 0.7rem;
+  height: 22px;
 }
 
 .settings-panel button:hover {
@@ -320,7 +322,7 @@ body {
 .settings-panel .settings-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 /* Header controls layout */
@@ -374,4 +376,64 @@ body {
   -webkit-text-fill-color: var(--accent-color) !important;
   -webkit-box-shadow: 0 0 0px 1000px var(--background-color) inset !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Row and column layout for settings */
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.settings-col {
+  flex: 1;
+}
+
+.settings-col label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.7rem;
+}
+
+.settings-col input {
+  width: 100%;
+}
+
+/* Color grid styles */
+.color-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.color-row {
+  display: grid;
+  grid-template-columns: minmax(60px, 30%) 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-row label {
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.color-input {
+  width: 100%;
+  padding: 3px 5px;
+  font-size: 0.7rem;
+  height: 24px;
+}
+
+/* More compact styling for dropdowns */
+.settings-panel select.settings-select {
+  height: 24px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  background-position: right 4px center;
+  background-size: 8px;
+  padding-right: 18px;
 } 
