@@ -1,5 +1,12 @@
 /* Chat typography styles */
 
+/* Message text sizing */
+.message p, 
+.message li,
+.message span:not(h1, h2, h3, h4, h5, h6) {
+  font-size: 0.8rem;
+}
+
 /* Basic text elements */
 .message p {
   margin: 0;
