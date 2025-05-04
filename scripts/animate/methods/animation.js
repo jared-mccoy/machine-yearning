@@ -299,17 +299,46 @@ export function processNextInQueue(animator) {
         window.debugLog(`Typing time for message: ${typingTime}ms (${speakerType})`, 'animation');
       }
       
-      // After typing animation completes, show the message
+      // After typing animation completes, create a visual duplicate for fade-out and show the message
       setTimeout(() => {
-        // Hide the typing indicator
-        typingIndicator.classList.remove('visible');
+        // Create a visual clone of the typing indicator for the fade-out effect
+        const visualClone = typingIndicator.cloneNode(true);
+        const rect = typingIndicator.getBoundingClientRect();
+        
+        // Style the clone to be positioned exactly where the original is
+        visualClone.style.position = 'fixed';
+        visualClone.style.top = rect.top + 'px';
+        visualClone.style.left = rect.left + 'px';
+        visualClone.style.width = rect.width + 'px';
+        visualClone.style.height = rect.height + 'px';
+        visualClone.style.zIndex = '10';
+        visualClone.style.margin = '0';
+        visualClone.style.transform = 'none';
+        visualClone.style.transition = 'opacity 400ms var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1))';
+        
+        // Add to body
+        document.body.appendChild(visualClone);
+        
+        // Remove the original immediately to free up the layout
+        typingIndicator.remove();
         animator.typingIndicatorVisible = false;
         
+        // Trigger fade-out animation on the clone
+        setTimeout(() => {
+          visualClone.classList.remove('visible');
+          visualClone.style.opacity = '0';
+          
+          // Remove clone after animation completes
+          setTimeout(() => {
+            visualClone.remove();
+          }, 500);
+        }, 50);
+        
         // Relax the viewport check - just make sure message is near viewport
-        const rect = currentMsg.getBoundingClientRect();
+        const rect2 = currentMsg.getBoundingClientRect();
         
         // Consider a message "in view" if it's even partially in viewport or within 300px below
-        const isInView = rect.top < window.innerHeight + 300;
+        const isInView = rect2.top < window.innerHeight + 300;
         
         // If it's anywhere close to view, show the message
         if (isInView) {
@@ -324,22 +353,15 @@ export function processNextInQueue(animator) {
           // Update the last sender type
           animator.lastSenderWasUser = isUser;
           
-          // Wait for typing indicator transition to complete before showing message
+          // Show the message immediately
+          currentMsg.classList.remove('hidden');
+          currentMsg.classList.add('visible');
+          
+          // Wait for message animation to complete before processing next
           setTimeout(() => {
-            // Show the message with animation
-            currentMsg.classList.remove('hidden');
-            currentMsg.classList.add('visible');
-            
-            // Wait for message animation to complete before processing next
-            setTimeout(() => {
-              // Now that message is fully visible and typing indicator has faded out,
-              // we can safely remove the typing indicator element
-              typingIndicator.remove();
-              
-              animator.animationInProgress = false;
-              animator.processNextInQueue();
-            }, 600);
-          }, 300); // Match this to the typing indicator transition duration
+            animator.animationInProgress = false;
+            animator.processNextInQueue();
+          }, 600);
         } else {
           // Message is really far from viewport, don't show it yet
           // Only log once per session until the state changes
@@ -350,22 +372,16 @@ export function processNextInQueue(animator) {
             }
           }
           
-          // For out-of-view messages, wait for the typing indicator to fade out,
-          // then remove it from the DOM
+          // Add message to failed list to retry later
+          animator.animationFailedMessages.push(currentMsg);
+          
+          // Set a retry timeout that's shorter than normal animation
           setTimeout(() => {
-            typingIndicator.remove();
-            
-            // Add message to failed list to retry later
-            animator.animationFailedMessages.push(currentMsg);
-            
-            // Set a retry timeout that's shorter than normal animation
-            setTimeout(() => {
-              animator.animationInProgress = false;
-              animator.processNextInQueue();
-            }, 100);
-          }, 300); // Match this to the typing indicator transition duration
+            animator.animationInProgress = false;
+            animator.processNextInQueue();
+          }, 100);
         }
-      }, typingTime); // Use calculated dynamic typing time instead of fixed values
+      }, typingTime);
     }, readDelay); // Add read delay before showing typing indicator
   }
 } 
