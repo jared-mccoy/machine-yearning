@@ -54,7 +54,10 @@
 
 .message[data-speaker="user"]:hover p a[title*="wiki"],
 .message[data-speaker="user"]:hover p a[href*="wiki"],
-.message[data-speaker="user"]:hover p a:has(code) {
+.message[data-speaker="user"]:hover p a:has(code),
+.message[data-speaker="user"].selected p a[title*="wiki"],
+.message[data-speaker="user"].selected p a[href*="wiki"],
+.message[data-speaker="user"].selected p a:has(code) {
   background-color: var(--user-color);
 }
 
@@ -72,7 +75,13 @@
 .message[data-speaker="agent"]:hover p a[title*="wiki"],
 .message[data-speaker="agent"]:hover p a[href*="wiki"],
 .message[data-speaker="assistant"]:hover p a:has(code),
-.message[data-speaker="agent"]:hover p a:has(code) {
+.message[data-speaker="agent"]:hover p a:has(code),
+.message[data-speaker="assistant"].selected p a[title*="wiki"],
+.message[data-speaker="assistant"].selected p a[href*="wiki"],
+.message[data-speaker="agent"].selected p a[title*="wiki"],
+.message[data-speaker="agent"].selected p a[href*="wiki"],
+.message[data-speaker="assistant"].selected p a:has(code),
+.message[data-speaker="agent"].selected p a:has(code) {
   background-color: var(--assistant-color);
 }
 
@@ -84,7 +93,10 @@
 
 .message.speakerC:hover p a[title*="wiki"],
 .message.speakerC:hover p a[href*="wiki"],
-.message.speakerC:hover p a:has(code) {
+.message.speakerC:hover p a:has(code),
+.message.speakerC.selected p a[title*="wiki"],
+.message.speakerC.selected p a[href*="wiki"],
+.message.speakerC.selected p a:has(code) {
   background-color: var(--accentC-color);
 }
 
@@ -96,7 +108,10 @@
 
 .message.speakerD:hover p a[title*="wiki"],
 .message.speakerD:hover p a[href*="wiki"],
-.message.speakerD:hover p a:has(code) {
+.message.speakerD:hover p a:has(code),
+.message.speakerD.selected p a[title*="wiki"],
+.message.speakerD.selected p a[href*="wiki"],
+.message.speakerD.selected p a:has(code) {
   background-color: var(--accentD-color);
 }
 
@@ -108,7 +123,10 @@
 
 .message.speakerE:hover p a[title*="wiki"],
 .message.speakerE:hover p a[href*="wiki"],
-.message.speakerE:hover p a:has(code) {
+.message.speakerE:hover p a:has(code),
+.message.speakerE.selected p a[title*="wiki"],
+.message.speakerE.selected p a[href*="wiki"],
+.message.speakerE.selected p a:has(code) {
   background-color: var(--accentE-color);
 }
 
@@ -120,7 +138,10 @@
 
 .message.generic-speaker:hover p a[title*="wiki"],
 .message.generic-speaker:hover p a[href*="wiki"],
-.message.generic-speaker:hover p a:has(code) {
+.message.generic-speaker:hover p a:has(code),
+.message.generic-speaker.selected p a[title*="wiki"],
+.message.generic-speaker.selected p a[href*="wiki"],
+.message.generic-speaker.selected p a:has(code) {
   background-color: var(--generic-color);
 }
 
@@ -132,7 +153,10 @@
 
 .message.random:hover p a[title*="wiki"],
 .message.random:hover p a[href*="wiki"],
-.message.random:hover p a:has(code) {
+.message.random:hover p a:has(code),
+.message.random.selected p a[title*="wiki"],
+.message.random.selected p a[href*="wiki"],
+.message.random.selected p a:has(code) {
   background-color: var(--accentC-color);
 }
 
@@ -154,7 +178,8 @@
   border-color: var(--user-color-light);
 }
 
-.message[data-speaker="user"]:hover :not(pre) > code {
+.message[data-speaker="user"]:hover :not(pre) > code,
+.message[data-speaker="user"].selected :not(pre) > code {
   border-color: var(--user-color);
 }
 
@@ -164,7 +189,9 @@
 }
 
 .message[data-speaker="assistant"]:hover :not(pre) > code,
-.message[data-speaker="agent"]:hover :not(pre) > code {
+.message[data-speaker="agent"]:hover :not(pre) > code,
+.message[data-speaker="assistant"].selected :not(pre) > code,
+.message[data-speaker="agent"].selected :not(pre) > code {
   border-color: var(--assistant-color);
 }
 
@@ -172,7 +199,8 @@
   border-color: var(--accentC-color-light);
 }
 
-.message.speakerC:hover :not(pre) > code {
+.message.speakerC:hover :not(pre) > code,
+.message.speakerC.selected :not(pre) > code {
   border-color: var(--accentC-color);
 }
 
@@ -180,7 +208,8 @@
   border-color: var(--accentD-color-light);
 }
 
-.message.speakerD:hover :not(pre) > code {
+.message.speakerD:hover :not(pre) > code,
+.message.speakerD.selected :not(pre) > code {
   border-color: var(--accentD-color);
 }
 
@@ -188,7 +217,8 @@
   border-color: var(--accentE-color-light);
 }
 
-.message.speakerE:hover :not(pre) > code {
+.message.speakerE:hover :not(pre) > code,
+.message.speakerE.selected :not(pre) > code {
   border-color: var(--accentE-color);
 }
 
@@ -196,7 +226,8 @@
   border-color: var(--generic-color-light);
 }
 
-.message.generic-speaker:hover :not(pre) > code {
+.message.generic-speaker:hover :not(pre) > code,
+.message.generic-speaker.selected :not(pre) > code {
   border-color: var(--generic-color);
 }
 
@@ -204,6 +235,7 @@
   border-color: var(--accentC-color-light);
 }
 
-.message.random:hover :not(pre) > code {
+.message.random:hover :not(pre) > code,
+.message.random.selected :not(pre) > code {
   border-color: var(--accentC-color);
 } 

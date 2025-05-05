@@ -17,7 +17,8 @@
   cursor: pointer; /* Add pointer cursor to indicate clickability */
 }
 
-/* Apply highlight only when selected */
+/* Apply highlight on hover or when selected */
+.message:hover,
 .message.selected {
   border-color: var(--speaker-color, var(--assistant-color));
 }
@@ -30,7 +31,7 @@
   transform: translateX(0);
 }
 
-/* User message selected/speaking state - slide toward center */
+/* User message selected/speaking state - slide toward center ON CLICK ONLY */
 .message[data-speaker="user"].speaking,
 .message[data-speaker="user"].selected {
   transform: translateX(-40px);
@@ -44,7 +45,7 @@
   transform: translateX(0);
 }
 
-/* Assistant message selected/speaking state - slide toward center */
+/* Assistant message selected/speaking state - slide toward center ON CLICK ONLY */
 .message:not([data-speaker="user"]).speaking,
 .message:not([data-speaker="user"]).selected {
   transform: translateX(40px);
@@ -59,12 +60,13 @@
   transform: translateX(0);
 }
 
+.speakerC:hover,
 .speakerC.selected {
   border-color: var(--accentC-color);
-  transform: translateX(40px);
 }
 
-.speakerC.speaking {
+.speakerC.speaking,
+.speakerC.selected {
   transform: translateX(40px);
 }
 
@@ -77,12 +79,13 @@
   transform: translateX(0);
 }
 
+.speakerD:hover,
 .speakerD.selected {
   border-color: var(--accentD-color);
-  transform: translateX(40px);
 }
 
-.speakerD.speaking {
+.speakerD.speaking,
+.speakerD.selected {
   transform: translateX(40px);
 }
 
@@ -95,12 +98,13 @@
   transform: translateX(0);
 }
 
+.speakerE:hover,
 .speakerE.selected {
   border-color: var(--accentE-color);
-  transform: translateX(40px);
 }
 
-.speakerE.speaking {
+.speakerE.speaking,
+.speakerE.selected {
   transform: translateX(40px);
 }
 
@@ -113,12 +117,13 @@
   transform: translateX(0);
 }
 
+.generic-speaker:hover,
 .generic-speaker.selected {
   border-color: var(--generic-color);
-  transform: translateX(40px);
 }
 
-.generic-speaker.speaking {
+.generic-speaker.speaking,
+.generic-speaker.selected {
   transform: translateX(40px);
 }
 
@@ -131,12 +136,13 @@
   transform: translateX(0);
 }
 
+.random:hover,
 .random.selected {
   border-color: var(--accentC-color);
-  transform: translateX(40px);
 }
 
-.random.speaking {
+.random.speaking,
+.random.selected {
   transform: translateX(40px);
 }
 
