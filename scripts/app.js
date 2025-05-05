@@ -49,6 +49,59 @@ function errorLog(message) {
   }
 }
 
+// Track which message is currently selected
+let selectedMessage = null;
+
+/**
+ * Initialize message click toggle functionality
+ * This adds click listeners to all message elements to toggle the 'selected' state
+ */
+function initMessageClickToggle() {
+  // Set up a delegated event listener on the document body to handle all message clicks
+  document.body.addEventListener('click', function(event) {
+    // Find if a message was clicked (or any of its children)
+    const messageEl = event.target.closest('.message');
+    
+    // If we didn't click on a message, do nothing
+    if (!messageEl) return;
+    
+    // Don't trigger if we're clicking on a link or other interactive element within the message
+    if (event.target.tagName === 'A' || 
+        event.target.tagName === 'BUTTON' || 
+        event.target.closest('a') || 
+        event.target.closest('button') ||
+        event.target.closest('pre') ||
+        event.target.closest('.code-header') ||
+        event.target.closest('.section-toggle')) {
+      return;
+    }
+    
+    // Skip direct-text messages which don't have avatar icons
+    if (messageEl.getAttribute('data-speaker') === 'direct-text') {
+      return;
+    }
+    
+    // If the message is already selected, deselect it
+    if (messageEl.classList.contains('selected')) {
+      messageEl.classList.remove('selected');
+      selectedMessage = null;
+    } else {
+      // Deselect any previously selected message
+      if (selectedMessage) {
+        selectedMessage.classList.remove('selected');
+      }
+      
+      // Select this message
+      messageEl.classList.add('selected');
+      selectedMessage = messageEl;
+    }
+  });
+  
+  if (window.debugLog) {
+    window.debugLog('Message click toggle functionality initialized', 'system');
+  }
+}
+
 // Initialize the application
 async function initApp() {
   // Prevent double initialization
@@ -79,6 +132,9 @@ async function initApp() {
         }
       }
     }
+
+    // Initialize message click toggle functionality
+    initMessageClickToggle();
 
     // Determine which view to show based on URL parameters
     const urlParams = new URLSearchParams(window.location.search);

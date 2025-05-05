@@ -14,9 +14,12 @@
   border: 2px solid var(--speaker-color-light, var(--assistant-color-light));
   /* Set initial position as if icons are already showing */
   transform: translateX(0);
+  cursor: pointer; /* Add pointer cursor to indicate clickability */
 }
 
-.message:hover {
+/* Apply highlight on hover or when selected */
+.message:hover,
+.message.selected {
   border-color: var(--speaker-color, var(--assistant-color));
 }
 
@@ -28,9 +31,10 @@
   transform: translateX(0);
 }
 
-/* User message hover/speaking state - slide toward center */
+/* User message hover/speaking/selected state - slide toward center */
 .message[data-speaker="user"]:hover,
-.message[data-speaker="user"].speaking {
+.message[data-speaker="user"].speaking,
+.message[data-speaker="user"].selected {
   transform: translateX(-40px);
 }
 
@@ -42,9 +46,10 @@
   transform: translateX(0);
 }
 
-/* Assistant message hover/speaking state - slide toward center */
+/* Assistant message hover/speaking/selected state - slide toward center */
 .message:not([data-speaker="user"]):hover,
-.message:not([data-speaker="user"]).speaking {
+.message:not([data-speaker="user"]).speaking,
+.message:not([data-speaker="user"]).selected {
   transform: translateX(40px);
 }
 
@@ -57,7 +62,8 @@
   transform: translateX(0);
 }
 
-.speakerC:hover {
+.speakerC:hover,
+.speakerC.selected {
   border-color: var(--accentC-color);
   transform: translateX(40px);
 }
@@ -75,7 +81,8 @@
   transform: translateX(0);
 }
 
-.speakerD:hover {
+.speakerD:hover,
+.speakerD.selected {
   border-color: var(--accentD-color);
   transform: translateX(40px);
 }
@@ -93,7 +100,8 @@
   transform: translateX(0);
 }
 
-.speakerE:hover {
+.speakerE:hover,
+.speakerE.selected {
   border-color: var(--accentE-color);
   transform: translateX(40px);
 }
@@ -111,7 +119,8 @@
   transform: translateX(0);
 }
 
-.generic-speaker:hover {
+.generic-speaker:hover,
+.generic-speaker.selected {
   border-color: var(--generic-color);
   transform: translateX(40px);
 }
@@ -129,7 +138,8 @@
   transform: translateX(0);
 }
 
-.random:hover {
+.random:hover,
+.random.selected {
   border-color: var(--accentC-color);
   transform: translateX(40px);
 }

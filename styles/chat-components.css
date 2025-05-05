@@ -227,9 +227,10 @@
   left: var(--avatar-offset);
 }
 
-/* Show icon on hover or when speaking */
+/* Show icon on hover or when speaking or selected */
 .message:hover::before,
-.message.speaking::before {
+.message.speaking::before,
+.message.selected::before {
   opacity: 1;
 }
 
