@@ -263,8 +263,14 @@ export function processNextInQueue(animator) {
       if (lastVisibleElement) {
         lastVisibleElement.after(typingIndicator);
       } else {
-        // If no visible elements yet, add to beginning of container
-        container.prepend(typingIndicator);
+        // If no visible elements yet, add it to beginning but INSIDE the .chat-container
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+          chatContainer.prepend(typingIndicator);
+        } else {
+          // Fallback to container if .chat-container doesn't exist yet
+          container.prepend(typingIndicator);
+        }
       }
       
       // Flag that there's a typing indicator showing
