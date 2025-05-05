@@ -314,12 +314,10 @@
 }
 
 /* Fix for border transition on processed agent messages */
-.message.agent.visible[data-observed="processed"],
-.message[data-speaker="agent"].visible[data-observed="processed"] {
+.message.visible[data-observed="processed"] {
   transition: all var(--hover-transition-duration, 2s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
-.message.agent.visible[data-observed="processed"]:hover,
-.message[data-speaker="agent"].visible[data-observed="processed"]:hover {
-  border-color: var(--assistant-color);
+.message.visible[data-observed="processed"]:hover {
+  border-color: var(--speaker-color);
 } 
