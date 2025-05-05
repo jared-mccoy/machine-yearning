@@ -17,8 +17,7 @@
   cursor: pointer; /* Add pointer cursor to indicate clickability */
 }
 
-/* Apply highlight on hover or when selected */
-.message:hover,
+/* Apply highlight only when selected */
 .message.selected {
   border-color: var(--speaker-color, var(--assistant-color));
 }
@@ -31,8 +30,7 @@
   transform: translateX(0);
 }
 
-/* User message hover/speaking/selected state - slide toward center */
-.message[data-speaker="user"]:hover,
+/* User message selected/speaking state - slide toward center */
 .message[data-speaker="user"].speaking,
 .message[data-speaker="user"].selected {
   transform: translateX(-40px);
@@ -46,8 +44,7 @@
   transform: translateX(0);
 }
 
-/* Assistant message hover/speaking/selected state - slide toward center */
-.message:not([data-speaker="user"]):hover,
+/* Assistant message selected/speaking state - slide toward center */
 .message:not([data-speaker="user"]).speaking,
 .message:not([data-speaker="user"]).selected {
   transform: translateX(40px);
@@ -62,7 +59,6 @@
   transform: translateX(0);
 }
 
-.speakerC:hover,
 .speakerC.selected {
   border-color: var(--accentC-color);
   transform: translateX(40px);
@@ -81,7 +77,6 @@
   transform: translateX(0);
 }
 
-.speakerD:hover,
 .speakerD.selected {
   border-color: var(--accentD-color);
   transform: translateX(40px);
@@ -100,7 +95,6 @@
   transform: translateX(0);
 }
 
-.speakerE:hover,
 .speakerE.selected {
   border-color: var(--accentE-color);
   transform: translateX(40px);
@@ -119,7 +113,6 @@
   transform: translateX(0);
 }
 
-.generic-speaker:hover,
 .generic-speaker.selected {
   border-color: var(--generic-color);
   transform: translateX(40px);
@@ -138,7 +131,6 @@
   transform: translateX(0);
 }
 
-.random:hover,
 .random.selected {
   border-color: var(--accentC-color);
   transform: translateX(40px);
@@ -168,10 +160,15 @@
   padding: 0;
 }
 
-/* Disable hover effects for direct-text */
+/* Disable sliding effects for direct-text */
 .message[data-speaker="direct-text"],
-.message[data-speaker="direct-text"]:hover,
+.message[data-speaker="direct-text"].selected,
 .message[data-speaker="direct-text"].speaking {
   transform: none !important;
   border: none;
+}
+
+/* Keep a hover effect for direct-text messages only */
+.message[data-speaker="direct-text"]:hover {
+  background-color: rgba(144, 144, 144, 0.08);
 } 

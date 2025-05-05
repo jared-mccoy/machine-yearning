@@ -227,8 +227,7 @@
   left: var(--avatar-offset);
 }
 
-/* Show icon on hover or when speaking or selected */
-.message:hover::before,
+/* Show icon only when speaking or selected, not on hover */
 .message.speaking::before,
 .message.selected::before {
   opacity: 1;
@@ -264,7 +263,9 @@
   z-index: -1;
 }
 
-.message[data-speaker="direct-text"]:hover::after {
+/* Keep hover effect for direct-text and also add selected state */
+.message[data-speaker="direct-text"]:hover::after,
+.message[data-speaker="direct-text"].selected::after {
   opacity: 1;
 }
 
