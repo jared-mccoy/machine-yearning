@@ -163,7 +163,7 @@
   .typing-indicator::before {
     width: var(--avatar-size);
     height: var(--avatar-size);
-    border-width: 1px; /* Thinner border on mobile */
+    border-width: 2px; /* Increased to match message bubbles */
     z-index: 100; /* Ensure avatars appear above all content */
     top: 50%;
     transform: translateY(-50%);
@@ -188,8 +188,8 @@
   }
   
   .typing-indicator.visible {
-    padding: calc(var(--bubble-padding-y) * 0.6) var(--bubble-padding-x);
-    border-width: 1px;
+    padding: var(--consistent-padding);
+    border-width: 2px; /* Increased to match message bubbles */
     transform: scale(0.9);
   }
   
@@ -343,12 +343,19 @@
   
   /* Further reduce typing indicator */
   .typing-indicator.visible {
-    padding: calc(var(--bubble-padding-y) * 0.5) calc(var(--bubble-padding-x) * 0.8);
+    padding: var(--consistent-padding);
+    border-width: 1.5px; /* Match other elements */
   }
   
   .typing-indicator span {
     width: 5px;
     height: 5px;
     margin: 0 2px;
+  }
+  
+  /* Typing indicator and avatar borders for very small screens */
+  .message::before,
+  .typing-indicator::before {
+    border-width: 1.5px; /* Match other elements */
   }
 } 
