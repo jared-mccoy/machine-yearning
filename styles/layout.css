@@ -70,7 +70,6 @@ a:hover {
   padding: 0 0 20px 0;
   margin-top: 0;
   margin-bottom: 15px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 /* Footer navigation specifics */
@@ -78,7 +77,6 @@ a:hover {
   margin-top: 50px;
   margin-bottom: 20px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-color);
 }
 
 .chat-title {
