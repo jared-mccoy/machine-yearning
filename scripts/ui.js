@@ -138,15 +138,23 @@ function setupDynamicNavigation() {
   // Initially hide the footer nav
   footerNav.classList.remove('visible');
   
-  // Ensure transition uses the configured settings
-  if (window.appSettings && window.appSettings.get) {
-    const settings = window.appSettings.get();
-    const timeEffects = settings.chat.timeEffects || { transitionDelay: 2, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };
-    
-    // Use the same transition settings from app settings
-    footerNav.style.setProperty('--hover-transition-duration', `${timeEffects.transitionDelay}s`);
-    footerNav.style.setProperty('--hover-transition-timing', timeEffects.easing);
+  // Function to apply current transition settings
+  function applyTransitionSettings() {
+    if (window.appSettings && window.appSettings.get) {
+      const settings = window.appSettings.get();
+      const timeEffects = settings.chat.timeEffects || { transitionDelay: 2, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };
+      
+      // Apply transition directly as inline style to ensure it's used
+      footerNav.style.transition = `transform ${timeEffects.transitionDelay}s ${timeEffects.easing}`;
+      console.log(`Applied footer transition: ${timeEffects.transitionDelay}s ${timeEffects.easing}`);
+    }
   }
+  
+  // Apply initial settings
+  applyTransitionSettings();
+  
+  // Listen for settings changes
+  window.addEventListener('settingsChanged', applyTransitionSettings);
   
   // Track last state to prevent unnecessary DOM updates
   let isFooterVisible = false;
