@@ -62,8 +62,14 @@ function initMessageClickToggle() {
     // Find if a message was clicked (or any of its children)
     const messageEl = event.target.closest('.message');
     
-    // If we didn't click on a message, do nothing
-    if (!messageEl) return;
+    // If we didn't click on a message, deselect any selected message
+    if (!messageEl) {
+      if (selectedMessage) {
+        selectedMessage.classList.remove('selected');
+        selectedMessage = null;
+      }
+      return;
+    }
     
     // Don't trigger if we're clicking on a link or other interactive element within the message
     if (event.target.tagName === 'A' || 
