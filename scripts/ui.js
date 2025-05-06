@@ -127,12 +127,13 @@ function setupAnimationToggle() {
   });
 }
 
-// Setup dynamic navigation with footer nav appearing when top nav is out of viewport
+// Setup dynamic navigation with footer appearing when needed
 function setupDynamicNavigation() {
   const headerNav = document.getElementById('chat-nav');
   const footerNav = document.getElementById('chat-nav-footer');
+  const markdownContent = document.getElementById('markdown-content');
   
-  if (!headerNav || !footerNav) return;
+  if (!headerNav || !footerNav || !markdownContent) return;
   
   // Initially hide the footer nav
   footerNav.classList.remove('visible');
@@ -140,29 +141,93 @@ function setupDynamicNavigation() {
   // Track last state to prevent unnecessary DOM updates
   let isFooterVisible = false;
   
-  // Use Intersection Observer to detect when header nav is out of viewport
-  const navObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      // When header nav is not intersecting (out of view), show footer nav
-      if (!entry.isIntersecting && !isFooterVisible) {
-        requestAnimationFrame(() => {
-          footerNav.classList.add('visible');
-          isFooterVisible = true;
-        });
-      } else if (entry.isIntersecting && isFooterVisible) {
-        requestAnimationFrame(() => {
-          footerNav.classList.remove('visible');
-          isFooterVisible = false;
-        });
+  // Function to check if we should show the footer navigation
+  function checkFooterVisibility() {
+    // Don't show footer if header is visible
+    const headerRect = headerNav.getBoundingClientRect();
+    const isHeaderVisible = headerRect.bottom > 0;
+    
+    if (isHeaderVisible) {
+      if (isFooterVisible) {
+        footerNav.classList.remove('visible');
+        isFooterVisible = false;
       }
-    });
-  }, { 
-    threshold: 0,
-    rootMargin: '-10px 0px 0px 0px' // Small offset to prevent flickering
+      return;
+    }
+    
+    // Check if any chat bubbles are in the bottom 1/3 of the viewport
+    const viewportHeight = window.innerHeight;
+    const bottomThreshold = viewportHeight * 2/3; // Bottom 1/3 of viewport starts here
+    
+    // Get all visible chat bubbles
+    const messages = markdownContent.querySelectorAll('.message.visible');
+    if (messages.length === 0) return;
+    
+    // Check if any message intersects with bottom third of viewport
+    let messagePresentInBottomThird = false;
+    
+    for (const message of messages) {
+      const messageRect = message.getBoundingClientRect();
+      
+      // Check if message is in the bottom third of the viewport
+      if (messageRect.top < viewportHeight && messageRect.bottom > bottomThreshold) {
+        messagePresentInBottomThird = true;
+        break;
+      }
+    }
+    
+    // Show footer only when no messages in bottom third
+    if (!messagePresentInBottomThird && !isFooterVisible) {
+      requestAnimationFrame(() => {
+        footerNav.classList.add('visible');
+        isFooterVisible = true;
+      });
+    } else if (messagePresentInBottomThird && isFooterVisible) {
+      requestAnimationFrame(() => {
+        footerNav.classList.remove('visible');
+        isFooterVisible = false;
+      });
+    }
+  }
+  
+  // Use a throttled scroll listener for better performance
+  let scrollTimeout;
+  function throttledScroll() {
+    if (!scrollTimeout) {
+      scrollTimeout = setTimeout(() => {
+        checkFooterVisibility();
+        scrollTimeout = null;
+      }, 100);
+    }
+  }
+  
+  // Initial check and setup scroll listener
+  window.addEventListener('scroll', throttledScroll, { passive: true });
+  window.addEventListener('resize', throttledScroll, { passive: true });
+  
+  // Check visibility on animation frames when messages become visible
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'attributes' && 
+          mutation.attributeName === 'class' &&
+          mutation.target.classList.contains('message') &&
+          mutation.target.classList.contains('visible')) {
+        throttledScroll();
+        break;
+      }
+    }
   });
   
-  // Start observing the header nav
-  navObserver.observe(headerNav);
+  // Observe when chat messages become visible
+  observer.observe(markdownContent, { 
+    attributes: true, 
+    attributeFilter: ['class'],
+    subtree: true,
+    childList: true
+  });
+  
+  // Initial check
+  setTimeout(checkFooterVisibility, 500);
 }
 
 // Initialize on page load 
