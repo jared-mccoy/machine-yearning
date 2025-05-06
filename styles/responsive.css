@@ -232,6 +232,17 @@
   .message.speaking::before {
     opacity: 1;
   }
+  
+  /* Fixed footer navigation */
+  .chat-nav.footer-nav {
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); /* Add safe area for notched phones */
+  }
+  
+  /* Add padding to the bottom of content to prevent footer from covering content */
+  .content {
+    padding-bottom: 70px;
+  }
 }
 
 /* Very small screens */

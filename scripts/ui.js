@@ -127,6 +127,32 @@ function setupAnimationToggle() {
   });
 }
 
+// Setup dynamic navigation with footer nav appearing when top nav is out of viewport
+function setupDynamicNavigation() {
+  const headerNav = document.getElementById('chat-nav');
+  const footerNav = document.getElementById('chat-nav-footer');
+  
+  if (!headerNav || !footerNav) return;
+  
+  // Initially hide the footer nav
+  footerNav.classList.remove('visible');
+  
+  // Use Intersection Observer to detect when header nav is out of viewport
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      // When header nav is not intersecting (out of view), show footer nav
+      if (!entry.isIntersecting) {
+        footerNav.classList.add('visible');
+      } else {
+        footerNav.classList.remove('visible');
+      }
+    });
+  }, { threshold: 0 });
+  
+  // Start observing the header nav
+  navObserver.observe(headerNav);
+}
+
 // Initialize on page load 
 document.addEventListener('DOMContentLoaded', function() {
   // Apply theme immediately
@@ -135,11 +161,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set up toggles after DOM is ready
   setupThemeToggle();
   setupAnimationToggle();
+  setupDynamicNavigation();
 });
 
 // Expose methods for use in other scripts
 window.themeControls = {
   initTheme,
   setupThemeToggle,
-  setupAnimationToggle
+  setupAnimationToggle,
+  setupDynamicNavigation
 }; 

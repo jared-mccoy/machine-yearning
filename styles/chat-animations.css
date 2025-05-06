@@ -6,6 +6,9 @@
   transform: translateY(30px);
   transition: none;
   pointer-events: none;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
 }
 
 .message.visible {
@@ -14,6 +17,10 @@
   transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
               transform var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   pointer-events: auto;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 /* Typing indicator */
@@ -48,6 +55,9 @@
   transform: scale(0.8);
   z-index: 2;
   will-change: transform, opacity, height, padding, margin;
+  /* Prevent layout shifts */
+  contain: layout;
+  backface-visibility: hidden;
 }
 
 /* Base avatar for all typing indicators */
@@ -72,6 +82,9 @@
   -webkit-mask-image: url('../public/speaker_icons/agent.svg');
   -webkit-mask-size: cover;
   will-change: transform, opacity;
+  /* Prevent layout shifts */
+  contain: paint;
+  backface-visibility: hidden;
 }
 
 /* Show avatar when typing indicator is visible - no longer needed */
