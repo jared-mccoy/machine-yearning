@@ -363,7 +363,7 @@ export function processChatContent(options) {
   chatContainer.className = 'chat-container';
   
   // Add navigation header if navConfig is provided and showTitle is true
-  if (options.navConfig && options.showTitle) {
+  if (options.navConfig && options.showTitle && options.addNavigation !== false) {
     const headerNav = createNavigationUI('header-nav', options.navConfig);
     chatContainer.appendChild(headerNav);
   }
@@ -378,7 +378,7 @@ export function processChatContent(options) {
   content.innerHTML = '';
   
   // Add navigation footer if navConfig is provided
-  if (options.navConfig) {
+  if (options.navConfig && options.addNavigation !== false) {
     const footerNav = createNavigationUI('footer-nav', options.navConfig);
     chatContainer.appendChild(footerNav);
   }

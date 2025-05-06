@@ -332,15 +332,6 @@ async function initChatViewer(chatPath) {
       }
     }
     
-    // Set up navigation config with proper links
-    const navConfig = {
-      prevLink: null, // Don't use converter's navigation
-      nextLink: null, // Don't use converter's navigation
-      title: title
-    };
-    
-    debugLog(`Navigation config: prev=${navConfig.prevLink}, next=${navConfig.nextLink}, title="${navConfig.title}"`);
-    
     // Calculate elapsed time so far
     const elapsed = Date.now() - startTime;
     const remainingDelay = Math.max(0, MIN_LOADING_TIME - elapsed);
@@ -353,8 +344,8 @@ async function initChatViewer(chatPath) {
       window.initChatConverter({
         contentSelector: '#markdown-content',
         rawMarkdown: markdown,
-        navConfig: navConfig,
-        showTitle: false // Set to false since we'll show the navigation elements instead
+        showTitle: false, // Set to false since we'll show our own navigation elements
+        addNavigation: false // Explicitly disable navigation creation
       });
       debugLog('Chat converter initialized');
       
