@@ -265,18 +265,20 @@ async function initChatViewer(chatPath) {
       debugLog(`Set page title to: ${title} (from filename)`);
     }
     
-    // Update navigation elements
+    // Update navigation elements (both top and bottom)
+    // Top navigation
     const navElement = document.getElementById('chat-nav');
     const prevLink = document.getElementById('prev-link');
     const nextLink = document.getElementById('next-link');
     const chatTitle = document.getElementById('chat-title');
     
-    // Also get footer navigation elements
+    // Bottom navigation
     const footerNavElement = document.getElementById('chat-nav-footer');
     const prevLinkFooter = document.getElementById('prev-link-footer');
     const nextLinkFooter = document.getElementById('next-link-footer');
     const chatTitleFooter = document.getElementById('chat-title-footer');
     
+    // Update top navigation
     if (navElement && prevLink && nextLink && chatTitle) {
       // Show the navigation
       navElement.style.display = 'flex';
@@ -303,7 +305,7 @@ async function initChatViewer(chatPath) {
       }
     }
     
-    // Update footer navigation to match header
+    // Update footer navigation
     if (footerNavElement && prevLinkFooter && nextLinkFooter && chatTitleFooter) {
       // Show the navigation
       footerNavElement.style.display = 'flex';
