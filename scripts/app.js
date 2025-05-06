@@ -271,6 +271,12 @@ async function initChatViewer(chatPath) {
     const nextLink = document.getElementById('next-link');
     const chatTitle = document.getElementById('chat-title');
     
+    // Also get footer navigation elements
+    const footerNavElement = document.getElementById('chat-nav-footer');
+    const prevLinkFooter = document.getElementById('prev-link-footer');
+    const nextLinkFooter = document.getElementById('next-link-footer');
+    const chatTitleFooter = document.getElementById('chat-title-footer');
+    
     if (navElement && prevLink && nextLink && chatTitle) {
       // Show the navigation
       navElement.style.display = 'flex';
@@ -294,6 +300,33 @@ async function initChatViewer(chatPath) {
       } else {
         nextLink.href = '#';
         nextLink.classList.add('disabled');
+      }
+    }
+    
+    // Update footer navigation to match header
+    if (footerNavElement && prevLinkFooter && nextLinkFooter && chatTitleFooter) {
+      // Show the navigation
+      footerNavElement.style.display = 'flex';
+      
+      // Update title
+      chatTitleFooter.textContent = title;
+      
+      // Update prev link
+      if (nav.prev) {
+        prevLinkFooter.href = `index.html?path=${nav.prev.path}`;
+        prevLinkFooter.classList.remove('disabled');
+      } else {
+        prevLinkFooter.href = '#';
+        prevLinkFooter.classList.add('disabled');
+      }
+      
+      // Update next link
+      if (nav.next) {
+        nextLinkFooter.href = `index.html?path=${nav.next.path}`;
+        nextLinkFooter.classList.remove('disabled');
+      } else {
+        nextLinkFooter.href = '#';
+        nextLinkFooter.classList.add('disabled');
       }
     }
     
