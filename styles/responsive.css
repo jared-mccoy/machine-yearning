@@ -60,7 +60,7 @@
   .nav-link {
     width: var(--nav-container-size);
     height: var(--nav-container-size);
-    border-width: 1px;
+    border-width: 2px; /* Increased from 1px */
   }
   
   .nav-link svg {
@@ -76,7 +76,7 @@
     text-overflow: ellipsis;
     padding: calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier)) 
              calc(0.5 * var(--spacing-unit) * var(--spacing-multiplier));
-    border-width: 1px;
+    border-width: 2px; /* Increased from 1px */
   }
   
   /* Remove body overflow restrictions that might clip avatars */
@@ -100,9 +100,10 @@
     max-width: 85%;
     padding: var(--bubble-padding-y) var(--bubble-padding-x);
     margin-bottom: calc(var(--spacing-unit) * var(--spacing-multiplier));
-    border-width: 1px; /* Thinner borders on mobile */
+    border-width: 2px; /* Increased from 1px */
     position: relative; /* For proper positioning context */
     overflow: visible !important; /* Allow avatar to extend outside */
+    transform: translateX(0); 
   }
   
   /* Ensure wrapper doesn't clip elements */
@@ -192,11 +193,6 @@
     width: 6px;
     height: 6px;
     margin: 0 2px;
-  }
-  
-  /* Base position for all messages - explicitly setting transform to none */
-  .message {
-    transform: translateX(0); 
   }
   
   /* Animation for messages - slide into the margin space */
@@ -313,10 +309,14 @@
     height: var(--nav-icon-size);
   }
   
-  /* Further reduce border thickness */
+  /* Further reduce border thickness but still keep it substantial */
+  .message {
+    border-width: 1.5px; /* Slightly reduced but still thicker than original 1px */
+  }
+  
   .nav-link,
   .chat-title {
-    border-width: 1px;
+    border-width: 1.5px; /* Consistent with message bubbles */
   }
   
   /* Chat title smaller text */
