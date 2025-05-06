@@ -237,6 +237,7 @@
   .chat-nav.footer-nav {
     padding: 10px;
     padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); /* Add safe area for notched phones */
+    width: calc(100% - 20px); /* Slightly wider on mobile */
   }
   
   /* Add padding to the bottom of content to prevent footer from covering content */

@@ -137,17 +137,29 @@ function setupDynamicNavigation() {
   // Initially hide the footer nav
   footerNav.classList.remove('visible');
   
+  // Track last state to prevent unnecessary DOM updates
+  let isFooterVisible = false;
+  
   // Use Intersection Observer to detect when header nav is out of viewport
   const navObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       // When header nav is not intersecting (out of view), show footer nav
-      if (!entry.isIntersecting) {
-        footerNav.classList.add('visible');
-      } else {
-        footerNav.classList.remove('visible');
+      if (!entry.isIntersecting && !isFooterVisible) {
+        requestAnimationFrame(() => {
+          footerNav.classList.add('visible');
+          isFooterVisible = true;
+        });
+      } else if (entry.isIntersecting && isFooterVisible) {
+        requestAnimationFrame(() => {
+          footerNav.classList.remove('visible');
+          isFooterVisible = false;
+        });
       }
     });
-  }, { threshold: 0 });
+  }, { 
+    threshold: 0,
+    rootMargin: '-10px 0px 0px 0px' // Small offset to prevent flickering
+  });
   
   // Start observing the header nav
   navObserver.observe(headerNav);
