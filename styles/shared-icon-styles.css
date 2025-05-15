@@ -17,10 +17,10 @@
   transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   
   /* Common mask properties */
-  mask-size: 45% 45%;
+  mask-size: 65% 65%;
   mask-position: center;
   mask-repeat: no-repeat;
-  -webkit-mask-size: 45% 45%;
+  -webkit-mask-size: 65% 65%;
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
 }
@@ -29,8 +29,8 @@
 .message::after {
   content: '';
   position: absolute;
-  width: calc(var(--avatar-size) * 0.9);
-  height: calc(var(--avatar-size) * 0.9);
+  width: calc(var(--avatar-size) * 0.95);
+  height: calc(var(--avatar-size) * 0.95);
   border-radius: 50%;
   border: 3px solid var(--speaker-color);
   top: 50%;
@@ -54,10 +54,10 @@
   opacity: 1;
   
   /* Common mask properties */
-  mask-size: 45% 45%;
+  mask-size: 65% 65%;
   mask-position: center;
   mask-repeat: no-repeat;
-  -webkit-mask-size: 45% 45%;
+  -webkit-mask-size: 65% 65%;
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
   
@@ -70,8 +70,8 @@
 .typing-indicator::after {
   content: '';
   position: absolute;
-  width: calc(var(--avatar-size) * 0.9);
-  height: calc(var(--avatar-size) * 0.9);
+  width: calc(var(--avatar-size) * 0.95);
+  height: calc(var(--avatar-size) * 0.95);
   border-radius: 50%;
   border: 3px solid var(--speaker-color);
   top: 50%;
@@ -93,7 +93,7 @@
 }
 
 .message[data-speaker="user"]::after {
-  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
 /* Non-user message icon positioning */
@@ -104,7 +104,7 @@
 }
 
 .message:not([data-speaker="user"])::after {
-  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
 /* User typing indicator icon positioning */
@@ -117,7 +117,7 @@
 
 .typing-indicator[data-speaker="user"]::after {
   left: auto;
-  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
 /* Non-user typing indicator icon positioning */
@@ -128,7 +128,7 @@
 }
 
 .typing-indicator:not([data-speaker="user"])::after {
-  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
 /* Show message icons when active */
