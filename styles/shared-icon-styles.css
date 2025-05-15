@@ -1,0 +1,140 @@
+/**
+ * Machine Yearning Chat - Shared Icon Styles
+ * Common styles for speaker icons shared between message and typing indicator components
+ */
+
+/* Base icon styling for messages */
+.message::before {
+  content: '';
+  position: absolute;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background-color: var(--speaker-color);
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  
+  /* Common mask properties */
+  mask-size: 45% 45%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 45% 45%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
+
+/* Base circle styling for messages */
+.message::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--avatar-size) * 0.9);
+  height: calc(var(--avatar-size) * 0.9);
+  border-radius: 50%;
+  border: 3px solid var(--speaker-color);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 21;
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  background-color: transparent;
+}
+
+/* Base icon styling for typing indicators */
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background-color: var(--speaker-color);
+  opacity: 1;
+  
+  /* Common mask properties */
+  mask-size: 45% 45%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 45% 45%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  
+  will-change: transform, opacity;
+  contain: paint;
+  backface-visibility: hidden;
+}
+
+/* Base circle styling for typing indicators */
+.typing-indicator::after {
+  content: '';
+  position: absolute;
+  width: calc(var(--avatar-size) * 0.9);
+  height: calc(var(--avatar-size) * 0.9);
+  border-radius: 50%;
+  border: 3px solid var(--speaker-color);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 21;
+  opacity: 1;
+  background-color: transparent;
+  
+  will-change: transform, opacity;
+  contain: paint;
+  backface-visibility: hidden;
+}
+
+/* User message icon positioning */
+.message[data-speaker="user"]::before {
+  right: var(--avatar-offset);
+  mask-image: url('../public/speaker_icons/User_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+.message[data-speaker="user"]::after {
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+}
+
+/* Non-user message icon positioning */
+.message:not([data-speaker="user"])::before {
+  left: var(--avatar-offset);
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+.message:not([data-speaker="user"])::after {
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+}
+
+/* User typing indicator icon positioning */
+.typing-indicator[data-speaker="user"]::before {
+  left: auto;
+  right: var(--avatar-offset);
+  mask-image: url('../public/speaker_icons/User_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+.typing-indicator[data-speaker="user"]::after {
+  left: auto;
+  right: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+}
+
+/* Non-user typing indicator icon positioning */
+.typing-indicator:not([data-speaker="user"])::before {
+  left: var(--avatar-offset);
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+.typing-indicator:not([data-speaker="user"])::after {
+  left: calc(var(--avatar-offset) + var(--avatar-size) * 0.05);
+}
+
+/* Show message icons when active */
+.message.speaking::before,
+.message.selected::before,
+.message.speaking::after,
+.message.selected::after {
+  opacity: 1;
+} 

@@ -9,6 +9,7 @@
 @import 'layout.css';
 
 /* Chat component styles */
+@import 'shared-icon-styles.css'; /* Common icon styling */
 @import 'chat-components.css';
 @import 'chat-bubbles.css';
 @import 'chat-typography.css';
