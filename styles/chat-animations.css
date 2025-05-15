@@ -76,10 +76,10 @@
   border: 2px solid var(--speaker-color);
   z-index: 20;
   left: var(--avatar-offset);
-  background-color: var(--speaker-color);
-  mask-image: url('../public/speaker_icons/agent.svg');
+  background-color: var(--speaker-color) !important;
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
   mask-size: cover;
-  -webkit-mask-image: url('../public/speaker_icons/agent.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
   -webkit-mask-size: cover;
   will-change: transform, opacity;
   /* Prevent layout shifts */
@@ -103,10 +103,10 @@
 .typing-indicator[data-speaker="user"]::before {
   left: auto;
   right: var(--avatar-offset);
-  background-color: var(--speaker-color);
-  mask-image: url('../public/speaker_icons/user.svg');
+  background-color: var(--speaker-color) !important;
+  mask-image: url('../public/speaker_icons/User_A.svg');
   mask-size: cover;
-  -webkit-mask-image: url('../public/speaker_icons/user.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
   -webkit-mask-size: cover;
 }
 

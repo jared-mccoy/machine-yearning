@@ -207,9 +207,9 @@
   z-index: 20;
   transform: translateY(-50%);
   background-color: var(--speaker-color) !important;
-  mask-image: url('../public/speaker_icons/agent.svg');
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
   mask-size: cover;
-  -webkit-mask-image: url('../public/speaker_icons/agent.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
   -webkit-mask-size: cover;
 }
 
@@ -217,9 +217,9 @@
 .message[data-speaker="user"]::before {
   right: var(--avatar-offset);
   background-color: var(--speaker-color) !important;
-  mask-image: url('../public/speaker_icons/user.svg');
+  mask-image: url('../public/speaker_icons/User_A.svg');
   mask-size: cover;
-  -webkit-mask-image: url('../public/speaker_icons/user.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
   -webkit-mask-size: cover;
 }
 
