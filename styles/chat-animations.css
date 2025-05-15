@@ -67,8 +67,6 @@
   width: var(--avatar-size);
   height: var(--avatar-size);
   border-radius: 50%;
-  background-size: cover;
-  background-position: center;
   opacity: 1;
   transition: all var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   top: 50%;
@@ -77,10 +75,15 @@
   z-index: 20;
   left: var(--avatar-offset);
   background-color: var(--speaker-color) !important;
+  /* SVG mask properties */
   mask-image: url('../public/speaker_icons/Agent_A.svg');
-  mask-size: cover;
+  mask-size: 75% 75%;
+  mask-position: center;
+  mask-repeat: no-repeat;
   -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
-  -webkit-mask-size: cover;
+  -webkit-mask-size: 75% 75%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
   will-change: transform, opacity;
   /* Prevent layout shifts */
   contain: paint;
@@ -105,9 +108,13 @@
   right: var(--avatar-offset);
   background-color: var(--speaker-color) !important;
   mask-image: url('../public/speaker_icons/User_A.svg');
-  mask-size: cover;
+  mask-size: 75% 75%;
+  mask-position: center;
+  mask-repeat: no-repeat;
   -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
-  -webkit-mask-size: cover;
+  -webkit-mask-size: 75% 75%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
 
 /* Set speaker colors based on data-speaker attribute */

@@ -34,7 +34,9 @@ export function extractSpeaker(line) {
   const angleTagMatch = line.match(/<<\s*(.*?)(?:\s+\{(.*?)\})?\s*>>/);
   if (angleTagMatch) {
     // Handle empty speaker tags (<<>>) as special "direct-text" type
-    const speaker = angleTagMatch[1].trim() === "" ? "direct-text" : angleTagMatch[1].trim().toLowerCase();
+    const speakerRaw = angleTagMatch[1].trim() === "" ? "direct-text" : angleTagMatch[1].trim().toLowerCase();
+    // Normalize speaker name: convert to lowercase and replace spaces with underscores
+    const speaker = speakerRaw.replace(/\s+/g, '_');
     const layoutTag = angleTagMatch[2] || null;
     
     speakerInfo = {
@@ -49,7 +51,9 @@ export function extractSpeaker(line) {
   const speakerMatch = line.match(/\[\[\[(.*?)(?:\s+\{(.*?)\})?\]\]\]/);
   if (speakerMatch) {
     // Handle empty speaker tags ([[[]]]) as special "direct-text" type
-    const speaker = speakerMatch[1].trim() === "" ? "direct-text" : speakerMatch[1].trim().toLowerCase();
+    const speakerRaw = speakerMatch[1].trim() === "" ? "direct-text" : speakerMatch[1].trim().toLowerCase();
+    // Normalize speaker name: convert to lowercase and replace spaces with underscores
+    const speaker = speakerRaw.replace(/\s+/g, '_');
     const layoutTag = speakerMatch[2] || null;
     
     speakerInfo = {
@@ -64,7 +68,9 @@ export function extractSpeaker(line) {
   const htmlCommentMatch = line.match(/<!--\s*(.*?)(?:\s+\{(.*?)\})?\s*-->/);
   if (htmlCommentMatch) {
     // Handle empty speaker tags (<!-- -->) as special "direct-text" type
-    const speaker = htmlCommentMatch[1].trim() === "" ? "direct-text" : htmlCommentMatch[1].trim().toLowerCase();
+    const speakerRaw = htmlCommentMatch[1].trim() === "" ? "direct-text" : htmlCommentMatch[1].trim().toLowerCase();
+    // Normalize speaker name: convert to lowercase and replace spaces with underscores
+    const speaker = speakerRaw.replace(/\s+/g, '_');
     const layoutTag = htmlCommentMatch[2] || null;
     
     speakerInfo = {
