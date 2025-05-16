@@ -175,76 +175,78 @@ class ChatDirectoryScanner {
     try {
       logMsg('Starting to scan content directory');
       
-      // Define known date directories (expand this list as needed)
-      const dateDirs = ['2025.04.15'];
-      logMsg(`Using known date directories: ${dateDirs.join(', ')}`);
+      // Try to discover all potential date directories
+      // First, let's try to discover potential date directories by pattern matching
+      // This approach doesn't rely on directory listings
       
-      // Process each date directory
-      const datePromises = dateDirs.map(async dateDir => {
+      // For GitHub Pages, we'll use a date pattern matching approach
+      // Look for directories in common date formats: YYYY.MM.DD, YYYY-MM-DD, etc.
+      const currentDate = new Date();
+      const potentialDirs = [];
+      
+      // Scan last 30 days
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(currentDate);
+        date.setDate(date.getDate() - i);
+        
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        
+        // Add various date formats - expand this as needed for your naming conventions
+        potentialDirs.push(`${year}.${month}.${day}`);
+        potentialDirs.push(`${year}-${month}-${day}`);
+      }
+      
+      // Add any known specific directories
+      potentialDirs.push('2025.04.15');
+      
+      // Remove duplicates
+      const uniqueDirs = [...new Set(potentialDirs)];
+      logMsg(`Checking for potential directories: ${uniqueDirs.length} possibilities`);
+      
+      // Check each potential directory to see if it exists
+      const validDirPromises = uniqueDirs.map(async dirName => {
+        // A directory "exists" if we can find at least one file in it
+        // Try a few common patterns or existing files to test if directory exists
+        const testPatterns = [
+          `${dirName}.md`, // Common pattern for main file
+          `${dirName}.A.md`, // Format in your existing files
+          'index.md',
+          'README.md'
+        ];
+        
+        for (const pattern of testPatterns) {
+          const testPath = `content/${dirName}/${pattern}`;
+          try {
+            const response = await fetch(`${baseUrl}/${testPath}`);
+            if (response.ok) {
+              logMsg(`Found valid directory: ${dirName}`);
+              return dirName;
+            }
+          } catch (e) {
+            // Ignore fetch errors
+          }
+        }
+        
+        return null;
+      });
+      
+      const validDirs = (await Promise.all(validDirPromises)).filter(dir => dir !== null);
+      logMsg(`Found ${validDirs.length} valid directories: ${validDirs.join(', ')}`);
+      
+      // Process each valid directory
+      const datePromises = validDirs.map(async dateDir => {
         const dateObj = {
           name: dateDir,
           displayName: dateDir,
           files: []
         };
 
-        // Define potential file patterns in each directory
-        // Specific patterns based on your existing files
-        const filePatterns = [
-          `${dateDir}.A.md`, 
-          `${dateDir}.B.md`, 
-          `${dateDir}.C.md`, 
-          `${dateDir}.D.md`,
-          'TEST.md'  // Add TEST.md explicitly
-        ];
-        
-        logMsg(`Checking for files in ${dateDir}: ${filePatterns.join(', ')}`);
-        
-        // Check each possible file
-        const filePromises = filePatterns.map(async filename => {
-          const path = `content/${dateDir}/${filename}`;
-          try {
-            logMsg(`Checking if file exists: ${path}`);
-            const response = await fetch(`${baseUrl}/${path}`);
-            if (!response.ok) {
-              logMsg(`File does not exist: ${path}`);
-              return null;
-            }
-            
-            logMsg(`File exists: ${path}`);
-            const fileData = {
-              path: path,
-              title: filename.replace('.md', ''),
-              originalFilename: filename
-            };
-            
-            // Extract title if possible
-            try {
-              const markdown = await response.text();
-              const titleMatch = markdown.match(/^#\s+(.+)$/m);
-              if (titleMatch) {
-                fileData.title = titleMatch[1].trim();
-                logMsg(`Extracted title from ${filename}: ${fileData.title}`);
-              }
-            } catch (e) {
-              logMsg(`Failed to extract title from ${path}: ${e.message}`);
-            }
-            
-            this.chats.push(fileData);
-            return fileData;
-          } catch (e) {
-            logMsg(`Error checking file ${path}: ${e.message}`);
-            return null;
-          }
-        });
-        
-        // Wait for all file checks to complete
-        const files = (await Promise.all(filePromises)).filter(f => f !== null);
-        
-        // Sort files by filename
-        files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-        
-        dateObj.files = files;
-        logMsg(`Found ${files.length} files in ${dateDir}`);
+        // Instead of predefined patterns, try to discover all markdown files in the directory
+        const foundFiles = await this.discoverFilesInDirectory(dateDir);
+        dateObj.files = foundFiles;
+        logMsg(`Found ${foundFiles.length} files in ${dateDir}`);
         
         return dateObj;
       });
@@ -269,6 +271,93 @@ class ChatDirectoryScanner {
     
     this.isLoading = false;
     return this.dates;
+  }
+  
+  /**
+   * Discover all markdown files in a directory
+   * @param {string} dirName Directory name
+   * @returns {Promise<Array>} Array of file objects
+   */
+  async discoverFilesInDirectory(dirName) {
+    const log = (msg) => {
+      if (window.appLog) {
+        appLog.debug(msg);
+      } else {
+        console.info(msg);
+      }
+    };
+    
+    log(`Discovering files in directory: ${dirName}`);
+    
+    // Basic approach: check for common files and patterns
+    const knownPatterns = [
+      // Common filenames
+      'index.md', 'README.md', 
+      // Common date-based patterns
+      `${dirName}.md`, `${dirName}.A.md`, `${dirName}.B.md`, `${dirName}.C.md`, `${dirName}.D.md`,
+      // Common prefixes (with wildcard handling by trying common suffixes)
+      'chat.md', 'conversation.md', 'transcript.md',
+      // Special test file
+      'TEST.md'
+    ];
+    
+    // For numeric suffixes, generate patterns like file-1.md, file-2.md, etc.
+    for (let i = 1; i <= 10; i++) {
+      knownPatterns.push(`chat-${i}.md`);
+      knownPatterns.push(`conversation-${i}.md`);
+    }
+    
+    // Also add alphabetic suffixes like A.md, B.md which are common
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let i = 0; i < alphabet.length; i++) {
+      knownPatterns.push(`${alphabet[i]}.md`);
+      knownPatterns.push(`${dirName}-${alphabet[i]}.md`);
+    }
+    
+    log(`Checking ${knownPatterns.length} potential files in ${dirName}`);
+    
+    // Check if each potential file exists
+    const filePromises = knownPatterns.map(async filename => {
+      const path = `content/${dirName}/${filename}`;
+      try {
+        const response = await fetch(`${baseUrl}/${path}`);
+        if (!response.ok) {
+          return null;
+        }
+        
+        log(`Found file: ${path}`);
+        const fileData = {
+          path: path,
+          title: filename.replace('.md', ''),
+          originalFilename: filename
+        };
+        
+        // Extract title if possible
+        try {
+          const markdown = await response.text();
+          const titleMatch = markdown.match(/^#\s+(.+)$/m);
+          if (titleMatch) {
+            fileData.title = titleMatch[1].trim();
+            log(`Extracted title from ${filename}: ${fileData.title}`);
+          }
+        } catch (e) {
+          log(`Failed to extract title from ${path}: ${e.message}`);
+        }
+        
+        this.chats.push(fileData);
+        return fileData;
+      } catch (e) {
+        return null;
+      }
+    });
+    
+    // Wait for all file checks to complete
+    const files = (await Promise.all(filePromises)).filter(f => f !== null);
+    
+    // Sort files by filename
+    files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
+    
+    return files;
   }
 
   /**
