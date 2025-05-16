@@ -4,7 +4,7 @@
  */
 
 import { getMarkdownHeaderLevel } from './parsing.js';
-import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor } from '../utils/speakerIconMapper.js';
+import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, shouldDisplaySpeakerName, getSpeakerDisplayName } from '../utils/speakerIconMapper.js';
 
 /**
  * Convert a markdown header to HTML
@@ -213,6 +213,18 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     // Add the dynamic color key attribute based on appearance order
     const colorKey = getSpeakerColor(msgData.speaker);
     messageEl.setAttribute('data-color-key', colorKey);
+    
+    // Add speaker name caption for custom speakers
+    if (shouldDisplaySpeakerName(msgData.speaker)) {
+      messageEl.setAttribute('data-display-speaker', 'true');
+      const displayName = getSpeakerDisplayName(msgData.speaker);
+      
+      // Create caption element
+      const caption = document.createElement('div');
+      caption.className = 'speaker-caption';
+      caption.textContent = displayName;
+      messageEl.appendChild(caption);
+    }
     
     // Apply custom layout if provided
     if (msgData.layout) {

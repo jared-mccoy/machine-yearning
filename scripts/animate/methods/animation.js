@@ -3,6 +3,11 @@
  * Contains methods for handling animation processing
  */
 
+// Load the necessary functions
+// Add these imports at the top of the file
+// Note: You'll need to adjust the import path based on the actual file structure
+import { shouldDisplaySpeakerName, getSpeakerDisplayName } from '../../converter/utils/speakerIconMapper.js';
+
 /**
  * Animate a header with simple fade-in animation
  * @param {Element} header - The header element to animate
@@ -221,6 +226,19 @@ export function processNextInQueue(animator) {
       const colorKey = currentMsg.getAttribute('data-color-key');
       if (colorKey) {
         typingIndicator.setAttribute('data-color-key', colorKey);
+      }
+      
+      // Add speaker name caption for custom speakers
+      const speakerNameFromMsg = currentMsg.getAttribute('data-speaker');
+      if (speakerNameFromMsg && shouldDisplaySpeakerName(speakerNameFromMsg)) {
+        typingIndicator.setAttribute('data-display-speaker', 'true');
+        const displayName = getSpeakerDisplayName(speakerNameFromMsg);
+        
+        // Create caption element
+        const caption = document.createElement('div');
+        caption.className = 'speaker-caption';
+        caption.textContent = displayName;
+        typingIndicator.appendChild(caption);
       }
       
       typingIndicator.innerHTML = '<span></span><span></span><span></span>';

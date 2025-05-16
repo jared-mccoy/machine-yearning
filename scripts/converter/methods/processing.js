@@ -19,7 +19,7 @@ import {
   getSpeakerClass
 } from './rendering.js';
 
-import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, setupCustomIconCSS } from '../utils/speakerIconMapper.js';
+import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, setupCustomIconCSS, shouldDisplaySpeakerName, getSpeakerDisplayName } from '../utils/speakerIconMapper.js';
 
 /**
  * Process chat content from markdown to HTML
@@ -331,6 +331,18 @@ export function processChatContent(options) {
         // Add the dynamic color key attribute based on appearance order
         const colorKey = getSpeakerColor(group.speaker);
         messageEl.setAttribute('data-color-key', colorKey);
+        
+        // Add speaker name caption for custom speakers
+        if (shouldDisplaySpeakerName(group.speaker)) {
+          messageEl.setAttribute('data-display-speaker', 'true');
+          const displayName = getSpeakerDisplayName(group.speaker);
+          
+          // Create caption element
+          const caption = document.createElement('div');
+          caption.className = 'speaker-caption';
+          caption.textContent = displayName;
+          messageEl.appendChild(caption);
+        }
         
         // Apply custom layout if provided
         if (group.layout) {

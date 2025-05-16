@@ -41,6 +41,55 @@
   background-color: transparent;
 }
 
+/* Speaker name caption styling */
+.message[data-display-speaker]::before {
+  top: 50%; /* Reset back to center, we'll position caption separately */
+  transform: translateY(-50%);
+}
+
+.message[data-display-speaker]::after {
+  top: 50%; /* Reset back to center, we'll position caption separately */
+  transform: translateY(-50%);
+}
+
+.message[data-display-speaker] .speaker-caption {
+  position: absolute;
+  writing-mode: vertical-lr; /* Vertical text, top to bottom */
+  transform: rotate(180deg); /* Flip the text to read top-to-bottom */
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--speaker-color);
+  text-align: center;
+  height: var(--avatar-size); /* Use the icon height for positioning */
+  max-height: 120px; /* Limit maximum height */
+  top: 50%;
+  transform-origin: center center;
+  transform: translateY(-50%) rotate(180deg); /* Center vertically and rotate */
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+  z-index: 22;
+}
+
+/* User positioning for caption */
+.message[data-speaker="user"][data-display-speaker] .speaker-caption {
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+}
+
+/* Non-user positioning for caption */
+.message:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+}
+
+/* Show caption when message is active */
+.message[data-display-speaker].speaking .speaker-caption,
+.message[data-display-speaker].selected .speaker-caption,
+.message[data-display-speaker]:hover .speaker-caption {
+  opacity: 1;
+}
+
 /* Base icon styling for typing indicators */
 .typing-indicator::before {
   content: '';
@@ -355,4 +404,33 @@
 /* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
 /* which creates appropriate CSS rules for each custom icon at runtime */
 
-/* User typing indicator positioning */ 
+/* User typing indicator positioning */
+.typing-indicator[data-display-speaker] .speaker-caption {
+  position: absolute;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--speaker-color);
+  text-align: center;
+  height: var(--avatar-size);
+  max-height: 120px;
+  top: 50%;
+  transform-origin: center center;
+  transform: translateY(-50%) rotate(180deg);
+  opacity: 1;
+  white-space: nowrap;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+  z-index: 22;
+}
+
+/* User positioning for typing indicator caption */
+.typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+}
+
+/* Non-user positioning for typing indicator caption */
+.typing-indicator:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+} 

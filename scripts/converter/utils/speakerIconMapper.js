@@ -23,6 +23,9 @@ const SPEAKER_COLORS = [
   'generic'    // Fallback color
 ];
 
+// All standard system speaker icons
+const SYSTEM_ICONS = [...USER_ICONS, ...AGENT_ICONS];
+
 // Global map to track speakers and their assigned icons
 let speakerIconMap = new Map();
 
@@ -34,6 +37,9 @@ let speakerAssignmentOrder = [];
 
 // Keep a list of custom speaker icons 
 let customSpeakerIcons = new Set();
+
+// Track speaker names that should display captions
+let displaySpeakerNames = new Set();
 
 // Debug logging
 function logDebug(message) {
@@ -53,6 +59,7 @@ export function resetSpeakerIconMapping() {
   speakerColorMap.clear();
   speakerAssignmentOrder = [];
   customSpeakerIcons.clear();
+  displaySpeakerNames.clear();
   logDebug('Speaker icon and color mapping reset');
 }
 
@@ -113,6 +120,37 @@ export function setupCustomIconCSS() {
 }
 
 /**
+ * Format speaker name for display as a caption
+ * @param {string} name - The raw speaker name
+ * @returns {string} Formatted speaker name in title case
+ */
+function formatSpeakerName(name) {
+  // Convert to title case and handle special characters
+  return name
+    .split(/[\s_-]+/) // Split by spaces, underscores, or hyphens
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+/**
+ * Check if a speaker name should display a caption
+ * @param {string} speaker - The speaker name
+ * @returns {boolean} True if this speaker should show a caption
+ */
+export function shouldDisplaySpeakerName(speaker) {
+  return displaySpeakerNames.has(speaker);
+}
+
+/**
+ * Get the formatted display name for a speaker
+ * @param {string} speaker - The speaker name
+ * @returns {string} Formatted display name
+ */
+export function getSpeakerDisplayName(speaker) {
+  return formatSpeakerName(speaker);
+}
+
+/**
  * Get the appropriate icon for a speaker based on order of appearance
  * @param {string} speaker - The speaker identifier
  * @returns {string} The icon name to use for this speaker
@@ -151,6 +189,27 @@ export function getSpeakerIcon(speaker) {
     logDebug(`Assigning Agent_A to '${speaker}'`);
     speakerIconMap.set(speaker, 'Agent_A');
     return 'Agent_A';
+  }
+  
+  // Check if this speaker should have its name displayed
+  // Display name if not a standard system speaker (not user, agent, etc.)
+  // and not one of the common format patterns (User_X, Agent_X)
+  const isStandardSpeaker = speaker === 'user' || 
+                            speaker === 'agent' || 
+                            speaker === 'assistant' || 
+                            speaker === 'test';
+                            
+  const isSystemIconFormat = SYSTEM_ICONS.some(iconName => {
+    // Check if speaker matches a system icon name pattern (e.g., User_A, Agent_B)
+    const normalizedSpeaker = speaker.toLowerCase().replace(/[\s_-]/g, '');
+    const normalizedIcon = iconName.toLowerCase().replace(/[\s_-]/g, '');
+    return normalizedSpeaker === normalizedIcon;
+  });
+  
+  // Display name for custom speakers
+  if (!isStandardSpeaker && !isSystemIconFormat) {
+    logDebug(`Speaker '${speaker}' will display name caption`);
+    displaySpeakerNames.add(speaker);
   }
   
   // IMPORTANT: Try to use the exact speaker name as an icon first
