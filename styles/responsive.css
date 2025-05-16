@@ -367,8 +367,8 @@
   }
   
   /* Typing indicator and avatar borders for very small screens */
-  .message::before,
-  .typing-indicator::before {
+  .message::after,
+  .typing-indicator::after {
     border-width: 1.5px; /* Match other elements */
   }
 } 
