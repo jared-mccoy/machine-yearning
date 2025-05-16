@@ -44,44 +44,43 @@
 /* Speaker name caption styling */
 .message[data-display-speaker] .speaker-caption {
   position: absolute;
-  writing-mode: vertical-lr; /* Vertical text, top to bottom */
+  writing-mode: vertical-lr; /* Vertical text */
   transform: rotate(180deg); /* Flip to read top-down */
   font-size: 9px;
   font-weight: 600;
   color: var(--speaker-color);
   text-align: center;
-  height: auto; /* Auto height */
-  max-height: 120px; /* Limit maximum height */
+  height: auto;
   top: 50%;
   transform: translateY(-50%) rotate(180deg); /* Center vertically and flip */
   opacity: 0;
   transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   white-space: nowrap;
-  line-height: 0.9; /* Very tight line height */
+  line-height: 0.9;
   z-index: 22;
 }
 
 /* Base positioning of speaker captions */
 /* User messages (default right side) */
 .message[data-speaker="user"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
 }
 
 /* Non-user messages (default left side) */
 .message:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
 }
 
 /* Custom positioning based on layout */
 /* Custom left layout */
 .message[data-layout-position="left"][data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
   right: auto;
 }
 
 /* Custom right layout */
 .message[data-layout-position="right"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
   left: auto;
 }
 
@@ -409,42 +408,41 @@
 /* User typing indicator positioning */
 .typing-indicator[data-display-speaker] .speaker-caption {
   position: absolute;
-  writing-mode: vertical-lr; /* Vertical text, top to bottom */
+  writing-mode: vertical-lr; /* Vertical text */
   transform: rotate(180deg); /* Flip to read top-down */
   font-size: 9px;
   font-weight: 600;
   color: var(--speaker-color);
   text-align: center;
-  height: auto; /* Auto height */
-  max-height: 120px;
+  height: auto;
   top: 50%;
   transform: translateY(-50%) rotate(180deg); /* Center vertically and flip */
   opacity: 1;
   white-space: nowrap;
-  line-height: 0.9; /* Very tight line height */
+  line-height: 0.9;
   z-index: 22;
 }
 
 /* Base positioning for typing indicator captions */
 /* User typing indicator (default right side) */
 .typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
 }
 
 /* Non-user typing indicator (default left side) */
 .typing-indicator:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
 }
 
 /* Custom positioning based on layout */
 /* Custom left layout */
 .typing-indicator[data-layout-position="left"][data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
   right: auto;
 }
 
 /* Custom right layout */
 .typing-indicator[data-layout-position="right"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
   left: auto;
 } 
