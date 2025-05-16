@@ -21,7 +21,7 @@
     }
   },
   "logging": {
-    "mode": "production",
+    "mode": "debug",
     "levels": {
       "production": ["warning", "error", "critical"],
       "debug": ["debug", "info", "warning", "error", "critical"]

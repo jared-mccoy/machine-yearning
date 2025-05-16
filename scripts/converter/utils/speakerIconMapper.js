@@ -16,12 +16,26 @@ const AGENT_ICONS = [
 // Global map to track speakers and their assigned icons
 let speakerIconMap = new Map();
 
+// Track speaker assignment order
+let speakerAssignmentOrder = [];
+
+// Debug logging
+function logDebug(message) {
+  if (window.debugLog) {
+    window.debugLog(`[IconMapper] ${message}`, 'system');
+  } else if (console) {
+    console.log(`[IconMapper] ${message}`);
+  }
+}
+
 /**
  * Reset the speaker icon mapping
  * Should be called at the start of any new chat processing
  */
 export function resetSpeakerIconMapping() {
   speakerIconMap.clear();
+  speakerAssignmentOrder = [];
+  logDebug('Speaker icon mapping reset');
 }
 
 /**
@@ -30,47 +44,77 @@ export function resetSpeakerIconMapping() {
  * @returns {string} The icon name to use for this speaker
  */
 export function getSpeakerIcon(speaker) {
+  logDebug(`Getting icon for speaker: ${speaker}`);
+  
+  // Special case: direct-text spans don't get icons
+  if (speaker === 'direct-text') {
+    logDebug('Direct-text spans get no icons, returning empty');
+    speakerIconMap.set(speaker, 'empty');
+    return 'empty';
+  }
+  
+  // If we've seen this speaker before, return its assigned icon
+  if (speakerIconMap.has(speaker)) {
+    logDebug(`Returning previously assigned icon: ${speakerIconMap.get(speaker)}`);
+    return speakerIconMap.get(speaker);
+  }
+  
+  // Add to assignment order for tracking (excluding direct-text)
+  if (speaker !== 'direct-text') {
+    speakerAssignmentOrder.push(speaker);
+    logDebug(`Speaker order: ${JSON.stringify(speakerAssignmentOrder)}`);
+  }
+  
   // Special case: 'user' is always User_A
-  if (speaker === 'user' && !speakerIconMap.has(speaker)) {
+  if (speaker === 'user') {
+    logDebug(`Assigning User_A to 'user'`);
     speakerIconMap.set(speaker, 'User_A');
     return 'User_A';
   }
   
   // Special case: 'agent' or 'assistant' is always Agent_A
-  if ((speaker === 'agent' || speaker === 'assistant' || speaker === 'test') && !speakerIconMap.has(speaker)) {
+  if (speaker === 'agent' || speaker === 'assistant' || speaker === 'test') {
+    logDebug(`Assigning Agent_A to '${speaker}'`);
     speakerIconMap.set(speaker, 'Agent_A');
     return 'Agent_A';
   }
   
-  // If we've seen this speaker before, return its assigned icon
-  if (speakerIconMap.has(speaker)) {
-    return speakerIconMap.get(speaker);
+  // Find position in assignment order (0-indexed)
+  const position = speakerAssignmentOrder.indexOf(speaker);
+  logDebug(`Position in assignment order: ${position}`);
+  
+  // Calculate index in icon array - the 3rd unique speaker (at position 2) should get User_B (at index 1)
+  // We exclude User_A since it's reserved for user
+  const iconIndex = position - (speakerAssignmentOrder.includes('user') ? 1 : 0) - 
+                    ((speakerAssignmentOrder.includes('agent') || 
+                      speakerAssignmentOrder.includes('assistant') || 
+                      speakerAssignmentOrder.includes('test')) ? 1 : 0);
+  
+  logDebug(`Icon index calculation: ${position} - ${speakerAssignmentOrder.includes('user') ? 1 : 0} - ${(speakerAssignmentOrder.includes('agent') || speakerAssignmentOrder.includes('assistant') || speakerAssignmentOrder.includes('test')) ? 1 : 0} = ${iconIndex}`);
+  
+  let iconName = 'empty';
+  
+  if (iconIndex < 0) {
+    logDebug(`Negative icon index ${iconIndex}, setting to 0`);
+    iconIndex = 0;
   }
   
-  // New speaker - assign next available icon
-  const currentSpeakerCount = speakerIconMap.size;
-  let iconName = 'empty'; // Default to empty if we run out of icons
-  
-  // Skip the first two slots which are reserved for user and agent
-  const specialSpeakersCount = speakerIconMap.has('user') ? 1 : 0 
-    + (speakerIconMap.has('agent') || speakerIconMap.has('assistant') || speakerIconMap.has('test') ? 1 : 0);
-    
-  // Calculate which icon to use, starting from User_B onwards for additional speakers
-  const adjustedCount = currentSpeakerCount - specialSpeakersCount + 1; // +1 to start from B
-  
-  if (adjustedCount < USER_ICONS.length) {
-    // Use available user icons first
-    iconName = USER_ICONS[adjustedCount];
+  if (iconIndex < USER_ICONS.length - 1) { // -1 because User_A is reserved
+    iconName = USER_ICONS[iconIndex + 1]; // +1 to skip User_A
+    logDebug(`Using User icon at index ${iconIndex + 1}: ${iconName}`);
   } else {
-    // Then use agent icons if we have more speakers
-    const agentIconIndex = (adjustedCount - USER_ICONS.length + 1) % AGENT_ICONS.length;
-    if (agentIconIndex < AGENT_ICONS.length) {
-      iconName = AGENT_ICONS[agentIconIndex];
+    // Use Agent icons (skipping Agent_A which is reserved)
+    const agentIndex = (iconIndex - (USER_ICONS.length - 1) + 1) % (AGENT_ICONS.length - 1);
+    if (agentIndex < AGENT_ICONS.length - 1) {
+      iconName = AGENT_ICONS[agentIndex + 1]; // +1 to skip Agent_A
+      logDebug(`Using Agent icon at index ${agentIndex + 1}: ${iconName}`);
     }
   }
   
   // Add to map
   speakerIconMap.set(speaker, iconName);
+  logDebug(`Mapped speaker ${speaker} to icon ${iconName}`);
+  logDebug(`Updated map: ${JSON.stringify(Array.from(speakerIconMap.entries()))}`);
   return iconName;
 }
 
