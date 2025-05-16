@@ -69,9 +69,46 @@
   filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
 }
 
+/* Dynamic color mapping override - based on data-color-key attribute */
+.message[data-color-key="user"] svg,
+.message[data-color-key="user"] img[src$=".svg"] {
+  color: var(--user-color, #ffc400);
+  filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+}
+
+.message[data-color-key="assistant"] svg,
+.message[data-color-key="assistant"] img[src$=".svg"] {
+  color: var(--assistant-color, #192b91);
+  filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+}
+
+.message[data-color-key="speakerc"] svg,
+.message[data-color-key="speakerc"] img[src$=".svg"] {
+  color: var(--accentC-color, #e63946);
+  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+.message[data-color-key="speakerd"] svg,
+.message[data-color-key="speakerd"] img[src$=".svg"] {
+  color: var(--accentD-color, #2a9d8f);
+  filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
+}
+
+.message[data-color-key="speakere"] svg,
+.message[data-color-key="speakere"] img[src$=".svg"] {
+  color: var(--accentE-color, #8338ec);
+  filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+}
+
+.message[data-color-key="generic"] svg,
+.message[data-color-key="generic"] img[src$=".svg"] {
+  color: var(--generic-color, #909090);
+  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
+}
+
 /* Default coloring for any other speakers */
-.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) svg,
-.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) img[src$=".svg"] {
+.message:not([data-color-key]) svg,
+.message:not([data-color-key]) img[src$=".svg"] {
   color: var(--generic-color, #909090);
   filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
@@ -94,7 +131,32 @@
   filter: var(--speaker-filter, none);
 }
 
-/* Define speaker-specific filters as CSS variables */
+/* Define speaker-specific filters as CSS variables based on data-color-key */
+.message[data-color-key="user"] {
+  --speaker-filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+}
+
+.message[data-color-key="assistant"] {
+  --speaker-filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+}
+
+.message[data-color-key="speakerc"] {
+  --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+}
+
+.message[data-color-key="speakerd"] {
+  --speaker-filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
+}
+
+.message[data-color-key="speakere"] {
+  --speaker-filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+}
+
+.message[data-color-key="generic"] {
+  --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
+}
+
+/* Maintain old data-speaker filters for compatibility */
 .message[data-speaker="user"] {
   --speaker-filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
 }
@@ -122,7 +184,7 @@
 }
 
 /* For any other speakers, use the generic color */
-.message:not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) {
+.message:not([data-color-key]):not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) {
   --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 

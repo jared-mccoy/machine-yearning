@@ -217,6 +217,12 @@ export function processNextInQueue(animator) {
         typingIndicator.setAttribute('data-speaker-icon', speakerIcon);
       }
       
+      // Set the same data-color-key as the message for consistent coloring
+      const colorKey = currentMsg.getAttribute('data-color-key');
+      if (colorKey) {
+        typingIndicator.setAttribute('data-color-key', colorKey);
+      }
+      
       typingIndicator.innerHTML = '<span></span><span></span><span></span>';
       
       // Set size attribute based on message length

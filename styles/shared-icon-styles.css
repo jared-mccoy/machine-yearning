@@ -306,6 +306,37 @@
   left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
+/* Dynamic color mapping for typing indicators */
+.typing-indicator[data-color-key="user"] {
+  --speaker-color: var(--user-color);
+  border-color: var(--user-color); 
+}
+
+.typing-indicator[data-color-key="assistant"] {
+  --speaker-color: var(--assistant-color);
+  border-color: var(--assistant-color);
+}
+
+.typing-indicator[data-color-key="speakerc"] {
+  --speaker-color: var(--accentC-color);
+  border-color: var(--accentC-color);
+}
+
+.typing-indicator[data-color-key="speakerd"] {
+  --speaker-color: var(--accentD-color);
+  border-color: var(--accentD-color);
+}
+
+.typing-indicator[data-color-key="speakere"] {
+  --speaker-color: var(--accentE-color);
+  border-color: var(--accentE-color);
+}
+
+.typing-indicator[data-color-key="generic"] {
+  --speaker-color: var(--generic-color);
+  border-color: var(--generic-color);
+}
+
 /* Show message icons when active */
 .message.speaking::before,
 .message.selected::before,
