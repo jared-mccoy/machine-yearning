@@ -210,6 +210,13 @@ export function processNextInQueue(animator) {
       
       // Set data attribute for speaker type
       typingIndicator.setAttribute('data-speaker', speakerType);
+      
+      // Set the same data-speaker-icon as the message for consistent icon display
+      const speakerIcon = currentMsg.getAttribute('data-speaker-icon');
+      if (speakerIcon) {
+        typingIndicator.setAttribute('data-speaker-icon', speakerIcon);
+      }
+      
       typingIndicator.innerHTML = '<span></span><span></span><span></span>';
       
       // Set size attribute based on message length

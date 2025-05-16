@@ -85,34 +85,211 @@
   backface-visibility: hidden;
 }
 
-/* User message icon positioning */
-.message[data-speaker="user"]::before {
-  right: var(--avatar-offset);
+/* Speaker Icon Mapping - Dynamic based on order */
+
+/* User_A icon */
+.message[data-speaker-icon="User_A"]::before {
   mask-image: url('../public/speaker_icons/User_A.svg');
   -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+/* User_B icon */
+.message[data-speaker-icon="User_B"]::before {
+  mask-image: url('../public/speaker_icons/User_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_B.svg');
+}
+
+/* User_C icon */
+.message[data-speaker-icon="User_C"]::before {
+  mask-image: url('../public/speaker_icons/User_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_C.svg');
+}
+
+/* User_D icon */
+.message[data-speaker-icon="User_D"]::before {
+  mask-image: url('../public/speaker_icons/User_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_D.svg');
+}
+
+/* User_E icon */
+.message[data-speaker-icon="User_E"]::before {
+  mask-image: url('../public/speaker_icons/User_E.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_E.svg');
+}
+
+/* User_F icon */
+.message[data-speaker-icon="User_F"]::before {
+  mask-image: url('../public/speaker_icons/User_F.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_F.svg');
+}
+
+/* User_G icon */
+.message[data-speaker-icon="User_G"]::before {
+  mask-image: url('../public/speaker_icons/User_G.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_G.svg');
+}
+
+/* User_H icon */
+.message[data-speaker-icon="User_H"]::before {
+  mask-image: url('../public/speaker_icons/User_H.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_H.svg');
+}
+
+/* User_I icon */
+.message[data-speaker-icon="User_I"]::before {
+  mask-image: url('../public/speaker_icons/User_I.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_I.svg');
+}
+
+/* User_J icon */
+.message[data-speaker-icon="User_J"]::before {
+  mask-image: url('../public/speaker_icons/User_J.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_J.svg');
+}
+
+/* Agent_A icon */
+.message[data-speaker-icon="Agent_A"]::before {
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+/* Agent_B icon */
+.message[data-speaker-icon="Agent_B"]::before {
+  mask-image: url('../public/speaker_icons/Agent_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_B.svg');
+}
+
+/* Agent_C icon */
+.message[data-speaker-icon="Agent_C"]::before {
+  mask-image: url('../public/speaker_icons/Agent_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_C.svg');
+}
+
+/* Agent_D icon */
+.message[data-speaker-icon="Agent_D"]::before {
+  mask-image: url('../public/speaker_icons/Agent_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_D.svg');
+}
+
+/* Empty icon (no SVG) */
+.message[data-speaker-icon="empty"]::before {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+/* User positioning */
+.message[data-speaker="user"]::before {
+  right: var(--avatar-offset);
 }
 
 .message[data-speaker="user"]::after {
   right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
-/* Non-user message icon positioning */
+/* Non-user positioning */
 .message:not([data-speaker="user"])::before {
   left: var(--avatar-offset);
-  mask-image: url('../public/speaker_icons/Agent_A.svg');
-  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
 }
 
 .message:not([data-speaker="user"])::after {
   left: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
-/* User typing indicator icon positioning */
+/* Typing indicator icon mapping */
+/* User_A typing indicator */
+.typing-indicator[data-speaker-icon="User_A"]::before {
+  mask-image: url('../public/speaker_icons/User_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
+}
+
+/* User_B typing indicator */
+.typing-indicator[data-speaker-icon="User_B"]::before {
+  mask-image: url('../public/speaker_icons/User_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_B.svg');
+}
+
+/* User_C typing indicator */
+.typing-indicator[data-speaker-icon="User_C"]::before {
+  mask-image: url('../public/speaker_icons/User_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_C.svg');
+}
+
+/* User_D typing indicator */
+.typing-indicator[data-speaker-icon="User_D"]::before {
+  mask-image: url('../public/speaker_icons/User_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_D.svg');
+}
+
+/* User_E typing indicator */
+.typing-indicator[data-speaker-icon="User_E"]::before {
+  mask-image: url('../public/speaker_icons/User_E.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_E.svg');
+}
+
+/* User_F typing indicator */
+.typing-indicator[data-speaker-icon="User_F"]::before {
+  mask-image: url('../public/speaker_icons/User_F.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_F.svg');
+}
+
+/* User_G typing indicator */
+.typing-indicator[data-speaker-icon="User_G"]::before {
+  mask-image: url('../public/speaker_icons/User_G.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_G.svg');
+}
+
+/* User_H typing indicator */
+.typing-indicator[data-speaker-icon="User_H"]::before {
+  mask-image: url('../public/speaker_icons/User_H.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_H.svg');
+}
+
+/* User_I typing indicator */
+.typing-indicator[data-speaker-icon="User_I"]::before {
+  mask-image: url('../public/speaker_icons/User_I.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_I.svg');
+}
+
+/* User_J typing indicator */
+.typing-indicator[data-speaker-icon="User_J"]::before {
+  mask-image: url('../public/speaker_icons/User_J.svg');
+  -webkit-mask-image: url('../public/speaker_icons/User_J.svg');
+}
+
+/* Agent_A typing indicator */
+.typing-indicator[data-speaker-icon="Agent_A"]::before {
+  mask-image: url('../public/speaker_icons/Agent_A.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
+}
+
+/* Agent_B typing indicator */
+.typing-indicator[data-speaker-icon="Agent_B"]::before {
+  mask-image: url('../public/speaker_icons/Agent_B.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_B.svg');
+}
+
+/* Agent_C typing indicator */
+.typing-indicator[data-speaker-icon="Agent_C"]::before {
+  mask-image: url('../public/speaker_icons/Agent_C.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_C.svg');
+}
+
+/* Agent_D typing indicator */
+.typing-indicator[data-speaker-icon="Agent_D"]::before {
+  mask-image: url('../public/speaker_icons/Agent_D.svg');
+  -webkit-mask-image: url('../public/speaker_icons/Agent_D.svg');
+}
+
+/* Empty typing indicator (no SVG) */
+.typing-indicator[data-speaker-icon="empty"]::before {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+/* User typing indicator positioning */
 .typing-indicator[data-speaker="user"]::before {
   left: auto;
   right: var(--avatar-offset);
-  mask-image: url('../public/speaker_icons/User_A.svg');
-  -webkit-mask-image: url('../public/speaker_icons/User_A.svg');
 }
 
 .typing-indicator[data-speaker="user"]::after {
@@ -120,11 +297,9 @@
   right: calc(var(--avatar-offset) + var(--avatar-size) * 0.025);
 }
 
-/* Non-user typing indicator icon positioning */
+/* Non-user typing indicator positioning */
 .typing-indicator:not([data-speaker="user"])::before {
   left: var(--avatar-offset);
-  mask-image: url('../public/speaker_icons/Agent_A.svg');
-  -webkit-mask-image: url('../public/speaker_icons/Agent_A.svg');
 }
 
 .typing-indicator:not([data-speaker="user"])::after {

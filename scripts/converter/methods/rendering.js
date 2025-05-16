@@ -4,6 +4,7 @@
  */
 
 import { getMarkdownHeaderLevel } from './parsing.js';
+import { getSpeakerIcon, resetSpeakerIconMapping } from '../utils/speakerIconMapper.js';
 
 /**
  * Convert a markdown header to HTML
@@ -204,6 +205,10 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     // Add a data attribute for the speaker's actual name
     // This ensures CSS rules based on data-speaker will work correctly
     messageEl.setAttribute('data-speaker', msgData.speaker);
+    
+    // Add the speaker icon attribute based on appearance order
+    const speakerIcon = getSpeakerIcon(msgData.speaker);
+    messageEl.setAttribute('data-speaker-icon', speakerIcon);
     
     // Apply custom layout if provided
     if (msgData.layout) {

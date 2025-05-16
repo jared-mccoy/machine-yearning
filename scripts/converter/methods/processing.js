@@ -19,6 +19,8 @@ import {
   getSpeakerClass
 } from './rendering.js';
 
+import { getSpeakerIcon, resetSpeakerIconMapping } from '../utils/speakerIconMapper.js';
+
 /**
  * Process chat content from markdown to HTML
  * @param {Object} options - Processing options
@@ -32,6 +34,9 @@ export function processChatContent(options) {
 
   // Track all unique speakers in the conversation - this is important for proper message styling
   const speakers = [];
+  
+  // Reset the speaker icon mapping at the start of processing
+  resetSpeakerIconMapping();
   
   // Track layouts for each speaker
   const speakerLayouts = {};
@@ -315,6 +320,10 @@ export function processChatContent(options) {
         const speakerClass = getSpeakerClassLocal(group.speaker);
         messageEl.classList.add(speakerClass);
         messageEl.setAttribute('data-speaker', group.speaker);
+        
+        // Add the speaker icon attribute based on appearance order
+        const speakerIcon = getSpeakerIcon(group.speaker);
+        messageEl.setAttribute('data-speaker-icon', speakerIcon);
         
         // Apply custom layout if provided
         if (group.layout) {
