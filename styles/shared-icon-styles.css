@@ -42,45 +42,47 @@
 }
 
 /* Speaker name caption styling */
-.message[data-display-speaker]::before {
-  top: 50%; /* Reset back to center, we'll position caption separately */
-  transform: translateY(-50%);
-}
-
-.message[data-display-speaker]::after {
-  top: 50%; /* Reset back to center, we'll position caption separately */
-  transform: translateY(-50%);
-}
-
 .message[data-display-speaker] .speaker-caption {
   position: absolute;
   writing-mode: vertical-lr; /* Vertical text, top to bottom */
-  transform: rotate(180deg); /* Flip the text to read top-to-bottom */
+  transform: rotate(180deg); /* Flip to read top-down */
   font-size: 9px;
   font-weight: 600;
   color: var(--speaker-color);
   text-align: center;
-  height: var(--avatar-size); /* Use the icon height for positioning */
+  height: auto; /* Auto height */
   max-height: 120px; /* Limit maximum height */
   top: 50%;
-  transform-origin: center center;
-  transform: translateY(-50%) rotate(180deg); /* Center vertically and rotate */
+  transform: translateY(-50%) rotate(180deg); /* Center vertically and flip */
   opacity: 0;
   transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   white-space: nowrap;
-  line-height: 1.2;
-  letter-spacing: 0.5px;
+  line-height: 0.9; /* Very tight line height */
   z-index: 22;
 }
 
-/* User positioning for caption */
+/* Base positioning of speaker captions */
+/* User messages (default right side) */
 .message[data-speaker="user"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
 }
 
-/* Non-user positioning for caption */
+/* Non-user messages (default left side) */
 .message:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+}
+
+/* Custom positioning based on layout */
+/* Custom left layout */
+.message[data-layout-position="left"][data-display-speaker] .speaker-caption {
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: auto;
+}
+
+/* Custom right layout */
+.message[data-layout-position="right"][data-display-speaker] .speaker-caption {
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: auto;
 }
 
 /* Show caption when message is active */
@@ -407,30 +409,42 @@
 /* User typing indicator positioning */
 .typing-indicator[data-display-speaker] .speaker-caption {
   position: absolute;
-  writing-mode: vertical-lr;
-  transform: rotate(180deg);
+  writing-mode: vertical-lr; /* Vertical text, top to bottom */
+  transform: rotate(180deg); /* Flip to read top-down */
   font-size: 9px;
   font-weight: 600;
   color: var(--speaker-color);
   text-align: center;
-  height: var(--avatar-size);
+  height: auto; /* Auto height */
   max-height: 120px;
   top: 50%;
-  transform-origin: center center;
-  transform: translateY(-50%) rotate(180deg);
+  transform: translateY(-50%) rotate(180deg); /* Center vertically and flip */
   opacity: 1;
   white-space: nowrap;
-  line-height: 1.2;
-  letter-spacing: 0.5px;
+  line-height: 0.9; /* Very tight line height */
   z-index: 22;
 }
 
-/* User positioning for typing indicator caption */
+/* Base positioning for typing indicator captions */
+/* User typing indicator (default right side) */
 .typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
 }
 
-/* Non-user positioning for typing indicator caption */
+/* Non-user typing indicator (default left side) */
 .typing-indicator:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 5px);
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+}
+
+/* Custom positioning based on layout */
+/* Custom left layout */
+.typing-indicator[data-layout-position="left"][data-display-speaker] .speaker-caption {
+  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  right: auto;
+}
+
+/* Custom right layout */
+.typing-indicator[data-layout-position="right"][data-display-speaker] .speaker-caption {
+  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px); /* Position between icon and bubble */
+  left: auto;
 } 
