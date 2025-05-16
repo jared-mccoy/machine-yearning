@@ -175,51 +175,10 @@ class ChatDirectoryScanner {
     try {
       logMsg('Starting to scan content directory');
       
-      // Try to use the API first
-      try {
-        const apiUrl = `${baseUrl}/api.json`;
-        logMsg(`Fetching chat list from API: ${apiUrl}`);
-        logMsg(`Full API URL being fetched: ${apiUrl}`);
-        logMsg(`Document location: ${document.location.href}`);
-        
-        // Use relative path that works on both GitHub Pages and locally
-        const apiResponse = await fetch(apiUrl);
-        logMsg(`API response status: ${apiResponse.status}`);
-        
-        if (apiResponse.ok) {
-          const apiData = await apiResponse.json();
-          logMsg(`Received API data with ${apiData.chats.length} files`);
-          
-          // Process files from API
-          await this.processFilesFromApi(apiData.chats);
-          this.isLoading = false;
-          return this.dates;
-        } else {
-          logMsg(`API not available (status ${apiResponse.status}), falling back to directory scanning`);
-        }
-      } catch (apiError) {
-        console.error('API error details:', apiError);
-        logMsg(`API error: ${apiError.message}, falling back to directory scanning`);
-      }
+      // Define known date directories (expand this list as needed)
+      const dateDirs = ['2025.04.15'];
+      logMsg(`Using known date directories: ${dateDirs.join(', ')}`);
       
-      // Fallback: Fetch the content directory
-      const contentUrl = `${baseUrl}/content/`;
-      logMsg(`Fetching content directory listing: ${contentUrl}`);
-      logMsg(`Full content URL being fetched: ${contentUrl}`);
-      
-      // Use relative path that works on both GitHub Pages and locally
-      const response = await fetch(contentUrl);
-      logMsg(`Content directory response status: ${response.status}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch content directory: ${response.status}`);
-      }
-
-      const html = await response.text();
-      logMsg(`Received content directory listing (${html.length} chars)`);
-      const dateDirs = this.parseDateDirectories(html);
-      logMsg(`Found ${dateDirs.length} date directories: ${dateDirs.join(', ')}`);
-
       // Process each date directory
       const datePromises = dateDirs.map(async dateDir => {
         const dateObj = {
@@ -228,187 +187,88 @@ class ChatDirectoryScanner {
           files: []
         };
 
-        // Fetch the date directory
-        const dateResponse = await fetch(`${baseUrl}/content/${dateDir}/`);
-        if (!dateResponse.ok) {
-          return dateObj;
-        }
-
-        const dateHtml = await dateResponse.text();
-        const chatFiles = this.parseChatFiles(dateHtml, dateDir);
+        // Define potential file patterns in each directory
+        // Specific patterns based on your existing files
+        const filePatterns = [
+          `${dateDir}.A.md`, 
+          `${dateDir}.B.md`, 
+          `${dateDir}.C.md`, 
+          `${dateDir}.D.md`,
+          'TEST.md'  // Add TEST.md explicitly
+        ];
         
-        // Add additional metadata for each file
-        const filePromises = chatFiles.map(async file => {
-          const fileData = {
-            path: file.path,
-            title: file.filename.replace('.md', ''),
-            originalFilename: file.filename  // Store original filename for sorting
-          };
-
-          // Try to extract the title from the file
+        logMsg(`Checking for files in ${dateDir}: ${filePatterns.join(', ')}`);
+        
+        // Check each possible file
+        const filePromises = filePatterns.map(async filename => {
+          const path = `content/${dateDir}/${filename}`;
           try {
-            const fileResponse = await fetch(`${baseUrl}/${file.path}`);
-            if (fileResponse.ok) {
-              const markdown = await fileResponse.text();
+            logMsg(`Checking if file exists: ${path}`);
+            const response = await fetch(`${baseUrl}/${path}`);
+            if (!response.ok) {
+              logMsg(`File does not exist: ${path}`);
+              return null;
+            }
+            
+            logMsg(`File exists: ${path}`);
+            const fileData = {
+              path: path,
+              title: filename.replace('.md', ''),
+              originalFilename: filename
+            };
+            
+            // Extract title if possible
+            try {
+              const markdown = await response.text();
               const titleMatch = markdown.match(/^#\s+(.+)$/m);
               if (titleMatch) {
                 fileData.title = titleMatch[1].trim();
+                logMsg(`Extracted title from ${filename}: ${fileData.title}`);
               }
+            } catch (e) {
+              logMsg(`Failed to extract title from ${path}: ${e.message}`);
             }
+            
+            this.chats.push(fileData);
+            return fileData;
           } catch (e) {
-            console.warn(`Failed to extract title from ${file.path}:`, e);
+            logMsg(`Error checking file ${path}: ${e.message}`);
+            return null;
           }
-
-          this.chats.push(fileData);
-          return fileData;
         });
-
-        dateObj.files = await Promise.all(filePromises);
         
-        // Sort files by their original filename
-        dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
+        // Wait for all file checks to complete
+        const files = (await Promise.all(filePromises)).filter(f => f !== null);
+        
+        // Sort files by filename
+        files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
+        
+        dateObj.files = files;
+        logMsg(`Found ${files.length} files in ${dateDir}`);
         
         return dateObj;
       });
-
+      
       this.dates = await Promise.all(datePromises);
-      this.dates.sort((a, b) => b.name.localeCompare(a.name)); // Sort in reverse chronological order
+      
+      // Filter out empty date directories
+      this.dates = this.dates.filter(date => date.files.length > 0);
+      
+      // Sort dates in reverse chronological order
+      this.dates.sort((a, b) => b.name.localeCompare(a.name));
+      
+      logMsg(`Processed ${this.dates.length} date directories with a total of ${this.chats.length} files`);
+      
       this.saveToCache();
-      this.isLoading = false;
-      return this.dates;
     } catch (error) {
       console.error('Error scanning chat directory:', error);
+      logMsg(`Scan error: ${error.message}`);
       this.isLoading = false;
-      return [];
+      throw error;
     }
-  }
-  
-  /**
-   * Process files from the API response
-   * @param {Array} files Array of file objects from the API
-   */
-  async processFilesFromApi(files) {
-    // Group files by date
-    const dateMap = {};
     
-    // Create an array of promises for fetching file contents
-    const filePromises = files.map(async file => {
-      // Extract date from path (assuming path format like "content/2025.04.15/file.md")
-      const pathParts = file.path.split('/');
-      if (pathParts.length >= 2) {
-        const dateDir = pathParts[1];
-        
-        // Skip non-markdown files
-        if (!file.name.endsWith('.md')) return null;
-        
-        // Create date entry if it doesn't exist
-        if (!dateMap[dateDir]) {
-          dateMap[dateDir] = {
-            name: dateDir,
-            displayName: dateDir,
-            files: []
-          };
-        }
-        
-        // Create the file data object with filename as default title
-        const fileData = {
-          path: file.path,
-          title: file.name.replace('.md', ''),
-          originalFilename: file.name  // Store original filename for sorting
-        };
-        
-        // Try to extract title from the file content
-        try {
-          const fileResponse = await fetch(`${baseUrl}/${file.path}`);
-          if (fileResponse.ok) {
-            const markdown = await fileResponse.text();
-            const titleMatch = markdown.match(/^#\s+(.+)$/m);
-            if (titleMatch) {
-              fileData.title = titleMatch[1].trim();
-            }
-          }
-        } catch (e) {
-          console.warn(`Failed to extract title from ${file.path}:`, e);
-        }
-        
-        // Add to the date's files array
-        dateMap[dateDir].files.push(fileData);
-        return fileData;
-      }
-      return null;
-    });
-    
-    // Wait for all file processing to complete
-    const processedFiles = await Promise.all(filePromises);
-    
-    // Add valid files to the chats array
-    this.chats = processedFiles.filter(file => file !== null);
-    
-    // Sort files in each date directory
-    Object.values(dateMap).forEach(dateObj => {
-      dateObj.files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-    });
-    
-    // Convert map to array
-    this.dates = Object.values(dateMap);
-    
-    // Sort dates in reverse chronological order
-    this.dates.sort((a, b) => b.name.localeCompare(a.name));
-    
-    // Save to cache
-    this.saveToCache();
-  }
-
-  /**
-   * Parse HTML from the content directory to find date subdirectories
-   * @param {string} html HTML content of the content directory
-   * @returns {Array} Array of date directory names
-   */
-  parseDateDirectories(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a'));
-    
-    // Find directories (they end with /)
-    return links
-      .filter(link => {
-        const href = link.getAttribute('href');
-        return href && href.endsWith('/') && !href.startsWith('..') && href !== './';
-      })
-      .map(link => {
-        let href = link.getAttribute('href');
-        // Remove trailing slash
-        if (href.endsWith('/')) {
-          href = href.slice(0, -1);
-        }
-        return href;
-      });
-  }
-
-  /**
-   * Parse HTML from a date directory to find markdown files
-   * @param {string} html HTML content of a date directory
-   * @param {string} dateDir Name of the date directory
-   * @returns {Array} Array of file objects with path and filename
-   */
-  parseChatFiles(html, dateDir) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = Array.from(doc.querySelectorAll('a'));
-    
-    // Find markdown files
-    return links
-      .filter(link => {
-        const href = link.getAttribute('href');
-        return href && href.endsWith('.md') && !href.startsWith('..') && href !== './';
-      })
-      .map(link => {
-        const filename = link.getAttribute('href');
-        return {
-          path: `content/${dateDir}/${filename}`,
-          filename
-        };
-      });
+    this.isLoading = false;
+    return this.dates;
   }
 
   /**
