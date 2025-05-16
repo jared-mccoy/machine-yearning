@@ -32,6 +32,9 @@ let speakerColorMap = new Map();
 // Track speaker assignment order
 let speakerAssignmentOrder = [];
 
+// Keep a list of custom speaker icons 
+let customSpeakerIcons = new Set();
+
 // Debug logging
 function logDebug(message) {
   if (window.debugLog) {
@@ -49,7 +52,64 @@ export function resetSpeakerIconMapping() {
   speakerIconMap.clear();
   speakerColorMap.clear();
   speakerAssignmentOrder = [];
+  customSpeakerIcons.clear();
   logDebug('Speaker icon and color mapping reset');
+}
+
+/**
+ * Setup custom CSS rules for any custom speaker icons not in the standard sets
+ * This is needed because CSS can't directly use data attributes with spaces in mask-image URLs
+ */
+export function setupCustomIconCSS() {
+  // Skip if no custom icons
+  if (customSpeakerIcons.size === 0) {
+    return;
+  }
+
+  logDebug(`Setting up CSS for ${customSpeakerIcons.size} custom speaker icons`);
+
+  // Create style element if needed
+  let styleEl = document.getElementById('custom-speaker-icon-styles');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-speaker-icon-styles';
+    document.head.appendChild(styleEl);
+  }
+  
+  // Build CSS rules for each custom icon
+  let css = '';
+  customSpeakerIcons.forEach(iconName => {
+    // CSS selector needs to escape special characters
+    const escapedIconName = CSS.escape(iconName);
+    
+    // For URL path, keep spaces intact but URL-encode them
+    // This ensures spaces in the SVG filename are properly represented in the URL
+    const urlPath = encodeURIComponent(iconName);
+    logDebug(`Setting up CSS for icon: '${iconName}' (URL-encoded: '${urlPath}')`);
+    
+    // Add rule for message icons
+    css += `
+      .message[data-speaker-icon="${escapedIconName}"]::before {
+        mask-image: url('../public/speaker_icons/${urlPath}.svg');
+        -webkit-mask-image: url('../public/speaker_icons/${urlPath}.svg');
+      }
+    `;
+    
+    // Add rule for typing indicator icons
+    css += `
+      .typing-indicator[data-speaker-icon="${escapedIconName}"]::before {
+        mask-image: url('../public/speaker_icons/${urlPath}.svg');
+        -webkit-mask-image: url('../public/speaker_icons/${urlPath}.svg');
+      }
+    `;
+  });
+  
+  // Debug the generated CSS
+  logDebug(`Generated custom icon CSS rules: ${css}`);
+  
+  // Update the style element
+  styleEl.textContent = css;
+  logDebug('Custom icon CSS applied');
 }
 
 /**
@@ -93,43 +153,29 @@ export function getSpeakerIcon(speaker) {
     return 'Agent_A';
   }
   
-  // Find position in assignment order (0-indexed)
-  const position = speakerAssignmentOrder.indexOf(speaker);
-  logDebug(`Position in assignment order: ${position}`);
+  // IMPORTANT: Try to use the exact speaker name as an icon first
+  // This is the direct match case for custom icons like "trevor yn"
+  const exactIconName = speaker;
+  logDebug(`Attempting to use direct speaker name as icon: '${exactIconName}'`);
   
-  // Calculate index in icon array - the 3rd unique speaker (at position 2) should get User_B (at index 1)
-  // We exclude User_A since it's reserved for user
-  const iconIndex = position - (speakerAssignmentOrder.includes('user') ? 1 : 0) - 
-                    ((speakerAssignmentOrder.includes('agent') || 
-                      speakerAssignmentOrder.includes('assistant') || 
-                      speakerAssignmentOrder.includes('test')) ? 1 : 0);
+  // Add this to the custom icons set to generate CSS for it
+  customSpeakerIcons.add(exactIconName);
   
-  logDebug(`Icon index calculation: ${position} - ${speakerAssignmentOrder.includes('user') ? 1 : 0} - ${(speakerAssignmentOrder.includes('agent') || speakerAssignmentOrder.includes('assistant') || speakerAssignmentOrder.includes('test')) ? 1 : 0} = ${iconIndex}`);
-  
-  let iconName = 'empty';
-  
-  if (iconIndex < 0) {
-    logDebug(`Negative icon index ${iconIndex}, setting to 0`);
-    iconIndex = 0;
-  }
-  
-  if (iconIndex < USER_ICONS.length - 1) { // -1 because User_A is reserved
-    iconName = USER_ICONS[iconIndex + 1]; // +1 to skip User_A
-    logDebug(`Using User icon at index ${iconIndex + 1}: ${iconName}`);
+  // Set up CSS for this custom icon
+  if (window.requestAnimationFrame) {
+    window.requestAnimationFrame(() => setupCustomIconCSS());
   } else {
-    // Use Agent icons (skipping Agent_A which is reserved)
-    const agentIndex = (iconIndex - (USER_ICONS.length - 1) + 1) % (AGENT_ICONS.length - 1);
-    if (agentIndex < AGENT_ICONS.length - 1) {
-      iconName = AGENT_ICONS[agentIndex + 1]; // +1 to skip Agent_A
-      logDebug(`Using Agent icon at index ${agentIndex + 1}: ${iconName}`);
-    }
+    setTimeout(() => setupCustomIconCSS(), 0);
   }
   
-  // Add to map
-  speakerIconMap.set(speaker, iconName);
-  logDebug(`Mapped speaker ${speaker} to icon ${iconName}`);
-  logDebug(`Updated map: ${JSON.stringify(Array.from(speakerIconMap.entries()))}`);
-  return iconName;
+  // Use the speaker name directly as the icon name
+  speakerIconMap.set(speaker, exactIconName);
+  logDebug(`Using direct speaker name as icon: '${exactIconName}'`);
+  
+  return exactIconName;
+  
+  // Note: We've removed the dynamic assignment logic since we're 
+  // now prioritizing direct speaker name matching over the dynamic mapping
 }
 
 /**
@@ -167,24 +213,23 @@ export function getSpeakerColor(speaker) {
     return 'assistant';
   }
   
-  // Calculate color index based on position in assignment order
+  // Assign a specific color key based on position in assignment queue
+  const preferredColorKeys = ['speakerc', 'speakerd', 'speakere']; 
+  
+  // For custom icon speakers, cycle through the available colors
+  // Find position in assignment order
   const position = speakerAssignmentOrder.indexOf(speaker);
-  logDebug(`Position in color assignment order: ${position}`);
   
-  // Calculate index in color array (start from index 2 since 0 and 1 are reserved)
-  const colorIndex = position - (speakerAssignmentOrder.includes('user') ? 1 : 0) - 
-                    ((speakerAssignmentOrder.includes('agent') || 
-                      speakerAssignmentOrder.includes('assistant') || 
-                      speakerAssignmentOrder.includes('test')) ? 1 : 0);
+  // Use position to select a color
+  let colorKey = 'generic'; // default fallback
   
-  logDebug(`Color index calculation: ${colorIndex}`);
-  
-  // Assign a color from our predefined set, starting with speakerc (index 2)
-  // If we run out of colors, use the generic color
-  let colorKey = 'generic';
-  if (colorIndex >= 0 && colorIndex + 2 < SPEAKER_COLORS.length) {
-    colorKey = SPEAKER_COLORS[colorIndex + 2]; // +2 to skip the reserved colors
-    logDebug(`Using color key at index ${colorIndex + 2}: ${colorKey}`);
+  if (position >= 0) {
+    // Calculate color index based on position 
+    // Position is offset by any 'user' and 'assistant' entries
+    // Starting at speakerc, speakerd, speakere and cycling
+    const colorIndex = position % preferredColorKeys.length;
+    colorKey = preferredColorKeys[colorIndex];
+    logDebug(`Assigned color '${colorKey}' based on position ${position}`);
   }
   
   // Add to map

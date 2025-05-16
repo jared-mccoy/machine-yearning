@@ -19,7 +19,7 @@ import {
   getSpeakerClass
 } from './rendering.js';
 
-import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor } from '../utils/speakerIconMapper.js';
+import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, setupCustomIconCSS } from '../utils/speakerIconMapper.js';
 
 /**
  * Process chat content from markdown to HTML
@@ -72,6 +72,9 @@ export function processChatContent(options) {
     content = document.querySelector(options.contentSelector) || document.body;
     rawContent = content.innerHTML;
   }
+  
+  // Process custom icon CSS before any DOM rendering happens
+  setupCustomIconCSS();
   
   // Parse the markdown content into sections and messages
   const lines = rawContent.split('\n');

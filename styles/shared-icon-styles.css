@@ -286,6 +286,11 @@
   -webkit-mask-image: none;
 }
 
+/* Handle custom icons with arbitrary names */
+/* This allows for icons like "trevor yn" that may contain spaces */
+/* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
+/* which creates appropriate CSS rules for each custom icon at runtime */
+
 /* User typing indicator positioning */
 .typing-indicator[data-speaker="user"]::before {
   left: auto;
@@ -343,4 +348,11 @@
 .message.speaking::after,
 .message.selected::after {
   opacity: 1;
-} 
+}
+
+/* Handle custom icons with arbitrary names */
+/* This allows for icons like "trevor yn" that may contain spaces */
+/* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
+/* which creates appropriate CSS rules for each custom icon at runtime */
+
+/* User typing indicator positioning */ 
