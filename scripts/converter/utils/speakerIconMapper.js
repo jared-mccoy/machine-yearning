@@ -13,14 +13,16 @@ const AGENT_ICONS = [
   'Agent_A', 'Agent_B', 'Agent_C', 'Agent_D'
 ];
 
-// Color mapping information
-const ACCENT_COLORS = ['accentC', 'accentD', 'accentE']; // Available accent colors beyond user/assistant
+// Color mapping information - Updated to include all possible accent colors dynamically
+const ACCENT_COLORS = ['accentC', 'accentD', 'accentE', 'accentF', 'accentG']; // Available accent colors beyond user/assistant
 const COLOR_CSS_MAP = {
   'accentA': 'assistant',
   'accentB': 'user',
   'accentC': 'speakerc',
   'accentD': 'speakerd',
   'accentE': 'speakere',
+  'accentF': 'speakerf',
+  'accentG': 'speakerg',
   'genericAccent': 'generic'
 };
 
@@ -269,6 +271,7 @@ export function getSpeakerColor(speaker) {
   if (!window.speakerUniqueColorMap) {
     window.speakerUniqueColorMap = new Map();
     window.usedColors = new Set();
+    window.nextColorIndex = 0; // Track which color to use next
     logDebug('Created global speaker color mapping');
   }
   
@@ -279,18 +282,32 @@ export function getSpeakerColor(speaker) {
     return color;
   }
   
-  // Get the next available color
-  const availableColors = ['speakerc', 'speakerd', 'speakere'];
-  let assignedColor = 'generic';
-  
-  // Look for an unused color
-  for (const color of availableColors) {
-    if (!window.usedColors.has(color)) {
-      assignedColor = color;
-      window.usedColors.add(color);
-      logDebug(`Assigned unused color '${color}' to speaker '${speaker}'`);
-      break;
+  // Get all available colors from settings.json directly
+  let allAccentColors = [];
+  try {
+    // Try to get theme colors from settings if available
+    if (window.appSettings && window.appSettings.theme) {
+      const theme = window.appSettings.theme;
+      // Get all keys that start with 'accent' except accentA and accentB (reserved for assistant/user)
+      allAccentColors = Object.keys(theme)
+        .filter(key => key.startsWith('accent') && key !== 'accentA' && key !== 'accentB')
+        .map(key => COLOR_CSS_MAP[key] || key.toLowerCase());
     }
+  } catch (e) {
+    logDebug(`Error getting accent colors from settings: ${e}`);
+  }
+  
+  // Fallback to predefined colors if settings aren't available
+  if (allAccentColors.length === 0) {
+    allAccentColors = ['speakerc', 'speakerd', 'speakere', 'speakerf', 'speakerg'];
+  }
+  
+  // Assign the next color in sequence
+  let assignedColor = 'generic';
+  if (window.nextColorIndex < allAccentColors.length) {
+    assignedColor = allAccentColors[window.nextColorIndex];
+    window.nextColorIndex++;
+    logDebug(`Assigned color '${assignedColor}' to speaker '${speaker}' (index: ${window.nextColorIndex-1})`);
   }
   
   // Store the color for this speaker

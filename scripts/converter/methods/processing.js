@@ -371,6 +371,14 @@ export function processChatContent(options) {
         contentEl.className = 'content';
         contentEl.innerHTML = window.marked.parse(msgContent, { renderer });
         
+        // Add the speaker color as a direct style variable for SVG icons and other uses
+        const speakerColor = getSpeakerColor(group.speaker);
+        if (speakerColor) {
+          // Apply the color as both a CSS variable and direct style for better compatibility
+          const colorVar = `var(--${speakerColor}-color, var(--${speakerColor === 'user' ? 'user' : speakerColor === 'assistant' ? 'assistant' : 'accent' + speakerColor.charAt(speakerColor.length-1).toUpperCase()}-color))`;
+          messageEl.style.setProperty('--speaker-color', colorVar);
+        }
+        
         // Assemble message
         contentContainer.appendChild(contentEl);
         messageEl.appendChild(contentContainer);

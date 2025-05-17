@@ -1,5 +1,6 @@
 /* SVG Icon Coloring
  * This stylesheet colors the monochrome SVG icons based on context and theme
+ * Simplified to use direct CSS variables instead of complex filters
  */
 
 /* Base icon styling */
@@ -28,11 +29,12 @@
   color: var(--accent-color, #ffc400);
 }
 
-/* Speaker-specific coloring - target all SVG elements and images with SVG sources */
+/* Speaker-specific coloring - Simplified approach using CSS variables */
 .message[data-speaker="user"] svg,
-.message[data-speaker="user"] img[src$=".svg"] {
+.message[data-speaker="user"] img[src$=".svg"],
+.message[data-color-key="user"] svg,
+.message[data-color-key="user"] img[src$=".svg"] {
   color: var(--user-color, #ffc400);
-  filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
 }
 
 .message[data-speaker="agent"] svg,
@@ -40,83 +42,68 @@
 .message[data-speaker="assistant"] svg,
 .message[data-speaker="assistant"] img[src$=".svg"],
 .message[data-speaker="test"] svg,
-.message[data-speaker="test"] img[src$=".svg"] {
+.message[data-speaker="test"] img[src$=".svg"],
+.message[data-color-key="assistant"] svg,
+.message[data-color-key="assistant"] img[src$=".svg"] {
   color: var(--assistant-color, #192b91);
-  filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
 }
 
 .message[data-speaker="speakerc"] svg,
-.message[data-speaker="speakerc"] img[src$=".svg"] {
+.message[data-speaker="speakerc"] img[src$=".svg"],
+.message[data-color-key="speakerc"] svg,
+.message[data-color-key="speakerc"] img[src$=".svg"] {
   color: var(--accentC-color, #e63946);
-  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
 }
 
 .message[data-speaker="speakerd"] svg,
-.message[data-speaker="speakerd"] img[src$=".svg"] {
+.message[data-speaker="speakerd"] img[src$=".svg"],
+.message[data-color-key="speakerd"] svg,
+.message[data-color-key="speakerd"] img[src$=".svg"] {
   color: var(--accentD-color, #2a9d8f);
-  filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
 }
 
 .message[data-speaker="speakere"] svg,
-.message[data-speaker="speakere"] img[src$=".svg"] {
+.message[data-speaker="speakere"] img[src$=".svg"],
+.message[data-color-key="speakere"] svg,
+.message[data-color-key="speakere"] img[src$=".svg"] {
   color: var(--accentE-color, #8338ec);
-  filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+}
+
+/* Add support for additional accent colors */
+.message[data-speaker="speakerf"] svg,
+.message[data-speaker="speakerf"] img[src$=".svg"],
+.message[data-color-key="speakerf"] svg,
+.message[data-color-key="speakerf"] img[src$=".svg"] {
+  color: var(--accentF-color, #34a853);
+}
+
+.message[data-speaker="speakerg"] svg,
+.message[data-speaker="speakerg"] img[src$=".svg"],
+.message[data-color-key="speakerg"] svg,
+.message[data-color-key="speakerg"] img[src$=".svg"] {
+  color: var(--accentG-color, #000000);
 }
 
 .message[data-speaker="random"] svg,
 .message[data-speaker="random"] img[src$=".svg"] {
   color: var(--accentC-color, #e63946);
-  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
-}
-
-/* Dynamic color mapping override - based on data-color-key attribute */
-.message[data-color-key="user"] svg,
-.message[data-color-key="user"] img[src$=".svg"] {
-  color: var(--user-color, #ffc400);
-  filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
-}
-
-.message[data-color-key="assistant"] svg,
-.message[data-color-key="assistant"] img[src$=".svg"] {
-  color: var(--assistant-color, #192b91);
-  filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
-}
-
-.message[data-color-key="speakerc"] svg,
-.message[data-color-key="speakerc"] img[src$=".svg"] {
-  color: var(--accentC-color, #e63946);
-  filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
-}
-
-.message[data-color-key="speakerd"] svg,
-.message[data-color-key="speakerd"] img[src$=".svg"] {
-  color: var(--accentD-color, #2a9d8f);
-  filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
-}
-
-.message[data-color-key="speakere"] svg,
-.message[data-color-key="speakere"] img[src$=".svg"] {
-  color: var(--accentE-color, #8338ec);
-  filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
 }
 
 .message[data-color-key="generic"] svg,
 .message[data-color-key="generic"] img[src$=".svg"] {
   color: var(--generic-color, #909090);
-  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
 /* Default coloring for any other speakers */
 .message:not([data-color-key]) svg,
 .message:not([data-color-key]) img[src$=".svg"] {
   color: var(--generic-color, #909090);
-  filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
 }
 
-/* Apply filter even to direct image tags with SVG sources */
+/* Apply speaker color to message icon masks */
 .message::before {
   content: '';
-  filter: var(--speaker-filter, none) !important; /* Use speaker filter for background SVGs */
+  background-color: var(--speaker-color, currentColor);
 }
 
 /* Fix for avatar images - explicitly exclude them from coloring */
@@ -125,67 +112,77 @@
   color: initial !important;
 }
 
-/* Alternative approach for embedded images */
-.message img:not(.avatar-image)[src$=".svg"] {
-  /* Ensure images take on appropriate colors based on message context */
-  filter: var(--speaker-filter, none);
-}
-
-/* Define speaker-specific filters as CSS variables based on data-color-key */
+/* Define speaker-specific colors as CSS variables based on data-color-key */
 .message[data-color-key="user"] {
-  --speaker-filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+  --speaker-color: var(--user-color, #ffc400);
 }
 
 .message[data-color-key="assistant"] {
-  --speaker-filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+  --speaker-color: var(--assistant-color, #192b91);
 }
 
 .message[data-color-key="speakerc"] {
-  --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+  --speaker-color: var(--accentC-color, #e63946);
 }
 
 .message[data-color-key="speakerd"] {
-  --speaker-filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
+  --speaker-color: var(--accentD-color, #2a9d8f);
 }
 
 .message[data-color-key="speakere"] {
-  --speaker-filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+  --speaker-color: var(--accentE-color, #8338ec);
+}
+
+.message[data-color-key="speakerf"] {
+  --speaker-color: var(--accentF-color, #34a853);
+}
+
+.message[data-color-key="speakerg"] {
+  --speaker-color: var(--accentG-color, #000000);
 }
 
 .message[data-color-key="generic"] {
-  --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
+  --speaker-color: var(--generic-color, #909090);
 }
 
-/* Maintain old data-speaker filters for compatibility */
+/* Maintain old data-speaker colors for compatibility */
 .message[data-speaker="user"] {
-  --speaker-filter: invert(78%) sepia(37%) saturate(5152%) hue-rotate(359deg) brightness(101%) contrast(102%);
+  --speaker-color: var(--user-color, #ffc400);
 }
 
 .message[data-speaker="agent"],
 .message[data-speaker="assistant"],
 .message[data-speaker="test"] {
-  --speaker-filter: invert(21%) sepia(90%) saturate(1574%) hue-rotate(212deg) brightness(91%) contrast(96%);
+  --speaker-color: var(--assistant-color, #192b91);
 }
 
 .message[data-speaker="speakerc"] {
-  --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+  --speaker-color: var(--accentC-color, #e63946);
 }
 
 .message[data-speaker="speakerd"] {
-  --speaker-filter: invert(52%) sepia(79%) saturate(474%) hue-rotate(130deg) brightness(88%) contrast(84%);
+  --speaker-color: var(--accentD-color, #2a9d8f);
 }
 
 .message[data-speaker="speakere"] {
-  --speaker-filter: invert(29%) sepia(93%) saturate(5203%) hue-rotate(254deg) brightness(92%) contrast(94%);
+  --speaker-color: var(--accentE-color, #8338ec);
+}
+
+.message[data-speaker="speakerf"] {
+  --speaker-color: var(--accentF-color, #34a853);
+}
+
+.message[data-speaker="speakerg"] {
+  --speaker-color: var(--accentG-color, #000000);
 }
 
 .message[data-speaker="random"] {
-  --speaker-filter: invert(39%) sepia(65%) saturate(4761%) hue-rotate(337deg) brightness(91%) contrast(98%);
+  --speaker-color: var(--accentC-color, #e63946);
 }
 
 /* For any other speakers, use the generic color */
-.message:not([data-color-key]):not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="random"]) {
-  --speaker-filter: invert(58%) sepia(9%) saturate(16%) hue-rotate(314deg) brightness(93%) contrast(91%);
+.message:not([data-color-key]):not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="speakerf"]):not([data-speaker="speakerg"]):not([data-speaker="random"]) {
+  --speaker-color: var(--generic-color, #909090);
 }
 
 /* Button hover states */
@@ -227,14 +224,12 @@
 /* Transitions for smooth color changes */
 .icon-svg,
 img[src$=".svg"] {
-  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
-              filter var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
 /* Icon styling for various color schemes */
 .icon-colored {
   color: var(--accent-color); /* Set the default fill color to accent color */
   /* Add transitions for smooth color changes */
-  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)), 
-              filter var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  transition: color var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 } 

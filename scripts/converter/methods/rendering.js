@@ -214,6 +214,13 @@ export function processConversation(messages, renderer, getSpeakerClassFn) {
     const colorKey = getSpeakerColor(msgData.speaker);
     messageEl.setAttribute('data-color-key', colorKey);
     
+    // Apply the speaker color as a direct style variable
+    if (colorKey) {
+      // Use a CSS variable format that falls back to the appropriate theme color
+      const colorVar = `var(--${colorKey}-color, var(--${colorKey === 'user' ? 'user' : colorKey === 'assistant' ? 'assistant' : 'accent' + colorKey.charAt(colorKey.length-1).toUpperCase()}-color))`;
+      messageEl.style.setProperty('--speaker-color', colorVar);
+    }
+    
     // Add speaker name caption for custom speakers
     if (shouldDisplaySpeakerName(msgData.speaker)) {
       messageEl.setAttribute('data-display-speaker', 'true');
