@@ -30,11 +30,12 @@
   "theme": {
     "accentA": "#192b91",
     "accentB": "#ffc400",
-    "accentC": "#e63946",
-    "accentD": "#2a9d8f",
-    "accentE": "#8338ec",
-    "accentF": "#909090",
-    "accentG": "#8338ec",
+    "accentC": "#000000",
+    "accentD": "#000000",
+    "accentE": "#000000",
+    "accentF": "#000000",
+    "accentG": "#000000",
+    "accentH": "#000000",
     "genericAccent": "#909090"
   },
   "directory": {
