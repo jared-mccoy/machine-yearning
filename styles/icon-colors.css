@@ -52,21 +52,21 @@
 .message[data-speaker="speakerc"] img[src$=".svg"],
 .message[data-color-key="speakerc"] svg,
 .message[data-color-key="speakerc"] img[src$=".svg"] {
-  color: var(--accentC-color, #e63946);
+  color: var(--accentC-color, #cccccc);
 }
 
 .message[data-speaker="speakerd"] svg,
 .message[data-speaker="speakerd"] img[src$=".svg"],
 .message[data-color-key="speakerd"] svg,
 .message[data-color-key="speakerd"] img[src$=".svg"] {
-  color: var(--accentD-color, #2a9d8f);
+  color: var(--accentD-color, #cccccc);
 }
 
 .message[data-speaker="speakere"] svg,
 .message[data-speaker="speakere"] img[src$=".svg"],
 .message[data-color-key="speakere"] svg,
 .message[data-color-key="speakere"] img[src$=".svg"] {
-  color: var(--accentE-color, #8338ec);
+  color: var(--accentE-color, #cccccc);
 }
 
 /* Add support for additional accent colors */
@@ -74,30 +74,30 @@
 .message[data-speaker="speakerf"] img[src$=".svg"],
 .message[data-color-key="speakerf"] svg,
 .message[data-color-key="speakerf"] img[src$=".svg"] {
-  color: var(--accentF-color, #34a853);
+  color: var(--accentF-color, #cccccc);
 }
 
 .message[data-speaker="speakerg"] svg,
 .message[data-speaker="speakerg"] img[src$=".svg"],
 .message[data-color-key="speakerg"] svg,
 .message[data-color-key="speakerg"] img[src$=".svg"] {
-  color: var(--accentG-color, #000000);
+  color: var(--accentG-color, #cccccc);
 }
 
 .message[data-speaker="random"] svg,
 .message[data-speaker="random"] img[src$=".svg"] {
-  color: var(--accentC-color, #e63946);
+  color: var(--accentC-color, #cccccc);
 }
 
 .message[data-color-key="generic"] svg,
 .message[data-color-key="generic"] img[src$=".svg"] {
-  color: var(--generic-color, #909090);
+  color: var(--generic-color, #cccccc);
 }
 
 /* Default coloring for any other speakers */
 .message:not([data-color-key]) svg,
 .message:not([data-color-key]) img[src$=".svg"] {
-  color: var(--generic-color, #909090);
+  color: var(--generic-color, #cccccc);
 }
 
 /* Apply speaker color to message icon masks */
@@ -122,27 +122,27 @@
 }
 
 .message[data-color-key="speakerc"] {
-  --speaker-color: var(--accentC-color, #e63946);
+  --speaker-color: var(--accentC-color, #cccccc);
 }
 
 .message[data-color-key="speakerd"] {
-  --speaker-color: var(--accentD-color, #2a9d8f);
+  --speaker-color: var(--accentD-color, #cccccc);
 }
 
 .message[data-color-key="speakere"] {
-  --speaker-color: var(--accentE-color, #8338ec);
+  --speaker-color: var(--accentE-color, #cccccc);
 }
 
 .message[data-color-key="speakerf"] {
-  --speaker-color: var(--accentF-color, #34a853);
+  --speaker-color: var(--accentF-color, #cccccc);
 }
 
 .message[data-color-key="speakerg"] {
-  --speaker-color: var(--accentG-color, #000000);
+  --speaker-color: var(--accentG-color, #cccccc);
 }
 
 .message[data-color-key="generic"] {
-  --speaker-color: var(--generic-color, #909090);
+  --speaker-color: var(--generic-color, #cccccc);
 }
 
 /* Maintain old data-speaker colors for compatibility */
@@ -157,32 +157,32 @@
 }
 
 .message[data-speaker="speakerc"] {
-  --speaker-color: var(--accentC-color, #e63946);
+  --speaker-color: var(--accentC-color, #cccccc);
 }
 
 .message[data-speaker="speakerd"] {
-  --speaker-color: var(--accentD-color, #2a9d8f);
+  --speaker-color: var(--accentD-color, #cccccc);
 }
 
 .message[data-speaker="speakere"] {
-  --speaker-color: var(--accentE-color, #8338ec);
+  --speaker-color: var(--accentE-color, #cccccc);
 }
 
 .message[data-speaker="speakerf"] {
-  --speaker-color: var(--accentF-color, #34a853);
+  --speaker-color: var(--accentF-color, #cccccc);
 }
 
 .message[data-speaker="speakerg"] {
-  --speaker-color: var(--accentG-color, #000000);
+  --speaker-color: var(--accentG-color, #cccccc);
 }
 
 .message[data-speaker="random"] {
-  --speaker-color: var(--accentC-color, #e63946);
+  --speaker-color: var(--accentC-color, #cccccc);
 }
 
 /* For any other speakers, use the generic color */
 .message:not([data-color-key]):not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="speakerf"]):not([data-speaker="speakerg"]):not([data-speaker="random"]) {
-  --speaker-color: var(--generic-color, #909090);
+  --speaker-color: var(--generic-color, #cccccc);
 }
 
 /* Button hover states */

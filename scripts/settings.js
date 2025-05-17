@@ -115,19 +115,23 @@ function applySettings() {
       document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
     }
     
-    // Set other accent colors
-    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#e63946');
-    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#2a9d8f');
-    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#8338ec');
-    document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#909090');
+    // Set other accent colors - using #cccccc as fallback to identify missing colors
+    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#cccccc');
+    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#cccccc');
+    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#cccccc');
+    document.documentElement.style.setProperty('--accentF-color', appSettings.theme.accentF || '#cccccc');
+    document.documentElement.style.setProperty('--accentG-color', appSettings.theme.accentG || '#cccccc');
+    document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#cccccc');
     
     // Set semi-transparent versions
     document.documentElement.style.setProperty('--assistant-color-light', document.documentElement.style.getPropertyValue('--assistant-color') + '71');
     document.documentElement.style.setProperty('--user-color-light', document.documentElement.style.getPropertyValue('--user-color') + '78');
-    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#e63946') + '71');
-    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#2a9d8f') + '71');
-    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#8338ec') + '71');
-    document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#909090') + '71');
+    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--accentF-color-light', (appSettings.theme.accentF || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--accentG-color-light', (appSettings.theme.accentG || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#cccccc') + '71');
     
     // Set hover effect settings
     const timeEffects = appSettings.chat.timeEffects || { transitionDelay: 0.5, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };
@@ -358,6 +362,16 @@ function setupSettingsPanel() {
           </div>
           
           <div class="color-row">
+            <label for="accent-f">Speaker F:</label>
+            <input type="text" id="accent-f" class="color-input">
+          </div>
+          
+          <div class="color-row">
+            <label for="accent-g">Speaker G:</label>
+            <input type="text" id="accent-g" class="color-input">
+          </div>
+          
+          <div class="color-row">
             <label for="generic-accent">Generic:</label>
             <input type="text" id="generic-accent" class="color-input">
           </div>
@@ -444,6 +458,8 @@ function populateSettingsPanel() {
   panel.querySelector('#accent-c').value = theme.accentC || '';
   panel.querySelector('#accent-d').value = theme.accentD || '';
   panel.querySelector('#accent-e').value = theme.accentE || '';
+  panel.querySelector('#accent-f').value = theme.accentF || '';
+  panel.querySelector('#accent-g').value = theme.accentG || '';
   panel.querySelector('#generic-accent').value = theme.genericAccent || '';
 }
 
@@ -480,6 +496,8 @@ function saveSettingsFromPanel() {
   newSettings.theme.accentC = panel.querySelector('#accent-c').value || null;
   newSettings.theme.accentD = panel.querySelector('#accent-d').value || null;
   newSettings.theme.accentE = panel.querySelector('#accent-e').value || null;
+  newSettings.theme.accentF = panel.querySelector('#accent-f').value || null;
+  newSettings.theme.accentG = panel.querySelector('#accent-g').value || null;
   newSettings.theme.genericAccent = panel.querySelector('#generic-accent').value || null;
   
   // Update settings

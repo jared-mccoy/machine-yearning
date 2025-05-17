@@ -270,7 +270,6 @@ export function getSpeakerColor(speaker) {
   // First ensure speakerColorMap is initialized
   if (!window.speakerUniqueColorMap) {
     window.speakerUniqueColorMap = new Map();
-    window.usedColors = new Set();
     window.nextColorIndex = 0; // Track which color to use next
     logDebug('Created global speaker color mapping');
   }
@@ -282,24 +281,52 @@ export function getSpeakerColor(speaker) {
     return color;
   }
   
-  // Get all available colors from settings.json directly
+  // Get all available colors directly from CSS properties
   let allAccentColors = [];
+  
+  // First try to get CSS variables to see which ones are defined
   try {
-    // Try to get theme colors from settings if available
-    if (window.appSettings && window.appSettings.theme) {
-      const theme = window.appSettings.theme;
-      // Get all keys that start with 'accent' except accentA and accentB (reserved for assistant/user)
-      allAccentColors = Object.keys(theme)
-        .filter(key => key.startsWith('accent') && key !== 'accentA' && key !== 'accentB')
-        .map(key => COLOR_CSS_MAP[key] || key.toLowerCase());
-    }
+    const allCSSColors = [
+      { key: 'speakerc', cssVar: '--accentC-color' },
+      { key: 'speakerd', cssVar: '--accentD-color' },
+      { key: 'speakere', cssVar: '--accentE-color' },
+      { key: 'speakerf', cssVar: '--accentF-color' },
+      { key: 'speakerg', cssVar: '--accentG-color' }
+    ];
+    
+    // Only include colors that are actual colors and not the fallback gray
+    allAccentColors = allCSSColors
+      .filter(color => {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(color.cssVar).trim();
+        // Check if the value is defined and not gray (#cccccc)
+        return value && value !== '#cccccc' && value !== 'rgb(204, 204, 204)';
+      })
+      .map(color => color.key);
+      
+    logDebug(`Found ${allAccentColors.length} accent colors from CSS: ${JSON.stringify(allAccentColors)}`);
   } catch (e) {
-    logDebug(`Error getting accent colors from settings: ${e}`);
+    logDebug(`Error getting accent colors from CSS: ${e}`);
   }
   
-  // Fallback to predefined colors if settings aren't available
+  // If no colors found from CSS, fallback to settings object if available
+  if (allAccentColors.length === 0 && window.appSettings && window.appSettings.theme) {
+    try {
+      const theme = window.appSettings.theme;
+      ACCENT_COLORS.forEach(key => {
+        if (theme[key] && theme[key] !== '#cccccc') {
+          allAccentColors.push(COLOR_CSS_MAP[key]);
+        }
+      });
+      logDebug(`Found ${allAccentColors.length} accent colors from settings: ${JSON.stringify(allAccentColors)}`);
+    } catch (e) {
+      logDebug(`Error getting accent colors from settings: ${e}`);
+    }
+  }
+  
+  // Fallback to predefined colors if no settings available
   if (allAccentColors.length === 0) {
     allAccentColors = ['speakerc', 'speakerd', 'speakere', 'speakerf', 'speakerg'];
+    logDebug(`Using fallback colors: ${JSON.stringify(allAccentColors)}`);
   }
   
   // Assign the next color in sequence
