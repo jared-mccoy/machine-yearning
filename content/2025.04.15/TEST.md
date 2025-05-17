@@ -66,6 +66,10 @@ Indisputable.
 
 Who wants some pussy?
 
+<<Random>>
+
+I'm sorry, I didn't catch that.
+
 <<Ronald Reagan>>
 
 Even in my dreams she is a bitch.
