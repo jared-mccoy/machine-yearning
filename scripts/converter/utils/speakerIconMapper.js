@@ -13,15 +13,19 @@ const AGENT_ICONS = [
   'Agent_A', 'Agent_B', 'Agent_C', 'Agent_D'
 ];
 
-// Available color sets (matching existing theme colors)
-const SPEAKER_COLORS = [
-  'user',      // Reserved for 'user' 
-  'assistant', // Reserved for 'agent', 'assistant', 'test'
-  'speakerc',  // First dynamic color
-  'speakerd',  // Second dynamic color
-  'speakere',  // Third dynamic color
-  'generic'    // Fallback color
-];
+// Color mapping information
+const ACCENT_COLORS = ['accentC', 'accentD', 'accentE']; // Available accent colors beyond user/assistant
+const COLOR_CSS_MAP = {
+  'accentA': 'assistant',
+  'accentB': 'user',
+  'accentC': 'speakerc',
+  'accentD': 'speakerd',
+  'accentE': 'speakere',
+  'genericAccent': 'generic'
+};
+
+// Track speaker colors already used (to ensure uniqueness)
+let usedColorKeys = [];
 
 // All standard system speaker icons
 const SYSTEM_ICONS = [...USER_ICONS, ...AGENT_ICONS];
@@ -55,12 +59,14 @@ function logDebug(message) {
  * Should be called at the start of any new chat processing
  */
 export function resetSpeakerIconMapping() {
-  speakerIconMap.clear();
-  speakerColorMap.clear();
+  // Completely clear all state
+  speakerIconMap = new Map();
+  speakerColorMap = new Map();
   speakerAssignmentOrder = [];
-  customSpeakerIcons.clear();
-  displaySpeakerNames.clear();
-  logDebug('Speaker icon and color mapping reset');
+  customSpeakerIcons = new Set();
+  displaySpeakerNames = new Set();
+  usedColorKeys = []; // Reset used colors
+  logDebug('Speaker icon and color mapping fully reset with new maps');
 }
 
 /**
@@ -232,9 +238,6 @@ export function getSpeakerIcon(speaker) {
   logDebug(`Using direct speaker name as icon: '${exactIconName}'`);
   
   return exactIconName;
-  
-  // Note: We've removed the dynamic assignment logic since we're 
-  // now prioritizing direct speaker name matching over the dynamic mapping
 }
 
 /**
@@ -245,56 +248,56 @@ export function getSpeakerIcon(speaker) {
 export function getSpeakerColor(speaker) {
   logDebug(`Getting color for speaker: ${speaker}`);
   
-  // Special case: direct-text spans don't need special color
+  // Special cases first
   if (speaker === 'direct-text') {
     logDebug('Direct-text spans get default color');
-    speakerColorMap.set(speaker, 'direct-text');
     return 'direct-text';
   }
   
-  // If we've seen this speaker before, return its assigned color
-  if (speakerColorMap.has(speaker)) {
-    logDebug(`Returning previously assigned color: ${speakerColorMap.get(speaker)}`);
-    return speakerColorMap.get(speaker);
-  }
-  
-  // Special case: 'user' always gets user color
   if (speaker === 'user') {
     logDebug(`Assigning 'user' color to 'user'`);
-    speakerColorMap.set(speaker, 'user');
     return 'user';
   }
   
-  // Special case: 'agent' or 'assistant' always gets assistant color
   if (speaker === 'agent' || speaker === 'assistant' || speaker === 'test') {
     logDebug(`Assigning 'assistant' color to '${speaker}'`);
-    speakerColorMap.set(speaker, 'assistant');
     return 'assistant';
   }
   
-  // Assign a specific color key based on position in assignment queue
-  const preferredColorKeys = ['speakerc', 'speakerd', 'speakere']; 
-  
-  // For custom icon speakers, cycle through the available colors
-  // Find position in assignment order
-  const position = speakerAssignmentOrder.indexOf(speaker);
-  
-  // Use position to select a color
-  let colorKey = 'generic'; // default fallback
-  
-  if (position >= 0) {
-    // Calculate color index based on position 
-    // Position is offset by any 'user' and 'assistant' entries
-    // Starting at speakerc, speakerd, speakere and cycling
-    const colorIndex = position % preferredColorKeys.length;
-    colorKey = preferredColorKeys[colorIndex];
-    logDebug(`Assigned color '${colorKey}' based on position ${position}`);
+  // For each unique speaker, assign a color that hasn't been seen before
+  // First ensure speakerColorMap is initialized
+  if (!window.speakerUniqueColorMap) {
+    window.speakerUniqueColorMap = new Map();
+    window.usedColors = new Set();
+    logDebug('Created global speaker color mapping');
   }
   
-  // Add to map
-  speakerColorMap.set(speaker, colorKey);
-  logDebug(`Mapped speaker ${speaker} to color ${colorKey}`);
-  return colorKey;
+  // If this speaker already has a color, return it
+  if (window.speakerUniqueColorMap.has(speaker)) {
+    const color = window.speakerUniqueColorMap.get(speaker);
+    logDebug(`Returning existing color '${color}' for speaker '${speaker}'`);
+    return color;
+  }
+  
+  // Get the next available color
+  const availableColors = ['speakerc', 'speakerd', 'speakere'];
+  let assignedColor = 'generic';
+  
+  // Look for an unused color
+  for (const color of availableColors) {
+    if (!window.usedColors.has(color)) {
+      assignedColor = color;
+      window.usedColors.add(color);
+      logDebug(`Assigned unused color '${color}' to speaker '${speaker}'`);
+      break;
+    }
+  }
+  
+  // Store the color for this speaker
+  window.speakerUniqueColorMap.set(speaker, assignedColor);
+  logDebug(`Set color '${assignedColor}' for speaker '${speaker}'`);
+  
+  return assignedColor;
 }
 
 /**
