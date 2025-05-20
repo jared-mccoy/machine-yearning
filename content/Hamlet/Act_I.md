@@ -1,4 +1,4 @@
-# Hamlet Act I
+## Scene 1
 
 <<>>
 Enter [from separate directions] Bernardo and Francisco, two sentinels
