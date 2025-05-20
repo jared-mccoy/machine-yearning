@@ -106,32 +106,36 @@ function applySettings() {
     // Get current theme
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     
-    // Apply theme settings depending on current theme
-    if (currentTheme === 'dark') {
-      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentB);
-      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentA);
-    } else {
-      document.documentElement.style.setProperty('--assistant-color', appSettings.theme.accentA);
-      document.documentElement.style.setProperty('--user-color', appSettings.theme.accentB);
-    }
-    
-    // Set other accent colors - using #cccccc as fallback to identify missing colors
-    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#cccccc');
-    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#cccccc');
-    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#cccccc');
-    document.documentElement.style.setProperty('--accentF-color', appSettings.theme.accentF || '#cccccc');
-    document.documentElement.style.setProperty('--accentG-color', appSettings.theme.accentG || '#cccccc');
-    document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#cccccc');
+    // Apply accent colors from settings as CSS variables
+    // The theme.css will derive the specific role colors (user/assistant) based on the theme
+    document.documentElement.style.setProperty('--accentA-color', appSettings.theme.accentA);
+    document.documentElement.style.setProperty('--accentB-color', appSettings.theme.accentB);
+    document.documentElement.style.setProperty('--accentC-color', appSettings.theme.accentC || '#000000');
+    document.documentElement.style.setProperty('--accentD-color', appSettings.theme.accentD || '#000000');
+    document.documentElement.style.setProperty('--accentE-color', appSettings.theme.accentE || '#000000');
+    document.documentElement.style.setProperty('--accentF-color', appSettings.theme.accentF || '#000000');
+    document.documentElement.style.setProperty('--accentG-color', appSettings.theme.accentG || '#000000');
+    document.documentElement.style.setProperty('--accentH-color', appSettings.theme.accentH || '#000000');
+    document.documentElement.style.setProperty('--accentI-color', appSettings.theme.accentI || '#000000');
+    document.documentElement.style.setProperty('--accentJ-color', appSettings.theme.accentJ || '#000000');
+    document.documentElement.style.setProperty('--accentK-color', appSettings.theme.accentK || '#000000');
+    document.documentElement.style.setProperty('--accentL-color', appSettings.theme.accentL || '#000000');
+    document.documentElement.style.setProperty('--generic-color', appSettings.theme.genericAccent || '#909090');
     
     // Set semi-transparent versions
-    document.documentElement.style.setProperty('--assistant-color-light', document.documentElement.style.getPropertyValue('--assistant-color') + '71');
-    document.documentElement.style.setProperty('--user-color-light', document.documentElement.style.getPropertyValue('--user-color') + '78');
-    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#cccccc') + '71');
-    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#cccccc') + '71');
-    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#cccccc') + '71');
-    document.documentElement.style.setProperty('--accentF-color-light', (appSettings.theme.accentF || '#cccccc') + '71');
-    document.documentElement.style.setProperty('--accentG-color-light', (appSettings.theme.accentG || '#cccccc') + '71');
-    document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#cccccc') + '71');
+    document.documentElement.style.setProperty('--accentA-color-light', appSettings.theme.accentA + '71');
+    document.documentElement.style.setProperty('--accentB-color-light', appSettings.theme.accentB + '78');
+    document.documentElement.style.setProperty('--accentC-color-light', (appSettings.theme.accentC || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentD-color-light', (appSettings.theme.accentD || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentE-color-light', (appSettings.theme.accentE || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentF-color-light', (appSettings.theme.accentF || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentG-color-light', (appSettings.theme.accentG || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentH-color-light', (appSettings.theme.accentH || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentI-color-light', (appSettings.theme.accentI || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentJ-color-light', (appSettings.theme.accentJ || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentK-color-light', (appSettings.theme.accentK || '#000000') + '71');
+    document.documentElement.style.setProperty('--accentL-color-light', (appSettings.theme.accentL || '#000000') + '71');
+    document.documentElement.style.setProperty('--generic-color-light', (appSettings.theme.genericAccent || '#909090') + '71');
     
     // Set hover effect settings
     const timeEffects = appSettings.chat.timeEffects || { transitionDelay: 0.5, easing: "cubic-bezier(0.19, 1, 0.22, 1)" };

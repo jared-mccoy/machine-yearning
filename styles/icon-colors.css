@@ -18,7 +18,7 @@
 [data-theme="light"] .settings-toggle svg,
 [data-theme="light"] .nav-link svg,
 [data-theme="light"] .section-toggle svg {
-  color: var(--assistant-color, #192b91);
+  color: var(--assistant-color);
 }
 
 [data-theme="dark"] .theme-toggle svg,
@@ -26,163 +26,26 @@
 [data-theme="dark"] .settings-toggle svg,
 [data-theme="dark"] .nav-link svg,
 [data-theme="dark"] .section-toggle svg {
-  color: var(--accent-color, #ffc400);
+  color: var(--accent-color);
 }
 
-/* Speaker-specific coloring - Simplified approach using CSS variables */
-.message[data-speaker="user"] svg,
-.message[data-speaker="user"] img[src$=".svg"],
-.message[data-color-key="user"] svg,
-.message[data-color-key="user"] img[src$=".svg"] {
-  color: var(--user-color, #ffc400);
-}
-
-.message[data-speaker="agent"] svg,
-.message[data-speaker="agent"] img[src$=".svg"],
-.message[data-speaker="assistant"] svg,
-.message[data-speaker="assistant"] img[src$=".svg"],
-.message[data-speaker="test"] svg,
-.message[data-speaker="test"] img[src$=".svg"],
-.message[data-color-key="assistant"] svg,
-.message[data-color-key="assistant"] img[src$=".svg"] {
-  color: var(--assistant-color, #192b91);
-}
-
-.message[data-speaker="speakerc"] svg,
-.message[data-speaker="speakerc"] img[src$=".svg"],
-.message[data-color-key="speakerc"] svg,
-.message[data-color-key="speakerc"] img[src$=".svg"] {
-  color: var(--accentC-color, #cccccc);
-}
-
-.message[data-speaker="speakerd"] svg,
-.message[data-speaker="speakerd"] img[src$=".svg"],
-.message[data-color-key="speakerd"] svg,
-.message[data-color-key="speakerd"] img[src$=".svg"] {
-  color: var(--accentD-color, #cccccc);
-}
-
-.message[data-speaker="speakere"] svg,
-.message[data-speaker="speakere"] img[src$=".svg"],
-.message[data-color-key="speakere"] svg,
-.message[data-color-key="speakere"] img[src$=".svg"] {
-  color: var(--accentE-color, #cccccc);
-}
-
-/* Add support for additional accent colors */
-.message[data-speaker="speakerf"] svg,
-.message[data-speaker="speakerf"] img[src$=".svg"],
-.message[data-color-key="speakerf"] svg,
-.message[data-color-key="speakerf"] img[src$=".svg"] {
-  color: var(--accentF-color, #cccccc);
-}
-
-.message[data-speaker="speakerg"] svg,
-.message[data-speaker="speakerg"] img[src$=".svg"],
-.message[data-color-key="speakerg"] svg,
-.message[data-color-key="speakerg"] img[src$=".svg"] {
-  color: var(--accentG-color, #cccccc);
-}
-
-.message[data-speaker="random"] svg,
-.message[data-speaker="random"] img[src$=".svg"] {
-  color: var(--accentC-color, #cccccc);
-}
-
-.message[data-color-key="generic"] svg,
-.message[data-color-key="generic"] img[src$=".svg"] {
-  color: var(--generic-color, #cccccc);
-}
-
-/* Default coloring for any other speakers */
-.message:not([data-color-key]) svg,
-.message:not([data-color-key]) img[src$=".svg"] {
-  color: var(--generic-color, #cccccc);
+/* Simplified speaker-specific SVG coloring using centralized variables */
+/* Each message will inherit color from its --speaker-color variable */
+.message svg,
+.message img[src$=".svg"] {
+  color: var(--speaker-color, var(--generic-color));
 }
 
 /* Apply speaker color to message icon masks */
 .message::before {
   content: '';
-  background-color: var(--speaker-color, currentColor);
+  background-color: var(--speaker-color, var(--generic-color));
 }
 
 /* Fix for avatar images - explicitly exclude them from coloring */
 .message img.avatar-image {
   filter: none !important;
   color: initial !important;
-}
-
-/* Define speaker-specific colors as CSS variables based on data-color-key */
-.message[data-color-key="user"] {
-  --speaker-color: var(--user-color, #ffc400);
-}
-
-.message[data-color-key="assistant"] {
-  --speaker-color: var(--assistant-color, #192b91);
-}
-
-.message[data-color-key="speakerc"] {
-  --speaker-color: var(--accentC-color, #cccccc);
-}
-
-.message[data-color-key="speakerd"] {
-  --speaker-color: var(--accentD-color, #cccccc);
-}
-
-.message[data-color-key="speakere"] {
-  --speaker-color: var(--accentE-color, #cccccc);
-}
-
-.message[data-color-key="speakerf"] {
-  --speaker-color: var(--accentF-color, #cccccc);
-}
-
-.message[data-color-key="speakerg"] {
-  --speaker-color: var(--accentG-color, #cccccc);
-}
-
-.message[data-color-key="generic"] {
-  --speaker-color: var(--generic-color, #cccccc);
-}
-
-/* Maintain old data-speaker colors for compatibility */
-.message[data-speaker="user"] {
-  --speaker-color: var(--user-color, #ffc400);
-}
-
-.message[data-speaker="agent"],
-.message[data-speaker="assistant"],
-.message[data-speaker="test"] {
-  --speaker-color: var(--assistant-color, #192b91);
-}
-
-.message[data-speaker="speakerc"] {
-  --speaker-color: var(--accentC-color, #cccccc);
-}
-
-.message[data-speaker="speakerd"] {
-  --speaker-color: var(--accentD-color, #cccccc);
-}
-
-.message[data-speaker="speakere"] {
-  --speaker-color: var(--accentE-color, #cccccc);
-}
-
-.message[data-speaker="speakerf"] {
-  --speaker-color: var(--accentF-color, #cccccc);
-}
-
-.message[data-speaker="speakerg"] {
-  --speaker-color: var(--accentG-color, #cccccc);
-}
-
-.message[data-speaker="random"] {
-  --speaker-color: var(--accentC-color, #cccccc);
-}
-
-/* For any other speakers, use the generic color */
-.message:not([data-color-key]):not([data-speaker="user"]):not([data-speaker="agent"]):not([data-speaker="assistant"]):not([data-speaker="test"]):not([data-speaker="speakerc"]):not([data-speaker="speakerd"]):not([data-speaker="speakere"]):not([data-speaker="speakerf"]):not([data-speaker="speakerg"]):not([data-speaker="random"]) {
-  --speaker-color: var(--generic-color, #cccccc);
 }
 
 /* Button hover states */

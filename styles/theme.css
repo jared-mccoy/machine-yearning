@@ -1,12 +1,6 @@
 /* Theme colors */
 :root {
-  /* Core colors */
-  --user-color: var(--accentB-color, #ffc400);
-  --user-color-light: var(--accentB-color-light, #ffc40078);
-  --assistant-color: var(--accentA-color, #192b91);
-  --assistant-color-light: var(--accentA-color-light, #192b9171);
-  
-  /* Accent colors */
+  /* Core colors from settings */
   --accentA-color: #192b91;
   --accentA-color-light: #192b9171;
   --accentB-color: #ffc400;
@@ -31,10 +25,36 @@
   --accentK-color-light: #00000071;
   --accentL-color: #000000;
   --accentL-color-light: #00000071;
-  
-  /* Generic and utility colors */
   --generic-color: #909090;
   --generic-color-light: #90909071;
+  
+  /* Speaker role mappings - single source of truth */
+  --user-color: var(--accentB-color);
+  --user-color-light: var(--accentB-color-light);
+  --assistant-color: var(--accentA-color);
+  --assistant-color-light: var(--accentA-color-light);
+  --speakerc-color: var(--accentC-color);
+  --speakerc-color-light: var(--accentC-color-light);
+  --speakerd-color: var(--accentD-color);
+  --speakerd-color-light: var(--accentD-color-light);
+  --speakere-color: var(--accentE-color);
+  --speakere-color-light: var(--accentE-color-light);
+  --speakerf-color: var(--accentF-color);
+  --speakerf-color-light: var(--accentF-color-light);
+  --speakerg-color: var(--accentG-color);
+  --speakerg-color-light: var(--accentG-color-light);
+  --speakerh-color: var(--accentH-color);
+  --speakerh-color-light: var(--accentH-color-light);
+  --speakeri-color: var(--accentI-color);
+  --speakeri-color-light: var(--accentI-color-light);
+  --speakerj-color: var(--accentJ-color);
+  --speakerj-color-light: var(--accentJ-color-light);
+  --speakerk-color: var(--accentK-color);
+  --speakerk-color-light: var(--accentK-color-light);
+  --speakerl-color: var(--accentL-color);
+  --speakerl-color-light: var(--accentL-color-light);
+  
+  /* Background and general UI colors */
   --background-color: #ffffff;
   --text-color: #333333;
   --muted-color: #888888;
@@ -52,17 +72,23 @@
 
 /* Dark theme colors */
 [data-theme="dark"] {
+  /* Swap user/assistant colors in dark theme */
+  --user-color: var(--accentA-color);
+  --user-color-light: var(--accentA-color-light);
+  --assistant-color: var(--accentB-color);
+  --assistant-color-light: var(--accentB-color-light);
+  
   --background-color: #1e1e1e;
   --text-color: #ffffff;
   --muted-color: #bbbbbb;
   --border-color: #333333;
   --section-header-bg: #2d2d2d;
   --section-header-bg-hover: #3d3d3d;
-  --accent-color: #ffc400;  /* Direct color value for dark mode */
-  --accent-color-light: #ffc40078;  /* Direct color value for dark mode */
-  --code-color: var(--color-dark);    /* Code color for dark mode */
-  --code-block-bg: #2d2d2d;           /* Code block background in dark mode */
-  --code-header-bg: #252525;          /* Code block header in dark mode */
+  --accent-color: var(--assistant-color);
+  --accent-color-light: var(--assistant-color-light);
+  --code-color: var(--color-dark);
+  --code-block-bg: #2d2d2d;
+  --code-header-bg: #252525;
 }
 
 /* Simple reset */

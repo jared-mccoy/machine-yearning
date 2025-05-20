@@ -158,101 +158,94 @@
   position: relative; /* Needed for absolute positioning of icon */
 }
 
-/* Set speaker-specific colors based on data-speaker attribute */
-.message[data-speaker="user"] {
+/* Simplified speaker color assignment using centralized variables */
+/* Base speaker mappings with combined selectors */
+.message[data-speaker="user"],
+.message[data-color-key="user"] {
   --speaker-color: var(--user-color);
   --speaker-color-light: var(--user-color-light);
 }
 
 .message[data-speaker="agent"],
 .message[data-speaker="assistant"],
-.message[data-speaker="test"] {
-  --speaker-color: var(--assistant-color);
-  --speaker-color-light: var(--assistant-color-light);
-}
-
-.message[data-speaker="speakerc"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
-}
-
-.message[data-speaker="speakerd"] {
-  --speaker-color: var(--accentD-color);
-  --speaker-color-light: var(--accentD-color-light);
-}
-
-.message[data-speaker="speakere"] {
-  --speaker-color: var(--accentE-color);
-  --speaker-color-light: var(--accentE-color-light);
-}
-
-.message[data-speaker="random"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
-}
-
-/* Dynamic color mapping based on data-color-key - these override the data-speaker styles */
-.message[data-color-key="user"] {
-  --speaker-color: var(--user-color);
-  --speaker-color-light: var(--user-color-light);
-}
-
+.message[data-speaker="test"],
 .message[data-color-key="assistant"] {
   --speaker-color: var(--assistant-color);
   --speaker-color-light: var(--assistant-color-light);
 }
 
+.message[data-speaker="speakerc"],
 .message[data-color-key="speakerc"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
 }
 
+.message[data-speaker="speakerd"],
 .message[data-color-key="speakerd"] {
-  --speaker-color: var(--accentD-color);
-  --speaker-color-light: var(--accentD-color-light);
+  --speaker-color: var(--speakerd-color);
+  --speaker-color-light: var(--speakerd-color-light);
 }
 
+.message[data-speaker="speakere"],
 .message[data-color-key="speakere"] {
-  --speaker-color: var(--accentE-color);
-  --speaker-color-light: var(--accentE-color-light);
+  --speaker-color: var(--speakere-color);
+  --speaker-color-light: var(--speakere-color-light);
 }
 
+.message[data-speaker="speakerf"],
 .message[data-color-key="speakerf"] {
-  --speaker-color: var(--accentF-color);
-  --speaker-color-light: var(--accentF-color-light);
+  --speaker-color: var(--speakerf-color);
+  --speaker-color-light: var(--speakerf-color-light);
 }
 
+.message[data-speaker="speakerg"],
 .message[data-color-key="speakerg"] {
-  --speaker-color: var(--accentG-color);
-  --speaker-color-light: var(--accentG-color-light);
+  --speaker-color: var(--speakerg-color);
+  --speaker-color-light: var(--speakerg-color-light);
 }
 
+.message[data-speaker="speakerh"],
 .message[data-color-key="speakerh"] {
-  --speaker-color: var(--accentH-color);
-  --speaker-color-light: var(--accentH-color-light);
+  --speaker-color: var(--speakerh-color);
+  --speaker-color-light: var(--speakerh-color-light);
 }
 
+.message[data-speaker="speakeri"],
 .message[data-color-key="speakeri"] {
-  --speaker-color: var(--accentI-color);
-  --speaker-color-light: var(--accentI-color-light);
+  --speaker-color: var(--speakeri-color);
+  --speaker-color-light: var(--speakeri-color-light);
 }
 
+.message[data-speaker="speakerj"],
 .message[data-color-key="speakerj"] {
-  --speaker-color: var(--accentJ-color);
-  --speaker-color-light: var(--accentJ-color-light);
+  --speaker-color: var(--speakerj-color);
+  --speaker-color-light: var(--speakerj-color-light);
 }
 
+.message[data-speaker="speakerk"],
 .message[data-color-key="speakerk"] {
-  --speaker-color: var(--accentK-color);
-  --speaker-color-light: var(--accentK-color-light);
+  --speaker-color: var(--speakerk-color);
+  --speaker-color-light: var(--speakerk-color-light);
 }
 
+.message[data-speaker="speakerl"],
 .message[data-color-key="speakerl"] {
-  --speaker-color: var(--accentL-color);
-  --speaker-color-light: var(--accentL-color-light);
+  --speaker-color: var(--speakerl-color);
+  --speaker-color-light: var(--speakerl-color-light);
+}
+
+.message[data-speaker="random"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
 }
 
 .message[data-color-key="generic"] {
+  --speaker-color: var(--generic-color);
+  --speaker-color-light: var(--generic-color-light);
+}
+
+/* Default generic color for unknown speakers */
+.message:not([data-color-key]):not([data-speaker]) {
   --speaker-color: var(--generic-color);
   --speaker-color-light: var(--generic-color-light);
 }

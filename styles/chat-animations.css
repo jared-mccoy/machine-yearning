@@ -60,71 +60,97 @@
   backface-visibility: hidden;
 }
 
+/* Simplified speaker-specific styling that uses centralized variables */
 /* User typing indicator appears on the right side */
-.typing-indicator[data-speaker="user"] {
+.typing-indicator[data-speaker="user"],
+.typing-indicator[data-color-key="user"] {
   --speaker-color: var(--user-color);
   --speaker-color-light: var(--user-color-light);
   align-self: flex-end;
   transform-origin: right center;
 }
 
-/* Set speaker colors based on data-speaker attribute */
-.typing-indicator[data-speaker="speakerC"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
-}
-
-.typing-indicator[data-speaker="speakerD"] {
-  --speaker-color: var(--accentD-color);
-  --speaker-color-light: var(--accentD-color-light);
-}
-
-.typing-indicator[data-speaker="speakerE"] {
-  --speaker-color: var(--accentE-color);
-  --speaker-color-light: var(--accentE-color-light);
-}
-
-.typing-indicator[data-speaker="generic-speaker"] {
-  --speaker-color: var(--generic-color);
-  --speaker-color-light: var(--generic-color-light);
-}
-
-.typing-indicator[data-speaker="random"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
-}
-
-/* Dynamic color mapping for typing indicators based on data-color-key - these override data-speaker */
-.typing-indicator[data-color-key="user"] {
-  --speaker-color: var(--user-color);
-  --speaker-color-light: var(--user-color-light);
-}
-
+/* Set speaker colors using centralized CSS variables */
+.typing-indicator[data-speaker="assistant"],
+.typing-indicator[data-speaker="agent"],
+.typing-indicator[data-speaker="test"],
 .typing-indicator[data-color-key="assistant"] {
   --speaker-color: var(--assistant-color);
   --speaker-color-light: var(--assistant-color-light);
 }
 
+.typing-indicator[data-speaker="speakerc"],
 .typing-indicator[data-color-key="speakerc"] {
-  --speaker-color: var(--accentC-color);
-  --speaker-color-light: var(--accentC-color-light);
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
 }
 
+.typing-indicator[data-speaker="speakerd"],
 .typing-indicator[data-color-key="speakerd"] {
-  --speaker-color: var(--accentD-color);
-  --speaker-color-light: var(--accentD-color-light);
+  --speaker-color: var(--speakerd-color);
+  --speaker-color-light: var(--speakerd-color-light);
 }
 
+.typing-indicator[data-speaker="speakere"],
 .typing-indicator[data-color-key="speakere"] {
-  --speaker-color: var(--accentE-color);
-  --speaker-color-light: var(--accentE-color-light);
+  --speaker-color: var(--speakere-color);
+  --speaker-color-light: var(--speakere-color-light);
 }
 
+.typing-indicator[data-speaker="speakerf"],
+.typing-indicator[data-color-key="speakerf"] {
+  --speaker-color: var(--speakerf-color);
+  --speaker-color-light: var(--speakerf-color-light);
+}
+
+.typing-indicator[data-speaker="speakerg"],
+.typing-indicator[data-color-key="speakerg"] {
+  --speaker-color: var(--speakerg-color);
+  --speaker-color-light: var(--speakerg-color-light);
+}
+
+.typing-indicator[data-speaker="speakerh"],
+.typing-indicator[data-color-key="speakerh"] {
+  --speaker-color: var(--speakerh-color);
+  --speaker-color-light: var(--speakerh-color-light);
+}
+
+.typing-indicator[data-speaker="speakeri"],
+.typing-indicator[data-color-key="speakeri"] {
+  --speaker-color: var(--speakeri-color);
+  --speaker-color-light: var(--speakeri-color-light);
+}
+
+.typing-indicator[data-speaker="speakerj"],
+.typing-indicator[data-color-key="speakerj"] {
+  --speaker-color: var(--speakerj-color);
+  --speaker-color-light: var(--speakerj-color-light);
+}
+
+.typing-indicator[data-speaker="speakerk"],
+.typing-indicator[data-color-key="speakerk"] {
+  --speaker-color: var(--speakerk-color);
+  --speaker-color-light: var(--speakerk-color-light);
+}
+
+.typing-indicator[data-speaker="speakerl"],
+.typing-indicator[data-color-key="speakerl"] {
+  --speaker-color: var(--speakerl-color);
+  --speaker-color-light: var(--speakerl-color-light);
+}
+
+.typing-indicator[data-speaker="random"] {
+  --speaker-color: var(--speakerc-color);
+  --speaker-color-light: var(--speakerc-color-light);
+}
+
+.typing-indicator[data-speaker="generic-speaker"],
 .typing-indicator[data-color-key="generic"] {
   --speaker-color: var(--generic-color);
   --speaker-color-light: var(--generic-color-light);
 }
 
+/* Remove legacy classes that duplicate functionality */
 /* Typing indicator dot styles */
 .typing-indicator span {
   width: 8px;
