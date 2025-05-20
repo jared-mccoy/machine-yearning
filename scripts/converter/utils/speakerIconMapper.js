@@ -213,28 +213,50 @@ export function collectSpeakerIcon(speaker) {
                           speaker === 'agent' || 
                           speaker === 'assistant' || 
                           speaker === 'test';
-                          
+  
+  // Check if this speaker matches a standard system icon
   const isSystemIconFormat = SYSTEM_ICONS.some(iconName => {
     const normalizedSpeaker = speaker.toLowerCase().replace(/[\s_-]/g, '');
     const normalizedIcon = iconName.toLowerCase().replace(/[\s_-]/g, '');
     return normalizedSpeaker === normalizedIcon;
   });
   
-  // Display name for custom speakers
+  // Format the speaker name as a potential SVG file name
+  const speakerAsFilename = speaker.toLowerCase().replace(/\s+/g, '_');
+  
+  // Direct check for custom SVG - we know trevor_yn.svg exists and needs special handling
+  const hasCustomSvgFile = window[`hasSvgFile_${speakerAsFilename}`] || 
+                           (speakerAsFilename === 'trevor_yn');
+  
+  // If we have a custom icon file
+  if (hasCustomSvgFile) {
+    // Set a flag so we remember this speaker has an SVG
+    window[`hasSvgFile_${speakerAsFilename}`] = true;
+    
+    logDebug(`Using custom icon file for speaker: '${speakerAsFilename}'`);
+    customSpeakerIcons.add(speakerAsFilename);
+    speakerIconMap.set(speaker, speakerAsFilename);
+    
+    // Set up CSS for this custom icon
+    setupCustomIconCSS();
+    
+    return speakerAsFilename;
+  }
+  
+  // If no custom SVG and not a standard format, display name caption
   if (!isStandardSpeaker && !isSystemIconFormat) {
     logDebug(`Speaker '${speaker}' will display name caption`);
     displaySpeakerNames.add(speaker);
   }
   
-  // For custom speakers, we'll now use empty icon type to avoid 404 errors
-  // and prevent the bubble from indenting when selected
+  // For custom speakers with no SVG file, use empty icon
   if (!isStandardSpeaker && !isSystemIconFormat) {
     logDebug(`Using empty icon for custom speaker: '${speaker}'`);
     speakerIconMap.set(speaker, 'empty');
     return 'empty';
   }
   
-  // Add to custom icons set (only for system icons that we know exist)
+  // For system icons, add to custom icons set
   customSpeakerIcons.add(speaker);
   
   // Use the speaker name directly as the icon name
