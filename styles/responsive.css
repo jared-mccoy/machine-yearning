@@ -371,4 +371,11 @@
   .typing-indicator::after {
     border-width: 1.5px; /* Match other elements */
   }
+  
+  /* Typography improvements for very small screens */
+  .message p, 
+  .message li,
+  .message span:not(h1, h2, h3, h4, h5, h6) {
+    font-size: 0.75rem;
+  }
 } 
