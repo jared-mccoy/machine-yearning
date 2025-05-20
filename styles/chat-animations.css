@@ -180,7 +180,7 @@
   transform-origin: center;
 }
 
-/* Dot styling for speaker types */
+/* Basic dot styling for speaker types */
 .typing-indicator.user-typing span {
   background-color: var(--user-color);
 }
@@ -209,39 +209,29 @@
   background-color: var(--accentC-color);
 }
 
+/* Completely new approach that uses transform rotate instead of height */
+.typing-indicator span {
+  transform-origin: bottom center;
+  animation: typing-wave 1s ease-in-out infinite;
+  animation-play-state: running !important;
+}
+
 .typing-indicator span:nth-child(1) {
-  animation: pulse-grow 0.6s ease-in-out infinite;
+  animation-delay: 0s;
 }
 
 .typing-indicator span:nth-child(2) {
-  animation: pulse-grow 0.6s ease-in-out infinite 0.1s;
-  width: 7px;
-  height: 7px;
+  animation-delay: 0.2s;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation: pulse-grow 0.6s ease-in-out infinite 0.2s;
-  width: 6px;
-  height: 6px;
+  animation-delay: 0.4s;
 }
 
-/* Change animation for bigger messages */
-.typing-indicator[data-size="medium"] span {
-  animation-duration: 0.6s;
-}
-
+/* All dots same duration regardless of message size */
+.typing-indicator[data-size="medium"] span,
 .typing-indicator[data-size="large"] span {
-  animation-duration: 0.6s;
-}
-
-.typing-indicator[data-size="medium"] span:nth-child(2),
-.typing-indicator[data-size="large"] span:nth-child(2) {
-  animation-name: pulse-grow;
-}
-
-.typing-indicator[data-size="large"] span:nth-child(3) {
-  animation-name: pulse-grow;
-  animation-duration: 0.6s;
+  animation-duration: 1s;
 }
 
 /* Custom positioned typing indicators */
@@ -251,6 +241,22 @@
 
 .typing-indicator.custom-right {
   transform-origin: right center;
+}
+
+/* Wave-like animation keyframes */
+@keyframes typing-wave {
+  0%, 100% {
+    transform: translateY(0) rotate(0);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-10px) rotate(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(0) rotate(0);
+    opacity: 0.7;
+  }
 }
 
 /* Pulsing animation for speaker icons */
