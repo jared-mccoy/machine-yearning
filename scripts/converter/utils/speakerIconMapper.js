@@ -226,7 +226,15 @@ export function collectSpeakerIcon(speaker) {
     displaySpeakerNames.add(speaker);
   }
   
-  // Add to custom icons set
+  // For custom speakers, we'll now use empty icon type to avoid 404 errors
+  // and prevent the bubble from indenting when selected
+  if (!isStandardSpeaker && !isSystemIconFormat) {
+    logDebug(`Using empty icon for custom speaker: '${speaker}'`);
+    speakerIconMap.set(speaker, 'empty');
+    return 'empty';
+  }
+  
+  // Add to custom icons set (only for system icons that we know exist)
   customSpeakerIcons.add(speaker);
   
   // Use the speaker name directly as the icon name

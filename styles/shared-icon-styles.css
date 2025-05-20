@@ -239,6 +239,21 @@
 .message[data-speaker-icon="empty"]::before {
   mask-image: none;
   -webkit-mask-image: none;
+  opacity: 0;
+  display: none !important;
+}
+
+/* Also hide the circular border for empty icons */
+.message[data-speaker-icon="empty"]::after {
+  opacity: 0;
+  display: none !important;
+}
+
+/* Prevent transform for messages with empty icons */
+.message[data-speaker-icon="empty"].speaking,
+.message[data-speaker-icon="empty"].selected,
+.message[data-speaker-icon="empty"]:hover {
+  transform: none !important;
 }
 
 /* User positioning */
@@ -348,6 +363,19 @@
 .typing-indicator[data-speaker-icon="empty"]::before {
   mask-image: none;
   -webkit-mask-image: none;
+  opacity: 0;
+  display: none !important;
+}
+
+/* Also hide the circular border for empty typing indicators */
+.typing-indicator[data-speaker-icon="empty"]::after {
+  opacity: 0;
+  display: none !important;
+}
+
+/* Prevent transform for typing indicators with empty icons */
+.typing-indicator[data-speaker-icon="empty"].visible {
+  transform: scale(1) !important;
 }
 
 /* Handle custom icons with arbitrary names */
