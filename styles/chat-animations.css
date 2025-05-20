@@ -210,38 +210,38 @@
 }
 
 .typing-indicator span:nth-child(1) {
-  animation: pulse-grow 1.4s ease-in-out infinite;
+  animation: pulse-grow 0.6s ease-in-out infinite;
 }
 
 .typing-indicator span:nth-child(2) {
-  animation: pulse-grow 1.4s ease-in-out infinite 0.2s;
+  animation: pulse-grow 0.6s ease-in-out infinite 0.1s;
   width: 7px;
   height: 7px;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation: pulse-grow 1.4s ease-in-out infinite 0.4s;
+  animation: pulse-grow 0.6s ease-in-out infinite 0.2s;
   width: 6px;
   height: 6px;
 }
 
 /* Change animation for bigger messages */
 .typing-indicator[data-size="medium"] span {
-  animation-duration: 0.9s;
+  animation-duration: 0.6s;
 }
 
 .typing-indicator[data-size="large"] span {
-  animation-duration: 1s;
+  animation-duration: 0.6s;
 }
 
 .typing-indicator[data-size="medium"] span:nth-child(2),
 .typing-indicator[data-size="large"] span:nth-child(2) {
-  animation-name: pulse-grow-rotate;
+  animation-name: pulse-grow;
 }
 
 .typing-indicator[data-size="large"] span:nth-child(3) {
-  animation-name: pulse-grow-rotate;
-  animation-duration: 1.5s;
+  animation-name: pulse-grow;
+  animation-duration: 0.6s;
 }
 
 /* Custom positioned typing indicators */
