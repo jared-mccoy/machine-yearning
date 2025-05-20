@@ -254,12 +254,12 @@
 .message[data-speaker="direct-text"] {
   width: 100%;
   max-width: 100%;
-  margin: 1rem auto;
+  margin: 0.5rem auto;
   align-self: center;
   background-color: transparent;
   border-radius: 8px;
   box-shadow: none;
-  padding: 8px 12px;
+  padding: 4px 12px;
   --speaker-color: transparent;
   --speaker-color-light: transparent;
   position: relative;

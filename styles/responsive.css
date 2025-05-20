@@ -181,6 +181,12 @@
     left: var(--avatar-offset);
   }
   
+  /* Direct text elements (stage directions) should have minimal spacing */
+  .message[data-speaker="direct-text"] {
+    margin: 0.3rem auto;
+    padding: 3px 12px;
+  }
+  
   /* Typing indicator adjustments */
   .typing-indicator {
     overflow: visible !important; /* Allow avatar to extend outside */
@@ -363,6 +369,12 @@
   
   .typing-indicator {
     margin-top: 14px; /* Match messages */
+  }
+  
+  /* Further reduce direct text spacing on very small screens */
+  .message[data-speaker="direct-text"] {
+    margin: 0.25rem auto;
+    padding: 2px 12px;
   }
   
   .typing-indicator span {
