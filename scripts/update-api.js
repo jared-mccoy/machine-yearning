@@ -1,55 +1,65 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to find all markdown files recursively
-function findMarkdownFiles(dir, fileList = []) {
-  const files = fs.readdirSync(dir);
+function scanDirectory(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const files = [];
 
-  files.forEach(file => {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
-      findMarkdownFiles(filePath, fileList);
-    } else if (file.endsWith('.md')) {
-      // Get file stats
-      const relativePath = filePath.replace(/\\/g, '/');
-      fileList.push({
-        path: relativePath,
-        name: path.basename(file),
-        modified: new Date(stat.mtime).toISOString()
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...scanDirectory(fullPath));
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      // Get relative path from content directory and normalize to forward slashes
+      const relativePath = path.relative('content', fullPath).replace(/\\/g, '/');
+      files.push({
+        path: `content/${relativePath}`,
+        name: entry.name,
+        directory: path.dirname(relativePath).replace(/\\/g, '/')
       });
     }
+  }
+
+  return files;
+}
+
+// Ensure content directory exists
+if (!fs.existsSync('content')) {
+  console.error('Content directory not found!');
+  process.exit(1);
+}
+
+// Scan for all markdown files
+const files = scanDirectory('content');
+
+// Group files by directory
+const directoryStructure = files.reduce((acc, file) => {
+  if (!acc[file.directory]) {
+    acc[file.directory] = [];
+  }
+  acc[file.directory].push({
+    name: file.name,
+    path: file.path
   });
+  return acc;
+}, {});
 
-  return fileList;
-}
+// Write to api.json
+fs.writeFileSync('api.json', JSON.stringify({
+  lastUpdated: new Date().toISOString(),
+  directories: directoryStructure
+}, null, 2));
 
-// Update api.json with all markdown files
-function updateApiJson() {
-  console.log('Scanning content directory...');
-  const contentDir = path.join(process.cwd(), 'content');
-  const markdownFiles = findMarkdownFiles(contentDir);
+console.log(`Successfully indexed ${files.length} markdown files`);
 
-  console.log(`Found ${markdownFiles.length} markdown files:`);
-  markdownFiles.forEach(file => console.log(` - ${file.path}`));
-
-  const apiData = {
-    chats: markdownFiles
-  };
-
-  fs.writeFileSync('api.json', JSON.stringify(apiData, null, 2));
-  console.log('api.json has been updated successfully!');
-}
-
-// Run the script if called directly (not required)
+// Run the script if called directly
 if (require.main === module) {
   try {
-    updateApiJson();
+    scanDirectory('content');
   } catch (error) {
     console.error('Error generating api.json:', error);
     process.exit(1);
   }
 }
 
-module.exports = { updateApiJson }; 
+module.exports = { scanDirectory }; 

@@ -1,6 +1,6 @@
 /**
  * Chat Directory Scanner
- * Dynamically discovers all chat files in the content directory
+ * Uses api.json to discover all chat files in the content directory
  */
 
 // Add base URL config to handle both local and GitHub Pages environments
@@ -74,10 +74,10 @@ class ChatDirectoryScanner {
       return Promise.resolve(this.dates);
     }
 
-    // If no cached data, scan the directory
-    log('No cache found, scanning directory');
-    return this.scanChatDirectory().catch(error => {
-      log(`Directory scan error: ${error.message}`);
+    // If no cached data, fetch from api.json
+    log('No cache found, fetching from api.json');
+    return this.fetchFromApi().catch(error => {
+      log(`API fetch error: ${error.message}`);
       
       // Display a user-friendly error on the page
       const postContainer = document.getElementById('post-container');
@@ -87,8 +87,8 @@ class ChatDirectoryScanner {
             <strong>Error loading conversations:</strong> ${error.message}<br><br>
             <p>Please check that:</p>
             <ul>
-              <li>Your content directory exists and contains markdown files</li>
-              <li>The Jekyll server is running properly</li>
+              <li>The api.json file exists and is properly formatted</li>
+              <li>Your content directory contains markdown files</li>
               <li>There are no JavaScript errors in the console</li>
             </ul>
           </div>
@@ -142,10 +142,10 @@ class ChatDirectoryScanner {
   }
 
   /**
-   * Scan the content directory to find all conversation files
+   * Fetch and process data from api.json
    * @returns {Promise} Resolves with an array of date objects
    */
-  async scanChatDirectory() {
+  async fetchFromApi() {
     if (this.isLoading) {
       return new Promise(resolve => {
         // Poll until loading is complete
@@ -173,88 +173,30 @@ class ChatDirectoryScanner {
     };
 
     try {
-      logMsg('Starting to scan content directory');
+      logMsg('Fetching api.json');
+      const response = await fetch(`${baseUrl}/api.json`);
       
-      // Try to discover all potential date directories
-      // First, let's try to discover potential date directories by pattern matching
-      // This approach doesn't rely on directory listings
-      
-      // For GitHub Pages, we'll use a date pattern matching approach
-      // Look for directories in common date formats: YYYY.MM.DD, YYYY-MM-DD, etc.
-      const currentDate = new Date();
-      const potentialDirs = [];
-      
-      // Scan last 30 days
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(currentDate);
-        date.setDate(date.getDate() - i);
-        
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        
-        // Add various date formats - expand this as needed for your naming conventions
-        potentialDirs.push(`${year}.${month}.${day}`);
-        potentialDirs.push(`${year}-${month}-${day}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch api.json: ${response.status} ${response.statusText}`);
       }
-      
-      // Add any known specific directories
-      potentialDirs.push('2025.04.15');
-      
-      // Remove duplicates
-      const uniqueDirs = [...new Set(potentialDirs)];
-      logMsg(`Checking for potential directories: ${uniqueDirs.length} possibilities`);
-      
-      // Check each potential directory to see if it exists
-      const validDirPromises = uniqueDirs.map(async dirName => {
-        // A directory "exists" if we can find at least one file in it
-        // Try a few common patterns or existing files to test if directory exists
-        const testPatterns = [
-          `${dirName}.md`, // Common pattern for main file
-          `${dirName}.A.md`, // Format in your existing files
-          'index.md',
-          'README.md'
-        ];
-        
-        for (const pattern of testPatterns) {
-          const testPath = `content/${dirName}/${pattern}`;
-          try {
-            const response = await fetch(`${baseUrl}/${testPath}`);
-            if (response.ok) {
-              logMsg(`Found valid directory: ${dirName}`);
-              return dirName;
-            }
-          } catch (e) {
-            // Ignore fetch errors
-          }
-        }
-        
-        return null;
-      });
-      
-      const validDirs = (await Promise.all(validDirPromises)).filter(dir => dir !== null);
-      logMsg(`Found ${validDirs.length} valid directories: ${validDirs.join(', ')}`);
-      
-      // Process each valid directory
-      const datePromises = validDirs.map(async dateDir => {
-        const dateObj = {
-          name: dateDir,
-          displayName: dateDir,
-          files: []
-        };
 
-        // Instead of predefined patterns, try to discover all markdown files in the directory
-        const foundFiles = await this.discoverFilesInDirectory(dateDir);
-        dateObj.files = foundFiles;
-        logMsg(`Found ${foundFiles.length} files in ${dateDir}`);
+      const apiData = await response.json();
+      
+      // Process each directory
+      for (const [dirName, files] of Object.entries(apiData.directories)) {
+        const dateObj = {
+          name: dirName,
+          displayName: dirName,
+          files: files.map(file => ({
+            path: file.path,
+            name: file.name,
+            title: file.name.replace('.md', '')
+          }))
+        };
         
-        return dateObj;
-      });
-      
-      this.dates = await Promise.all(datePromises);
-      
-      // Filter out empty date directories
-      this.dates = this.dates.filter(date => date.files.length > 0);
+        this.dates.push(dateObj);
+        this.chats.push(...dateObj.files);
+      }
       
       // Sort dates in reverse chronological order
       this.dates.sort((a, b) => b.name.localeCompare(a.name));
@@ -263,101 +205,14 @@ class ChatDirectoryScanner {
       
       this.saveToCache();
     } catch (error) {
-      console.error('Error scanning chat directory:', error);
-      logMsg(`Scan error: ${error.message}`);
+      console.error('Error fetching from api.json:', error);
+      logMsg(`API fetch error: ${error.message}`);
       this.isLoading = false;
       throw error;
     }
     
     this.isLoading = false;
     return this.dates;
-  }
-  
-  /**
-   * Discover all markdown files in a directory
-   * @param {string} dirName Directory name
-   * @returns {Promise<Array>} Array of file objects
-   */
-  async discoverFilesInDirectory(dirName) {
-    const log = (msg) => {
-      if (window.appLog) {
-        appLog.debug(msg);
-      } else {
-        console.info(msg);
-      }
-    };
-    
-    log(`Discovering files in directory: ${dirName}`);
-    
-    // Basic approach: check for common files and patterns
-    const knownPatterns = [
-      // Common filenames
-      'index.md', 'README.md', 
-      // Common date-based patterns
-      `${dirName}.md`, `${dirName}.A.md`, `${dirName}.B.md`, `${dirName}.C.md`, `${dirName}.D.md`,
-      // Common prefixes (with wildcard handling by trying common suffixes)
-      'chat.md', 'conversation.md', 'transcript.md',
-      // Special test file
-      'TEST.md'
-    ];
-    
-    // For numeric suffixes, generate patterns like file-1.md, file-2.md, etc.
-    for (let i = 1; i <= 10; i++) {
-      knownPatterns.push(`chat-${i}.md`);
-      knownPatterns.push(`conversation-${i}.md`);
-    }
-    
-    // Also add alphabetic suffixes like A.md, B.md which are common
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    for (let i = 0; i < alphabet.length; i++) {
-      knownPatterns.push(`${alphabet[i]}.md`);
-      knownPatterns.push(`${dirName}-${alphabet[i]}.md`);
-    }
-    
-    log(`Checking ${knownPatterns.length} potential files in ${dirName}`);
-    
-    // Check if each potential file exists
-    const filePromises = knownPatterns.map(async filename => {
-      const path = `content/${dirName}/${filename}`;
-      try {
-        const response = await fetch(`${baseUrl}/${path}`);
-        if (!response.ok) {
-          return null;
-        }
-        
-        log(`Found file: ${path}`);
-        const fileData = {
-          path: path,
-          title: filename.replace('.md', ''),
-          originalFilename: filename
-        };
-        
-        // Extract title if possible
-        try {
-          const markdown = await response.text();
-          const titleMatch = markdown.match(/^#\s+(.+)$/m);
-          if (titleMatch) {
-            fileData.title = titleMatch[1].trim();
-            log(`Extracted title from ${filename}: ${fileData.title}`);
-          }
-        } catch (e) {
-          log(`Failed to extract title from ${path}: ${e.message}`);
-        }
-        
-        this.chats.push(fileData);
-        return fileData;
-      } catch (e) {
-        return null;
-      }
-    });
-    
-    // Wait for all file checks to complete
-    const files = (await Promise.all(filePromises)).filter(f => f !== null);
-    
-    // Sort files by filename
-    files.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-    
-    return files;
   }
 
   /**
@@ -388,6 +243,134 @@ class ChatDirectoryScanner {
     }
     
     return { prev, next };
+  }
+
+  /**
+   * Get the full URL for a file
+   * @param {string} filePath The file path from api.json
+   * @returns {string} The full URL to fetch the file
+   */
+  getFileUrl(filePath) {
+    // Normalize path to use forward slashes
+    const normalizedPath = filePath.replace(/\\/g, '/');
+    const url = `${baseUrl}/${normalizedPath}`;
+    
+    if (window.appLog) {
+      appLog.debug(`Constructed file URL: ${url}`);
+    }
+    
+    return url;
+  }
+
+  /**
+   * Get headers from a markdown file
+   * @param {string} filePath Path to the markdown file
+   * @returns {Promise<Array>} Array of header objects
+   */
+  async getFileHeaders(filePath) {
+    try {
+      const url = this.getFileUrl(filePath);
+      if (window.appLog) {
+        appLog.debug(`Fetching headers from: ${url}`);
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: ${response.status}`);
+      }
+      const text = await response.text();
+      return this.extractHeaders(text);
+    } catch (error) {
+      console.warn(`Error fetching headers for ${filePath}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Initialize the directory view
+   * @returns {Promise<void>}
+   */
+  async initDirectoryView() {
+    const log = (msg) => {
+      if (window.appLog) {
+        appLog.debug(msg);
+      } else {
+        console.info(msg);
+      }
+    };
+
+    try {
+      log('Starting directory view mode');
+      log('Initializing chat scanner');
+
+      // Initialize the scanner
+      await this.init();
+
+      // Get the directory container
+      const directoryContainer = document.getElementById('directory-container');
+      if (!directoryContainer) {
+        throw new Error('Directory container not found');
+      }
+
+      // Create the directory structure
+      const directoryStructure = this.dates.map(date => ({
+        name: date.name,
+        displayName: date.displayName,
+        files: date.files.map(file => ({
+          path: file.path.replace(/\\/g, '/'),
+          name: file.name,
+          title: file.title || file.name.replace('.md', '')
+        }))
+      }));
+
+      log(`Received ${this.dates.length} date directories`);
+      log('Creating simplified directory structure');
+
+      // Create the directory view
+      directoryContainer.innerHTML = this.createDirectoryView(directoryStructure);
+
+      // Initialize any interactive elements
+      this.initializeDirectoryInteractions(directoryContainer);
+
+      // Extract spans from the first file if available
+      if (this.dates.length > 0 && this.dates[0].files.length > 0) {
+        const firstFile = this.dates[0].files[0];
+        try {
+          const spans = await this.extractSpans(firstFile.path);
+          if (spans && spans.length > 0) {
+            log('No headers case - Root node has wikilinks:');
+            this.initializeWikilinks(spans);
+          }
+        } catch (error) {
+          console.warn('Error extracting spans:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in initDirectoryView:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Extract spans from a markdown file
+   * @param {string} filePath Path to the markdown file
+   * @returns {Promise<Array>} Array of span objects
+   */
+  async extractSpans(filePath) {
+    try {
+      const url = this.getFileUrl(filePath);
+      if (window.appLog) {
+        appLog.debug(`Extracting spans from: ${url}`);
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: ${response.status}`);
+      }
+      const text = await response.text();
+      return this.parseSpans(text);
+    } catch (error) {
+      console.warn(`Error extracting spans from ${filePath}:`, error);
+      return [];
+    }
   }
 }
 
