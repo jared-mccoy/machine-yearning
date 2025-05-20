@@ -19,7 +19,15 @@ import {
   getSpeakerClass
 } from './rendering.js';
 
-import { getSpeakerIcon, resetSpeakerIconMapping, getSpeakerColor, setupCustomIconCSS, shouldDisplaySpeakerName, getSpeakerDisplayName } from '../utils/speakerIconMapper.js';
+import { 
+  getSpeakerIcon, 
+  resetSpeakerIconMapping, 
+  getSpeakerColor, 
+  setupCustomIconCSS, 
+  shouldDisplaySpeakerName, 
+  getSpeakerDisplayName,
+  collectSpeakerIcon 
+} from '../utils/speakerIconMapper.js';
 
 /**
  * Process chat content from markdown to HTML
@@ -73,9 +81,6 @@ export function processChatContent(options) {
     rawContent = content.innerHTML;
   }
   
-  // Process custom icon CSS before any DOM rendering happens
-  setupCustomIconCSS();
-  
   // Parse the markdown content into sections and messages
   const lines = rawContent.split('\n');
   const contentItems = []; // Will hold all items (headers and messages) in sequence
@@ -85,10 +90,28 @@ export function processChatContent(options) {
   let currentMessage = '';
   let currentSectionId = 0;
   
-  // Process each line of the content
+  // First pass: collect all unique speakers
   for (let i = 0; i < lines.length; i++) {
-    const rawLine = lines[i]; // Keep the raw line with whitespace
-    const line = rawLine.trim(); // Use trimmed version only for conditionals
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+    
+    if ((line.includes('<<') && line.includes('>>')) || (line.includes('<<') && line.includes('>>'))) {
+      const speakerInfo = extractSpeaker(line);
+      if (speakerInfo && !speakers.includes(speakerInfo.name)) {
+        speakers.push(speakerInfo.name);
+        // Pre-collect the icon for this speaker
+        collectSpeakerIcon(speakerInfo.name);
+      }
+    }
+  }
+  
+  // Now that we have all speakers, set up CSS once
+  setupCustomIconCSS();
+  
+  // Second pass: process the content
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
     
     // Detect headers (## style markdown headers)
     if (isMarkdownHeader(line)) {

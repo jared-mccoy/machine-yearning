@@ -159,12 +159,12 @@ export function getSpeakerDisplayName(speaker) {
 }
 
 /**
- * Get the appropriate icon for a speaker based on order of appearance
+ * Collect a speaker for icon mapping without setting up CSS
  * @param {string} speaker - The speaker identifier
  * @returns {string} The icon name to use for this speaker
  */
-export function getSpeakerIcon(speaker) {
-  logDebug(`Getting icon for speaker: ${speaker}`);
+export function collectSpeakerIcon(speaker) {
+  logDebug(`Collecting icon for speaker: ${speaker}`);
   
   // Special case: direct-text spans don't get icons
   if (speaker === 'direct-text') {
@@ -200,15 +200,12 @@ export function getSpeakerIcon(speaker) {
   }
   
   // Check if this speaker should have its name displayed
-  // Display name if not a standard system speaker (not user, agent, etc.)
-  // and not one of the common format patterns (User_X, Agent_X)
   const isStandardSpeaker = speaker === 'user' || 
-                            speaker === 'agent' || 
-                            speaker === 'assistant' || 
-                            speaker === 'test';
-                            
+                          speaker === 'agent' || 
+                          speaker === 'assistant' || 
+                          speaker === 'test';
+                          
   const isSystemIconFormat = SYSTEM_ICONS.some(iconName => {
-    // Check if speaker matches a system icon name pattern (e.g., User_A, Agent_B)
     const normalizedSpeaker = speaker.toLowerCase().replace(/[\s_-]/g, '');
     const normalizedIcon = iconName.toLowerCase().replace(/[\s_-]/g, '');
     return normalizedSpeaker === normalizedIcon;
@@ -220,26 +217,23 @@ export function getSpeakerIcon(speaker) {
     displaySpeakerNames.add(speaker);
   }
   
-  // IMPORTANT: Try to use the exact speaker name as an icon first
-  // This is the direct match case for custom icons like "trevor yn"
-  const exactIconName = speaker;
-  logDebug(`Attempting to use direct speaker name as icon: '${exactIconName}'`);
-  
-  // Add this to the custom icons set to generate CSS for it
-  customSpeakerIcons.add(exactIconName);
-  
-  // Set up CSS for this custom icon
-  if (window.requestAnimationFrame) {
-    window.requestAnimationFrame(() => setupCustomIconCSS());
-  } else {
-    setTimeout(() => setupCustomIconCSS(), 0);
-  }
+  // Add to custom icons set
+  customSpeakerIcons.add(speaker);
   
   // Use the speaker name directly as the icon name
-  speakerIconMap.set(speaker, exactIconName);
-  logDebug(`Using direct speaker name as icon: '${exactIconName}'`);
+  speakerIconMap.set(speaker, speaker);
+  logDebug(`Using direct speaker name as icon: '${speaker}'`);
   
-  return exactIconName;
+  return speaker;
+}
+
+/**
+ * Get the appropriate icon for a speaker based on order of appearance
+ * @param {string} speaker - The speaker identifier
+ * @returns {string} The icon name to use for this speaker
+ */
+export function getSpeakerIcon(speaker) {
+  return collectSpeakerIcon(speaker);
 }
 
 /**
