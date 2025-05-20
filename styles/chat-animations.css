@@ -221,11 +221,11 @@
 }
 
 .typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.15s;
 }
 
 .typing-indicator span:nth-child(3) {
-  animation-delay: 0.4s;
+  animation-delay: 0.3s;
 }
 
 /* All dots same duration regardless of message size */
@@ -246,15 +246,15 @@
 /* Wave-like animation keyframes */
 @keyframes typing-wave {
   0%, 100% {
-    transform: translateY(0) rotate(0);
+    transform: scale(1);
     opacity: 0.7;
   }
   25% {
-    transform: translateY(-10px) rotate(0);
+    transform: scale(1.5);
     opacity: 1;
   }
   50% {
-    transform: translateY(0) rotate(0);
+    transform: scale(1);
     opacity: 0.7;
   }
 }
