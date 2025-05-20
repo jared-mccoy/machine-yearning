@@ -217,6 +217,41 @@
   --speaker-color-light: var(--accentE-color-light);
 }
 
+.message[data-color-key="speakerf"] {
+  --speaker-color: var(--accentF-color);
+  --speaker-color-light: var(--accentF-color-light);
+}
+
+.message[data-color-key="speakerg"] {
+  --speaker-color: var(--accentG-color);
+  --speaker-color-light: var(--accentG-color-light);
+}
+
+.message[data-color-key="speakerh"] {
+  --speaker-color: var(--accentH-color);
+  --speaker-color-light: var(--accentH-color-light);
+}
+
+.message[data-color-key="speakeri"] {
+  --speaker-color: var(--accentI-color);
+  --speaker-color-light: var(--accentI-color-light);
+}
+
+.message[data-color-key="speakerj"] {
+  --speaker-color: var(--accentJ-color);
+  --speaker-color-light: var(--accentJ-color-light);
+}
+
+.message[data-color-key="speakerk"] {
+  --speaker-color: var(--accentK-color);
+  --speaker-color-light: var(--accentK-color-light);
+}
+
+.message[data-color-key="speakerl"] {
+  --speaker-color: var(--accentL-color);
+  --speaker-color-light: var(--accentL-color-light);
+}
+
 .message[data-color-key="generic"] {
   --speaker-color: var(--generic-color);
   --speaker-color-light: var(--generic-color-light);

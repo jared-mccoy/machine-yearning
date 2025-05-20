@@ -28,14 +28,18 @@
     }
   },
   "theme": {
-    "accentA": "#192b91",
-    "accentB": "#ffc400",
-    "accentC": "#000000",
-    "accentD": "#000000",
-    "accentE": "#000000",
-    "accentF": "#000000",
-    "accentG": "#000000",
-    "accentH": "#000000",
+    "accentA": "#192b91",  /* Assistant */
+    "accentB": "#ffc400",  /* User */
+    "accentC": "#000000",  /* Available */
+    "accentD": "#000000",  /* Available */
+    "accentE": "#000000",  /* Available */
+    "accentF": "#000000",  /* Available */
+    "accentG": "#000000",  /* Available */
+    "accentH": "#000000",  /* Available */
+    "accentI": "#000000",  /* Available */
+    "accentJ": "#000000",  /* Available */
+    "accentK": "#000000",  /* Available */
+    "accentL": "#000000",  /* Available */
     "genericAccent": "#909090"
   },
   "directory": {

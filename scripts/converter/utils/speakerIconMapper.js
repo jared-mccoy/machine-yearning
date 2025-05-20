@@ -14,15 +14,24 @@ const AGENT_ICONS = [
 ];
 
 // Color mapping information - Updated to include all possible accent colors dynamically
-const ACCENT_COLORS = ['accentC', 'accentD', 'accentE', 'accentF', 'accentG']; // Available accent colors beyond user/assistant
+const ACCENT_COLORS = [
+  'accentC', 'accentD', 'accentE', 'accentF', 'accentG',
+  'accentH', 'accentI', 'accentJ', 'accentK', 'accentL'
+]; // Available accent colors beyond user/assistant
+
 const COLOR_CSS_MAP = {
-  'accentA': 'assistant',
-  'accentB': 'user',
+  'accentA': 'assistant',  // Reserved for assistant
+  'accentB': 'user',      // Reserved for user
   'accentC': 'speakerc',
   'accentD': 'speakerd',
   'accentE': 'speakere',
   'accentF': 'speakerf',
   'accentG': 'speakerg',
+  'accentH': 'speakerh',
+  'accentI': 'speakeri',
+  'accentJ': 'speakerj',
+  'accentK': 'speakerk',
+  'accentL': 'speakerl',
   'genericAccent': 'generic'
 };
 

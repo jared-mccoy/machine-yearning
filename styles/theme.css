@@ -1,30 +1,53 @@
 /* Theme colors */
 :root {
-  --user-color: #ffc400;      /* User message color - solid version */
-  --user-color-light: #ffc40078; /* User message color - semi-transparent */
-  --assistant-color: #192b91;  /* Assistant message color - solid version */
-  --assistant-color-light: #192b9171; /* Assistant message color - semi-transparent */
-  --accentC-color: #e63946;  /* Speaker C color - solid version */
-  --accentC-color-light: #e6394671; /* Speaker C color - semi-transparent */
-  --accentD-color: #2a9d8f;  /* Speaker D color - solid version */
-  --accentD-color-light: #2a9d8f71; /* Speaker D color - semi-transparent */
-  --accentE-color: #8338ec;  /* Speaker E color - solid version */
-  --accentE-color-light: #8338ec71; /* Speaker E color - semi-transparent */
-  --generic-color: #909090;  /* Generic speaker color - solid version */
-  --generic-color-light: #90909071; /* Generic speaker color - semi-transparent */
+  /* Core colors */
+  --user-color: var(--accentB-color, #ffc400);
+  --user-color-light: var(--accentB-color-light, #ffc40078);
+  --assistant-color: var(--accentA-color, #192b91);
+  --assistant-color-light: var(--accentA-color-light, #192b9171);
+  
+  /* Accent colors */
+  --accentA-color: #192b91;
+  --accentA-color-light: #192b9171;
+  --accentB-color: #ffc400;
+  --accentB-color-light: #ffc40078;
+  --accentC-color: #000000;
+  --accentC-color-light: #00000071;
+  --accentD-color: #000000;
+  --accentD-color-light: #00000071;
+  --accentE-color: #000000;
+  --accentE-color-light: #00000071;
+  --accentF-color: #000000;
+  --accentF-color-light: #00000071;
+  --accentG-color: #000000;
+  --accentG-color-light: #00000071;
+  --accentH-color: #000000;
+  --accentH-color-light: #00000071;
+  --accentI-color: #000000;
+  --accentI-color-light: #00000071;
+  --accentJ-color: #000000;
+  --accentJ-color-light: #00000071;
+  --accentK-color: #000000;
+  --accentK-color-light: #00000071;
+  --accentL-color: #000000;
+  --accentL-color-light: #00000071;
+  
+  /* Generic and utility colors */
+  --generic-color: #909090;
+  --generic-color-light: #90909071;
   --background-color: #ffffff;
   --text-color: #333333;
   --muted-color: #888888;
   --border-color: #eeeeee;
   --section-header-bg: #f5f5f5;
   --section-header-bg-hover: #ebebeb;
-  --accent-color: var(--assistant-color);  /* Default accent for light mode */
+  --accent-color: var(--assistant-color);
   --accent-color-light: var(--assistant-color-light);
-  --color-light: rgb(101, 123, 131); /* Plaintext color for light mode */
-  --color-dark: rgb(204, 204, 204);  /* Plaintext color for dark mode */
-  --code-color: var(--color-light);  /* Default code color */
-  --code-block-bg: #f5f5f5;          /* Code block background in light mode */
-  --code-header-bg: #f0f0f0;         /* Code block header in light mode */
+  --color-light: rgb(101, 123, 131);
+  --color-dark: rgb(204, 204, 204);
+  --code-color: var(--color-light);
+  --code-block-bg: #f5f5f5;
+  --code-header-bg: #f0f0f0;
 }
 
 /* Dark theme colors */
