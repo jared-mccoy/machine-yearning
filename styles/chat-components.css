@@ -266,7 +266,18 @@
   overflow: hidden;
 }
 
+/* Hide the circular avatar background completely */
 .message[data-speaker="direct-text"]::after {
+  display: none;
+}
+
+/* Hide the avatar icon */
+.message[data-speaker="direct-text"]::before {
+  display: none;
+}
+
+/* Add a separate hover effect element */
+.message[data-speaker="direct-text"] .hover-overlay {
   content: "";
   position: absolute;
   top: 0;
@@ -281,13 +292,9 @@
 }
 
 /* Keep hover effect for direct-text and also add selected state */
-.message[data-speaker="direct-text"]:hover::after,
-.message[data-speaker="direct-text"].selected::after {
+.message[data-speaker="direct-text"]:hover .hover-overlay,
+.message[data-speaker="direct-text"].selected .hover-overlay {
   opacity: 1;
-}
-
-.message[data-speaker="direct-text"]::before {
-  display: none; /* Hide speaker icon */
 }
 
 .message[data-speaker="direct-text"] .content {
