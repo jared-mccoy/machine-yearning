@@ -228,6 +228,12 @@ export function collectSpeakerIcon(speaker) {
   const hasCustomSvgFile = window[`hasSvgFile_${speakerAsFilename}`] || 
                            (speakerAsFilename === 'trevor_yn');
   
+  // Add all custom speakers to displaySpeakerNames regardless of icon
+  if (!isStandardSpeaker && !isSystemIconFormat) {
+    logDebug(`Speaker '${speaker}' will display name caption`);
+    displaySpeakerNames.add(speaker);
+  }
+  
   // If we have a custom icon file
   if (hasCustomSvgFile) {
     // Set a flag so we remember this speaker has an SVG
@@ -241,12 +247,6 @@ export function collectSpeakerIcon(speaker) {
     setupCustomIconCSS();
     
     return speakerAsFilename;
-  }
-  
-  // If no custom SVG and not a standard format, display name caption
-  if (!isStandardSpeaker && !isSystemIconFormat) {
-    logDebug(`Speaker '${speaker}' will display name caption`);
-    displaySpeakerNames.add(speaker);
   }
   
   // For custom speakers with no SVG file, use empty icon

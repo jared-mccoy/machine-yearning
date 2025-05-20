@@ -1,4 +1,4 @@
-<<trevor yn>>
+<<user>>
 Sup
 
 <<agent>>
@@ -10,7 +10,7 @@ I need to know about the weather in Tokyo.
 <<agent>>
 The weather in Tokyo is sunny with a temperature of 20 degrees Celsius.
 
-<<trevor yn>>
+<<speaker A>>
 I need to know about the weather in Tokyo.
 
 <<agent>>
