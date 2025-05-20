@@ -347,3 +347,12 @@
 .typing-indicator:not([data-speaker="user"]):not(.visible) {
   transform: scale(0.8) translateX(40px);
 }
+
+/* Completely prevent any transform for empty icons in all states */
+.typing-indicator[data-speaker-icon="empty"] {
+  transform: scale(1) !important;
+}
+
+.typing-indicator[data-speaker-icon="empty"]:not(.visible) {
+  transform: scale(0.8) !important;
+}
