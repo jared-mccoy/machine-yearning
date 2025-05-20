@@ -3,6 +3,7 @@
 /* Base message styling */
 .message {
   margin-bottom: 20px;
+  margin-top: 14px; /* Minimal space for title */
   border-radius: 8px;
   padding: 12px 16px;
   max-width: 70%;

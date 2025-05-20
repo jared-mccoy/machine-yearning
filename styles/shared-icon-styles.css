@@ -41,32 +41,44 @@
   background-color: transparent;
 }
 
-/* Speaker name caption styling */
-.message[data-display-speaker] .speaker-caption {
+/* Speaker name caption styling - base styles for all captions */
+.message[data-display-speaker] .speaker-caption,
+.typing-indicator[data-display-speaker] .speaker-caption {
   position: absolute;
-  writing-mode: horizontal-tb; /* Use horizontal text */
-  transform: none; /* No rotation needed */
+  writing-mode: horizontal-tb;
+  transform: none;
   font-size: 9px;
   font-weight: 600;
   color: var(--speaker-color);
   text-align: left;
-  top: -14px; /* Position above the message bubble */
-  left: 0;
+  top: -16px;
+  left: 4px;
   height: auto;
-  opacity: 0;
-  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
   white-space: nowrap;
   line-height: 1;
   z-index: 22;
   background-color: var(--background-color);
-  padding: 1px 3px;
-  border-radius: 3px;
+  padding: 2px 4px;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* User messages speaker caption positioning (right-aligned) */
-.message[data-speaker="user"][data-display-speaker] .speaker-caption {
+/* Message captions are hidden until hover */
+.message[data-display-speaker] .speaker-caption {
+  opacity: 0;
+  transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+}
+
+/* Typing indicator captions are always visible */
+.typing-indicator[data-display-speaker] .speaker-caption {
+  opacity: 1;
+}
+
+/* User messages and typing indicators - right alignment */
+.message[data-speaker="user"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
   left: auto;
-  right: 0;
+  right: 4px;
   text-align: right;
 }
 
@@ -75,6 +87,22 @@
 .message[data-display-speaker].selected .speaker-caption,
 .message[data-display-speaker]:hover .speaker-caption {
   opacity: 1;
+}
+
+/* Custom layout positioning - left */
+.message[data-layout-position="left"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-layout-position="left"][data-display-speaker] .speaker-caption {
+  left: 4px;
+  right: auto;
+  text-align: left;
+}
+
+/* Custom layout positioning - right */
+.message[data-layout-position="right"][data-display-speaker] .speaker-caption,
+.typing-indicator[data-layout-position="right"][data-display-speaker] .speaker-caption {
+  right: 4px;
+  left: auto;
+  text-align: right;
 }
 
 /* Base icon styling for typing indicators */
@@ -391,44 +419,23 @@
 /* NOTE: Custom icons are handled dynamically by the setupCustomIconCSS() function */
 /* which creates appropriate CSS rules for each custom icon at runtime */
 
-/* User typing indicator positioning */
-.typing-indicator[data-display-speaker] .speaker-caption {
-  position: absolute;
-  writing-mode: vertical-lr; /* Vertical text */
-  transform: rotate(180deg); /* Flip to read top-down */
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--speaker-color);
-  text-align: center;
-  height: auto;
-  top: 50%;
-  transform: translateY(-50%) rotate(180deg); /* Center vertically and flip */
-  opacity: 1;
-  white-space: nowrap;
-  line-height: 0.9;
-  z-index: 22;
+/* Caption styling defined in combined rules above */
+
+/* Custom layout positioning defined in combined rules above */
+
+/* Add responsive spacing adjustment for typing indicators */
+@media screen and (max-width: 600px) {
+  .message[data-display-speaker] .speaker-caption,
+  .typing-indicator[data-display-speaker] .speaker-caption {
+    top: -14px; /* Slightly tighter on mobile */
+  }
 }
 
-/* Base positioning for typing indicator captions */
-/* User typing indicator (default right side) */
-.typing-indicator[data-speaker="user"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
-}
-
-/* Non-user typing indicator (default left side) */
-.typing-indicator:not([data-speaker="user"])[data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
-}
-
-/* Custom positioning based on layout */
-/* Custom left layout */
-.typing-indicator[data-layout-position="left"][data-display-speaker] .speaker-caption {
-  left: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
-  right: auto;
-}
-
-/* Custom right layout */
-.typing-indicator[data-layout-position="right"][data-display-speaker] .speaker-caption {
-  right: calc(var(--avatar-offset) + var(--avatar-size) + 3px);
-  left: auto;
+@media screen and (max-width: 400px) {
+  .message[data-display-speaker] .speaker-caption,
+  .typing-indicator[data-display-speaker] .speaker-caption {
+    top: -13px; /* Even tighter on very small screens */
+    padding: 1px 3px; /* Smaller padding */
+    font-size: 8px; /* Smaller font */
+  }
 } 

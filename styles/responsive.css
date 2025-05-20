@@ -185,6 +185,7 @@
   .typing-indicator {
     overflow: visible !important; /* Allow avatar to extend outside */
     position: relative; /* For proper positioning context */
+    margin-top: 14px; /* Add space for title, same as messages */
   }
   
   .typing-indicator.visible {
@@ -358,6 +359,10 @@
   .typing-indicator.visible {
     padding: var(--consistent-padding);
     border-width: 1.5px; /* Match other elements */
+  }
+  
+  .typing-indicator {
+    margin-top: 14px; /* Match messages */
   }
   
   .typing-indicator span {

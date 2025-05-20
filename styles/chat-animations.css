@@ -44,7 +44,7 @@
   min-height: 0;
   height: 0;
   opacity: 0;
-  overflow: visible;
+  overflow: visible !important; /* Ensure caption is visible */
   pointer-events: none;
   transition: opacity var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
               height var(--hover-transition-duration, 0.3s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1)),
