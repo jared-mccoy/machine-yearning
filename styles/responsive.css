@@ -191,13 +191,14 @@
   .typing-indicator {
     overflow: visible !important; /* Allow avatar to extend outside */
     position: relative; /* For proper positioning context */
-    margin-top: 14px; /* Add space for title, same as messages */
   }
   
   .typing-indicator.visible {
     padding: var(--consistent-padding);
     border-width: 2px; /* Increased to match message bubbles */
     transform: scale(0.9);
+    margin-top: 14px; /* Match message top margin */
+    margin-bottom: 20px; /* Match message bottom margin */
   }
   
   .typing-indicator span {
@@ -361,17 +362,7 @@
             calc(0.25 * var(--spacing-unit) * var(--spacing-multiplier));
   }
   
-  /* Further reduce typing indicator */
-  .typing-indicator.visible {
-    padding: var(--consistent-padding);
-    border-width: 1.5px; /* Match other elements */
-  }
-  
-  .typing-indicator {
-    margin-top: 14px; /* Match messages */
-  }
-  
-  /* Further reduce direct text spacing on very small screens */
+    /* Further reduce typing indicator */  .typing-indicator.visible {    padding: var(--consistent-padding);    border-width: 1.5px; /* Match other elements */  }    /* Typing indicator spacing is now handled in chat-animations.css */    /* Further reduce direct text spacing on very small screens */
   .message[data-speaker="direct-text"] {
     margin: 0.25rem auto;
     padding: 2px 12px;
@@ -394,5 +385,13 @@
   .message li,
   .message span:not(h1, h2, h3, h4, h5, h6) {
     font-size: 0.75rem;
+  }
+  
+  /* Further reduce typing indicator */
+  .typing-indicator.visible {
+    padding: var(--consistent-padding);
+    border-width: 1.5px; /* Match other elements */
+    margin-top: 14px; /* Maintain consistent spacing */
+    margin-bottom: 20px; /* Maintain consistent spacing */
   }
 } 
