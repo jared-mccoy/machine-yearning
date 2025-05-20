@@ -60,6 +60,22 @@
   backface-visibility: hidden;
 }
 
+/* Speaker caption for typing indicator */
+.typing-indicator .speaker-caption {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--speaker-color);
+  margin-right: 8px;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* When visible, ensure caption is properly displayed */
+.typing-indicator.visible .speaker-caption {
+  opacity: 1;
+  display: inline-block;
+}
+
 /* Simplified speaker-specific styling that uses centralized variables */
 /* User typing indicator appears on the right side */
 .typing-indicator[data-speaker="user"],
@@ -277,36 +293,36 @@
 
 /* Update the bounce-rotate animation to pulse-grow-rotate */
 @keyframes pulse-grow-rotate {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 0.8;
+  0% {
+    transform: scale(1);
   }
-  40% {
-    transform: scale(1.5) rotate(15deg);
-    opacity: 1;
+  
+  50% {
+    transform: scale(1.1) rotate(5deg);
   }
-  70% {
-    transform: scale(1.2) rotate(5deg);
-    opacity: 0.9;
+  
+  100% {
+    transform: scale(1);
   }
 }
 
 .typing-indicator.visible {
   opacity: 1;
-  height: 34px;
-  padding: 8px 12px;
+  height: auto;
+  min-height: 36px;
+  padding: 8px 14px;
   margin-bottom: 20px;
-  overflow: visible;
-  pointer-events: auto;
   transform: scale(1);
+  display: flex;
+  align-items: center;
 }
 
-/* Ensure typing indicator fades out smoothly */
 .typing-indicator:not(.visible) {
-  opacity: 0;
   height: 0;
+  min-height: 0;
   padding: 0;
   margin-bottom: 0;
+  opacity: 0;
   transform: scale(0.8);
 }
 

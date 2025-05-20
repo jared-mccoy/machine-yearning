@@ -230,7 +230,8 @@ export function processNextInQueue(animator) {
       
       // Add speaker name caption for custom speakers
       const speakerNameFromMsg = currentMsg.getAttribute('data-speaker');
-      if (speakerNameFromMsg && shouldDisplaySpeakerName(speakerNameFromMsg)) {
+      if (speakerNameFromMsg) {
+        // Always display speaker name in typing indicator just like in message bubbles
         typingIndicator.setAttribute('data-display-speaker', 'true');
         const displayName = getSpeakerDisplayName(speakerNameFromMsg);
         
@@ -241,7 +242,11 @@ export function processNextInQueue(animator) {
         typingIndicator.appendChild(caption);
       }
       
-      typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+      // Create the three dots separately instead of using innerHTML
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        typingIndicator.appendChild(dot);
+      }
       
       // Set size attribute based on message length
       if (!isUser) { // Only apply to non-user messages

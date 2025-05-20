@@ -3,7 +3,7 @@
     "typingAnimation": {
       "enabled": true,
       "wordsPerMinute": 1500,
-      "minTypingTime": 800,
+      "minTypingTime": 1200,
       "maxTypingTime": 15000,
       "variancePercentage": 15,
       "typingAppliesTo": "both"
@@ -30,16 +30,16 @@
   "theme": {
     "accentA": "#192b91",
     "accentB": "#ffc400",
-    "accentC": "#000000",
-    "accentD": "#000000",
-    "accentE": "#000000",
-    "accentF": "#000000",
-    "accentG": "#000000",
-    "accentH": "#000000",
-    "accentI": "#000000",
-    "accentJ": "#000000",
-    "accentK": "#000000",
-    "accentL": "#000000",
+    "accentC": "#e34234",
+    "accentD": "#8a16c1",
+    "accentE": "#3ecb75",
+    "accentF": "#d83790",
+    "accentG": "#00a5b3",
+    "accentH": "#ff7e27",
+    "accentI": "#6b5ca5",
+    "accentJ": "#2ecc71",
+    "accentK": "#e84c8b",
+    "accentL": "#587d9f",
     "genericAccent": "#909090"
   },
   "directory": {
