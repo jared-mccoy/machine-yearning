@@ -157,6 +157,11 @@ function setupDynamicNavigation() {
       return;
     }
     
+    // Check if user has scrolled to bottom of page
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    const isNearBottom = (pageHeight - scrollPosition) < 100; // Within 100px of bottom
+    
     // Check if any chat bubbles are in the bottom 1/3 of the viewport
     const viewportHeight = window.innerHeight;
     const bottomThreshold = viewportHeight * 2/3; // Bottom 1/3 of viewport starts here
@@ -178,13 +183,13 @@ function setupDynamicNavigation() {
       }
     }
     
-    // Show footer only when no messages in bottom third
-    if (!messagePresentInBottomThird && !isFooterVisible) {
+    // Show footer when near bottom OR when no messages in bottom third
+    if ((isNearBottom || !messagePresentInBottomThird) && !isFooterVisible) {
       requestAnimationFrame(() => {
         footerNav.classList.add('visible');
         isFooterVisible = true;
       });
-    } else if (messagePresentInBottomThird && isFooterVisible) {
+    } else if (!isNearBottom && messagePresentInBottomThird && isFooterVisible) {
       requestAnimationFrame(() => {
         footerNav.classList.remove('visible');
         isFooterVisible = false;
