@@ -194,6 +194,12 @@ export function collectSpeakerIcon(speaker) {
     logDebug(`Speaker order: ${JSON.stringify(speakerAssignmentOrder)}`);
   }
   
+  // Add ALL speakers to displaySpeakerNames except direct-text
+  if (speaker !== 'direct-text') {
+    logDebug(`Speaker '${speaker}' will display name caption`);
+    displaySpeakerNames.add(speaker);
+  }
+  
   // Special case: 'user' is always User_A
   if (speaker === 'user') {
     logDebug(`Assigning User_A to 'user'`);
@@ -227,12 +233,6 @@ export function collectSpeakerIcon(speaker) {
   // Direct check for custom SVG - we know trevor_yn.svg exists and needs special handling
   const hasCustomSvgFile = window[`hasSvgFile_${speakerAsFilename}`] || 
                            (speakerAsFilename === 'trevor_yn');
-  
-  // Add all custom speakers to displaySpeakerNames regardless of icon
-  if (!isStandardSpeaker && !isSystemIconFormat) {
-    logDebug(`Speaker '${speaker}' will display name caption`);
-    displaySpeakerNames.add(speaker);
-  }
   
   // If we have a custom icon file
   if (hasCustomSvgFile) {
