@@ -16,6 +16,7 @@
   /* Set initial position as if icons are already showing */
   transform: translateX(0);
   cursor: pointer; /* Add pointer cursor to indicate clickability */
+  z-index: 25; /* Ensure the chat bubble is in front of other elements */
 }
 
 /* Apply highlight on hover or when selected */

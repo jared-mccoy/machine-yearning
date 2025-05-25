@@ -51,12 +51,12 @@
   font-weight: 600;
   color: var(--speaker-color);
   text-align: left;
-  top: -16px;
+  top: -20px;
   left: 4px;
   height: auto;
   white-space: nowrap;
   line-height: 1;
-  z-index: 22;
+  z-index: 30;
   background-color: var(--background-color);
   padding: 2px 4px;
   border-radius: 0;
@@ -440,6 +440,12 @@
 .message.speaking::after,
 .message.selected::after {
   opacity: 1;
+}
+
+/* Ensure icons don't show on hover, only when selected or speaking */
+.message:hover:not(.selected):not(.speaking)::before,
+.message:hover:not(.selected):not(.speaking)::after {
+  opacity: 0;
 }
 
 /* Handle custom icons with arbitrary names */

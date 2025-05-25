@@ -208,36 +208,31 @@
   }
   
   /* Animation for messages - slide into the margin space */
-  .message[data-speaker="user"]:hover:not(.selected),
   .message[data-speaker="user"].speaking:not(.selected),
   .message[data-speaker="user"].selected {
     transform: translateX(-25px); /* Reduced slide to keep content visible */
   }
   
-  .message:not([data-speaker="user"]):hover:not(.selected),
   .message:not([data-speaker="user"]).speaking:not(.selected),
   .message:not([data-speaker="user"]).selected,
-  .speakerC:hover:not(.selected),
   .speakerC.speaking:not(.selected),
   .speakerC.selected,
-  .speakerD:hover:not(.selected),
   .speakerD.speaking:not(.selected),
   .speakerD.selected,
-  .speakerE:hover:not(.selected),
   .speakerE.speaking:not(.selected),
   .speakerE.selected,
-  .generic-speaker:hover:not(.selected),
   .generic-speaker.speaking:not(.selected),
   .generic-speaker.selected,
-  .random:hover:not(.selected),
   .random.speaking:not(.selected),
   .random.selected {
     transform: translateX(25px); /* Reduced slide to keep content visible */
   }
   
   /* Show icon on hover/speaking - explicitly set opacity */
-  .message:hover::before,
-  .message.speaking::before {
+  .message.speaking::before,
+  .message.selected::before,
+  .message.speaking::after,
+  .message.selected::after {
     opacity: 1;
   }
   
@@ -300,28 +295,21 @@
   }
   
   /* Animation for messages - slightly less slide distance */
-  .message[data-speaker="user"]:hover:not(.selected),
   .message[data-speaker="user"].speaking:not(.selected),
   .message[data-speaker="user"].selected {
     transform: translateX(-20px); /* Reduced slide to keep content visible */
   }
   
-  .message:not([data-speaker="user"]):hover:not(.selected),
   .message:not([data-speaker="user"]).speaking:not(.selected),
   .message:not([data-speaker="user"]).selected,
-  .speakerC:hover:not(.selected),
   .speakerC.speaking:not(.selected),
   .speakerC.selected,
-  .speakerD:hover:not(.selected),
   .speakerD.speaking:not(.selected),
   .speakerD.selected,
-  .speakerE:hover:not(.selected),
   .speakerE.speaking:not(.selected),
   .speakerE.selected,
-  .generic-speaker:hover:not(.selected),
   .generic-speaker.speaking:not(.selected),
   .generic-speaker.selected,
-  .random:hover:not(.selected),
   .random.speaking:not(.selected),
   .random.selected {
     transform: translateX(20px); /* Reduced slide to keep content visible */
