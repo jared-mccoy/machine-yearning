@@ -1,7 +1,7 @@
 ## Scene 1
 
 <<>>
-Enter [from separate directions] Bernardo and Francisco, two sentinels
+Enter [from separate directions] [[Bernardo]] and [[Francisco]], two sentinels
 
 <<BERNARDO>>
 Who's there?
@@ -37,7 +37,7 @@ If you do meet Horatio and Marcellus,
 The rivals of my watch, bid them make haste.
 
 <<>>
-Enter Horatio and Marcellus
+Enter [[Horatio]] and [[Marcellus]]
 
 <<FRANCISCO>>
 I think I hear them.—Stand ho, who is there?
@@ -108,7 +108,7 @@ Where now it burns, Marcellus and myself,
 The bell then beating one—
 
 <<>>
-Enter Ghost [in complete armour, holding a truncheon, with his beaver up]
+Enter [[Ghost]] [in complete armour, holding a truncheon, with his beaver up]
 
 <<MARCELLUS>>
 Peace, break thee off. Look where it comes again.

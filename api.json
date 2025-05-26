@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-05-25T23:54:38.655Z",
+  "lastUpdated": "2025-05-26T00:26:10.210Z",
   "directories": {
     "2025.04.15": [
       {
@@ -17,10 +17,6 @@
       {
         "name": "2025.04.15.D.md",
         "path": "content/2025.04.15/2025.04.15.D.md"
-      },
-      {
-        "name": "TEST.md",
-        "path": "content/2025.04.15/TEST.md"
       }
     ],
     "Hamlet": [
