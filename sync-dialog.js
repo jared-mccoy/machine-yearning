@@ -184,7 +184,7 @@ try {
         rl.close();
         process.exit(0);
       } else {
-        proceedWithSync();
+        proceedWithSync(gitIdentity);
       }
     });
   } else {
@@ -194,7 +194,7 @@ try {
       rl.question('Do you want to pull the latest changes before syncing? (y/n): ', (answer) => {
         if (answer.toLowerCase() === 'y') {
           if (pullLatestChanges()) {
-            proceedWithSync();
+            proceedWithSync(gitIdentity);
           } else {
             console.error('Failed to pull latest changes. Please resolve any conflicts manually.');
             cleanupTempDir();
@@ -204,7 +204,7 @@ try {
         } else {
           rl.question('Continue with sync anyway? (y/n): ', (continueAnswer) => {
             if (continueAnswer.toLowerCase() === 'y') {
-              proceedWithSync();
+              proceedWithSync(gitIdentity);
             } else {
               console.log('Sync cancelled.');
               cleanupTempDir();
@@ -215,7 +215,7 @@ try {
         }
       });
     } else {
-      proceedWithSync();
+      proceedWithSync(gitIdentity);
     }
   }
 } catch (error) {
@@ -227,7 +227,7 @@ try {
 }
 
 // Main sync function
-function proceedWithSync() {
+function proceedWithSync(gitIdentity) {
   try {
     // Clone the repository
     console.log(`Cloning ${DIALOG_REPO_URL} to ${tempDir}...`);
