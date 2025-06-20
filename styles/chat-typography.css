@@ -68,10 +68,14 @@
 }
 
 .message[data-speaker="user"]:hover p a[title*="wiki"],
+.message[data-speaker="user"]:hover li a[title*="wiki"],
 .message[data-speaker="user"]:hover p a[href*="wiki"],
+.message[data-speaker="user"]:hover li a[href*="wiki"],
 .message[data-speaker="user"]:hover p a:has(code),
 .message[data-speaker="user"].selected p a[title*="wiki"],
+.message[data-speaker="user"].selected li a[title*="wiki"],
 .message[data-speaker="user"].selected p a[href*="wiki"],
+.message[data-speaker="user"].selected li a[href*="wiki"],
 .message[data-speaker="user"].selected p a:has(code) {
   background-color: var(--user-color);
 }
@@ -90,15 +94,23 @@
 }
 
 .message[data-speaker="assistant"]:hover p a[title*="wiki"],
+.message[data-speaker="assistant"]:hover li a[title*="wiki"],
 .message[data-speaker="assistant"]:hover p a[href*="wiki"],
+.message[data-speaker="assistant"]:hover li a[href*="wiki"],
 .message[data-speaker="agent"]:hover p a[title*="wiki"],
+.message[data-speaker="agent"]:hover li a[title*="wiki"],
 .message[data-speaker="agent"]:hover p a[href*="wiki"],
+.message[data-speaker="agent"]:hover li a[href*="wiki"],
 .message[data-speaker="assistant"]:hover p a:has(code),
 .message[data-speaker="agent"]:hover p a:has(code),
 .message[data-speaker="assistant"].selected p a[title*="wiki"],
+.message[data-speaker="assistant"].selected li a[title*="wiki"],
 .message[data-speaker="assistant"].selected p a[href*="wiki"],
+.message[data-speaker="assistant"].selected li a[href*="wiki"],
 .message[data-speaker="agent"].selected p a[title*="wiki"],
+.message[data-speaker="agent"].selected li a[title*="wiki"],
 .message[data-speaker="agent"].selected p a[href*="wiki"],
+.message[data-speaker="agent"].selected li a[href*="wiki"],
 .message[data-speaker="assistant"].selected p a:has(code),
 .message[data-speaker="agent"].selected p a:has(code) {
   background-color: var(--assistant-color);
