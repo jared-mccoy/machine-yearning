@@ -45,9 +45,24 @@
   transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
 }
 
+/* Wiki links in list items - base styling */
+.message li a[title*="wiki"],
+.message li a[href*="wiki"] {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.95em;
+  white-space: nowrap;
+  transition: all var(--hover-transition-duration, 0.5s) var(--hover-transition-timing, cubic-bezier(0.19, 1, 0.22, 1));
+  color: var(--text-color);
+  text-decoration: none;
+}
+
 /* Speaker-specific wiki link styling */
 .user p a[title*="wiki"],
+.user li a[title*="wiki"],
 .user p a[href*="wiki"],
+.user li a[href*="wiki"],
 .user p a:has(code) {
   background-color: var(--user-color-light);
 }
@@ -62,9 +77,13 @@
 }
 
 .assistant p a[title*="wiki"],
+.assistant li a[title*="wiki"],
 .assistant p a[href*="wiki"],
+.assistant li a[href*="wiki"],
 .agent p a[title*="wiki"],
+.agent li a[title*="wiki"],
 .agent p a[href*="wiki"],
+.agent li a[href*="wiki"],
 .assistant p a:has(code),
 .agent p a:has(code) {
   background-color: var(--assistant-color-light);
